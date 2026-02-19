@@ -7,6 +7,7 @@ import AluguelBanheiroForm from "@/components/forms/AluguelBanheiroForm";
 import LocacaoVeiculosForm from "@/components/forms/LocacaoVeiculosForm";
 import GeradorForm from "@/components/forms/GeradorForm";
 import HospedagemForm from "@/components/forms/HospedagemForm";
+import PassagensForm from "@/components/forms/PassagensForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -65,6 +66,7 @@ const NovaSolicitacao = () => {
   const [locacaoVeiculosOpen, setLocacaoVeiculosOpen] = useState(false);
   const [geradorOpen, setGeradorOpen] = useState(false);
   const [hospedagemOpen, setHospedagemOpen] = useState(false);
+  const [passagensOpen, setPassagensOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   // Filter cards by user permissions
@@ -86,6 +88,8 @@ const NovaSolicitacao = () => {
       setGeradorOpen(true);
     } else if (title === "Solicitação de Hospedagem") {
       setHospedagemOpen(true);
+    } else if (title === "Solicitação de Passagens") {
+      setPassagensOpen(true);
     }
   };
 
@@ -156,6 +160,11 @@ const NovaSolicitacao = () => {
       <HospedagemForm
         open={hospedagemOpen}
         onOpenChange={setHospedagemOpen}
+        unidade={unidade || "goiania"}
+      />
+      <PassagensForm
+        open={passagensOpen}
+        onOpenChange={setPassagensOpen}
         unidade={unidade || "goiania"}
       />
     </AppLayout>
