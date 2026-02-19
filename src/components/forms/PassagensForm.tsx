@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -71,35 +71,17 @@ const ESTADOS = [
   { uf: "SP", nome: "São Paulo" }, { uf: "SE", nome: "Sergipe" }, { uf: "TO", nome: "Tocantins" },
 ];
 
-const CIDADES_POR_UF: Record<string, string[]> = {
-  AC: ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira"],
-  AL: ["Maceió", "Arapiraca", "Palmeira dos Índios"],
-  AP: ["Macapá", "Santana", "Laranjal do Jari"],
-  AM: ["Manaus", "Parintins", "Itacoatiara", "Tefé"],
-  BA: ["Salvador", "Feira de Santana", "Vitória da Conquista", "Camaçari", "Ilhéus", "Juazeiro"],
-  CE: ["Fortaleza", "Caucaia", "Juazeiro do Norte", "Maracanaú", "Sobral"],
-  DF: ["Brasília", "Ceilândia", "Taguatinga", "Gama"],
-  ES: ["Vitória", "Vila Velha", "Serra", "Cariacica", "Cachoeiro de Itapemirim"],
-  GO: ["Goiânia", "Aparecida de Goiânia", "Anápolis", "Rio Verde", "Luziânia"],
-  MA: ["São Luís", "Imperatriz", "Timon", "Caxias", "Codó"],
-  MT: ["Cuiabá", "Várzea Grande", "Rondonópolis", "Sinop", "Tangará da Serra"],
-  MS: ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá", "Ponta Porã"],
-  MG: ["Belo Horizonte", "Uberlândia", "Contagem", "Juiz de Fora", "Betim", "Montes Claros", "Ribeirão das Neves", "Uberaba"],
-  PA: ["Belém", "Ananindeua", "Santarém", "Marabá", "Castanhal"],
-  PB: ["João Pessoa", "Campina Grande", "Santa Rita", "Patos"],
-  PR: ["Curitiba", "Londrina", "Maringá", "Ponta Grossa", "Cascavel", "São José dos Pinhais", "Foz do Iguaçu"],
-  PE: ["Recife", "Caruaru", "Petrolina", "Olinda", "Paulista", "Jaboatão dos Guararapes"],
-  PI: ["Teresina", "Parnaíba", "Picos", "Floriano"],
-  RJ: ["Rio de Janeiro", "Niterói", "Duque de Caxias", "São Gonçalo", "Nova Iguaçu", "Petrópolis", "Campos dos Goytacazes"],
-  RN: ["Natal", "Mossoró", "Parnamirim", "Caicó"],
-  RS: ["Porto Alegre", "Caxias do Sul", "Pelotas", "Canoas", "Santa Maria", "Novo Hamburgo"],
-  RO: ["Porto Velho", "Ji-Paraná", "Ariquemes", "Vilhena"],
-  RR: ["Boa Vista", "Rorainópolis", "Caracaraí"],
-  SC: ["Florianópolis", "Joinville", "Blumenau", "São José", "Criciúma", "Chapecó"],
-  SP: ["São Paulo", "Guarulhos", "Campinas", "São Bernardo do Campo", "Santo André", "Ribeirão Preto", "Osasco", "Sorocaba", "Mauá", "São José dos Campos", "Santos"],
-  SE: ["Aracaju", "Nossa Senhora do Socorro", "Lagarto", "Itabaiana"],
-  TO: ["Palmas", "Araguaína", "Gurupi", "Porto Nacional"],
-};
+function useCidadesIBGE(uf: string) {
+  const [cidades, setCidades] = useState<string[]>([]);
+  useEffect(() => {
+    if (!uf) { setCidades([]); return; }
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`)
+      .then((r) => r.json())
+      .then((data: { nome: string }[]) => setCidades(data.map((c) => c.nome)))
+      .catch(() => setCidades([]));
+  }, [uf]);
+  return cidades;
+}
 
 const DEPARTAMENTOS = [
   "Administrativo", "Comercial", "Diretoria", "Financeiro", "Licitações",
@@ -138,6 +120,8 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
   const [origemCidade, setOrigemCidade] = useState("");
   const [destinoUF, setDestinoUF] = useState("");
   const [destinoCidade, setDestinoCidade] = useState("");
+  const origemCidades = useCidadesIBGE(origemUF);
+  const destinoCidades = useCidadesIBGE(destinoUF);
 
   const [passageiros, setPassageiros] = useState<Passageiro[]>([
     { id: 1, departamento: "", nome: "", cpf: "", rg: "" },
@@ -388,7 +372,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
                   <Label className="text-xs font-bold">Origem (Cidade) *</Label>
                   <Select value={origemCidade} onValueChange={setOrigemCidade} disabled={!origemUF}>
                     <SelectTrigger className="mt-1"><SelectValue placeholder={origemUF ? "Selecione..." : "Selecione o estado..."} /></SelectTrigger>
-                    <SelectContent>{(CIDADES_POR_UF[origemUF] || []).map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
+                    <SelectContent>{origemCidades.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
                 <div>
@@ -402,7 +386,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
                   <Label className="text-xs font-bold">Destino (Cidade) *</Label>
                   <Select value={destinoCidade} onValueChange={setDestinoCidade} disabled={!destinoUF}>
                     <SelectTrigger className="mt-1"><SelectValue placeholder={destinoUF ? "Selecione..." : "Selecione o estado..."} /></SelectTrigger>
-                    <SelectContent>{(CIDADES_POR_UF[destinoUF] || []).map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
+                    <SelectContent>{destinoCidades.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
                   </Select>
                 </div>
               </div>
