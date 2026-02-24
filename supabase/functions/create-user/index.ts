@@ -102,6 +102,39 @@ Deno.serve(async (req) => {
       console.error("Error updating usuario:", updateErr);
     }
 
+    // Create SharePoint folders for the user based on permissions
+    try {
+      const userUnidades = novaSolicitacaoUnidades || [];
+      const userServicos = servicosPermitidos || [];
+
+      if (userUnidades.length > 0 && userServicos.length > 0) {
+        const spUrl = Deno.env.get("SUPABASE_URL")! + "/functions/v1/sharepoint-manager";
+        const spRes = await fetch(spUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader!,
+          },
+          body: JSON.stringify({
+            action: "create-user-folders",
+            userName: nome,
+            unidades: userUnidades,
+            servicos: userServicos,
+          }),
+        });
+
+        if (!spRes.ok) {
+          const spErr = await spRes.text();
+          console.error("SharePoint folder creation error:", spErr);
+        } else {
+          console.log("SharePoint folders created for user:", nome);
+        }
+      }
+    } catch (spError) {
+      console.error("SharePoint integration error:", spError);
+      // Don't fail user creation if SharePoint fails
+    }
+
     return new Response(JSON.stringify({ success: true, userId: newUser.user!.id }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
