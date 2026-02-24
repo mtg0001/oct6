@@ -17,7 +17,6 @@ import MinhasSolicitacoes from "./pages/MinhasSolicitacoes";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/Usuarios";
 import Login from "./pages/Login";
-import Cadastro from "./pages/Cadastro";
 
 
 const queryClient = new QueryClient();
@@ -31,9 +30,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public routes */}
-            {/* Login/Cadastro */}
             <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
 
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
