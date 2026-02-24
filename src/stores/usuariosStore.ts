@@ -114,7 +114,7 @@ let loadingPromise: Promise<void> | null = null;
 
 export async function loadUsuarios() {
   const { data, error } = await supabase.from("usuarios").select("*").order("created_at");
-  if (error) { console.error("Erro ao carregar usuários:", error); return; }
+  if (error) { if (import.meta.env.DEV) console.error("Erro ao carregar usuários:", error); return; }
   usuarios = (data || []).map(mapRow);
   loaded = true;
   notify();

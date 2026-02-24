@@ -129,11 +129,11 @@ let loadingPromise: Promise<void> | null = null;
 export async function loadSolicitacoes() {
   const { data: solRows, error: solErr } = await supabase
     .from("solicitacoes").select("*").order("created_at", { ascending: false });
-  if (solErr) { console.error("Erro ao carregar solicitações:", solErr); return; }
+  if (solErr) { if (import.meta.env.DEV) console.error("Erro ao carregar solicitações:", solErr); return; }
 
   const { data: andRows, error: andErr } = await supabase
     .from("andamentos").select("*").order("created_at");
-  if (andErr) { console.error("Erro ao carregar andamentos:", andErr); return; }
+  if (andErr) { if (import.meta.env.DEV) console.error("Erro ao carregar andamentos:", andErr); return; }
 
   const andamentosBySol: Record<string, any[]> = {};
   (andRows || []).forEach((a: any) => {
