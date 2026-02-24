@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import NovaSolicitacao from "./pages/NovaSolicitacao";
 import DiretoriaAprovacao from "./pages/DiretoriaAprovacao";
@@ -17,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/Usuarios";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
+import ConfigSupabase from "./pages/ConfigSupabase";
 
 const queryClient = new QueryClient();
 
@@ -28,19 +30,23 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Public routes */}
+            <Route path="/config" element={<ConfigSupabase />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/" element={<Index />} />
-            <Route path="/nova-solicitacao/:unidade" element={<NovaSolicitacao />} />
-            <Route path="/diretoria/:diretor" element={<DiretoriaAprovacao />} />
-            <Route path="/diretoria/:diretor/solicitacao/:id" element={<SolicitacaoDetalhe />} />
-            <Route path="/rh/:filtro" element={<RecursosHumanos />} />
-            <Route path="/rh/:filtro/solicitacao/:id" element={<RHSolicitacaoDetalhe />} />
-            <Route path="/logistica/:filtro" element={<LogisticaCompras />} />
-            <Route path="/expedicao/:filtro" element={<Expedicao />} />
-            <Route path="/minhas-solicitacoes/:filtro" element={<MinhasSolicitacoes />} />
-            <Route path="/minhas-solicitacoes" element={<MinhasSolicitacoes />} />
-            <Route path="/usuarios" element={<Usuarios />} />
+
+            {/* Protected routes */}
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/nova-solicitacao/:unidade" element={<ProtectedRoute><NovaSolicitacao /></ProtectedRoute>} />
+            <Route path="/diretoria/:diretor" element={<ProtectedRoute><DiretoriaAprovacao /></ProtectedRoute>} />
+            <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><SolicitacaoDetalhe /></ProtectedRoute>} />
+            <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
+            <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoDetalhe /></ProtectedRoute>} />
+            <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />
+            <Route path="/expedicao/:filtro" element={<ProtectedRoute><Expedicao /></ProtectedRoute>} />
+            <Route path="/minhas-solicitacoes/:filtro" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
+            <Route path="/minhas-solicitacoes" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
+            <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
