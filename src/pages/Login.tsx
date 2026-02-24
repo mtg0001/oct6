@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link, Navigate } from "react-router-dom";
-import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,10 +26,6 @@ export default function Login() {
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
 
-  if (!isSupabaseConfigured()) {
-    return <Navigate to="/config" replace />;
-  }
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -46,7 +42,6 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         toast({ title: "Erro ao entrar", description: formatAuthError(error.message), variant: "destructive" });
@@ -85,9 +80,8 @@ export default function Login() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Entrando..." : "Entrar"}
             </Button>
-            <div className="flex justify-between w-full text-sm text-muted-foreground">
+            <div className="flex justify-center w-full text-sm text-muted-foreground">
               <Link to="/cadastro" className="text-primary hover:underline font-medium">Cadastre-se</Link>
-              <Link to="/config" className="hover:underline">⚙ Configurações</Link>
             </div>
           </CardFooter>
         </form>

@@ -13,7 +13,6 @@ import {
   ChevronDown,
   LogOut,
   Menu,
-  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -300,12 +299,6 @@ export function AppSidebar() {
 
         {!collapsed && (
           <div className="px-2 py-3 border-t border-sidebar-border space-y-1">
-            <button
-              onClick={() => navigate("/config")}
-              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              <Settings className="h-3.5 w-3.5" /> Configuração Supabase
-            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-destructive hover:bg-destructive/10 transition-colors"

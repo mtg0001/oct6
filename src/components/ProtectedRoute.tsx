@@ -1,6 +1,5 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { isSupabaseConfigured } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
@@ -9,10 +8,6 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-
-  if (!isSupabaseConfigured()) {
-    return <Navigate to="/config" replace />;
-  }
 
   if (loading) {
     return (

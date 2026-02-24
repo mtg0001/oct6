@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/Usuarios";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
-import ConfigSupabase from "./pages/ConfigSupabase";
+
 
 const queryClient = new QueryClient();
 
@@ -31,7 +31,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Public routes */}
-            <Route path="/config" element={<ConfigSupabase />} />
+            {/* Login/Cadastro */}
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,10 +15,6 @@ export default function Cadastro() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  if (!isSupabaseConfigured()) {
-    return <Navigate to="/config" replace />;
-  }
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -31,7 +27,6 @@ export default function Cadastro() {
     }
     setLoading(true);
     try {
-      const supabase = getSupabaseClient();
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -78,9 +73,8 @@ export default function Cadastro() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Cadastrando..." : "Cadastrar"}
             </Button>
-            <div className="flex justify-between w-full text-sm text-muted-foreground">
+            <div className="flex justify-center w-full text-sm text-muted-foreground">
               <Link to="/login" className="text-primary hover:underline font-medium">Já tem conta? Entrar</Link>
-              <Link to="/config" className="hover:underline">⚙ Configurações</Link>
             </div>
           </CardFooter>
         </form>
