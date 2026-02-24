@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FilePlus,
@@ -13,9 +13,11 @@ import {
   ChevronDown,
   LogOut,
   Menu,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MenuItem {
   title: string;
@@ -28,8 +30,15 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const currentUser = useCurrentUser();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   const menuItems: MenuItem[] = useMemo(() => {
     const u = currentUser;
@@ -207,9 +216,21 @@ export function AppSidebar() {
             <span className="text-sm font-medium text-sidebar-foreground truncate">
               {currentUser?.nome || "Admin"}
             </span>
-            <button className="ml-auto text-xs text-muted-foreground hover:text-destructive flex items-center gap-1">
+            <button
+              onClick={handleLogout}
+              className="ml-auto text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
+              title="Sair"
+            >
               <LogOut className="h-3 w-3" /> Sair
             </button>
+          </div>
+        )}
+
+        {!collapsed && user && (
+          <div className="px-4 py-2 border-b border-sidebar-border">
+            <p className="text-xs text-muted-foreground truncate" title={user.email}>
+              {user.email}
+            </p>
           </div>
         )}
 
@@ -276,6 +297,23 @@ export function AppSidebar() {
             );
           })}
         </nav>
+
+        {!collapsed && (
+          <div className="px-2 py-3 border-t border-sidebar-border space-y-1">
+            <button
+              onClick={() => navigate("/config")}
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-sidebar-accent transition-colors"
+            >
+              <Settings className="h-3.5 w-3.5" /> Configuração Supabase
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" /> Sair
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );
