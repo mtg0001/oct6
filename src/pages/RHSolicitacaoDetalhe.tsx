@@ -46,9 +46,9 @@ const RHSolicitacaoDetalhe = () => {
   const caracAplica = Object.entries(sol.caracteristicas)
     .filter(([_, v]) => v === "aplica").map(([k]) => k);
 
-  const handleEnviarAndamento = () => {
+  const handleEnviarAndamento = async () => {
     if (!textoAndamento.trim()) return;
-    addAndamento(sol.id, textoAndamento, anexoNomes);
+    await addAndamento(sol.id, textoAndamento, anexoNomes);
     setTextoAndamento(""); setAnexoNomes([]); setShowAndamento(false);
   };
 
@@ -165,8 +165,8 @@ const RHSolicitacaoDetalhe = () => {
           <Button variant="outline" className="border-primary text-primary" onClick={() => setShowAndamento(true)}>Andamento</Button>
           {isPendente && (
             <>
-              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
-              <Button variant="destructive" onClick={() => { cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
+              <Button variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
             </>
           )}
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>Voltar</Button>

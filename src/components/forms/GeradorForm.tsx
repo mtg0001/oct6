@@ -149,51 +149,53 @@ const GeradorForm = ({ open, onOpenChange, unidade }: GeradorFormProps) => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    addSolicitacao({
-      tipo: "Gerador",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      cargo: "",
-      unidadeDestino: "",
-      departamentoDestino: "",
-      diretorArea: "",
-      tipoVaga: "",
-      nomeSubstituido: "",
-      justificativa: [
-        `Data de: ${dataDeStr}`,
-        `Data até: ${dataAteStr}`,
-        `Dias: ${dias}`,
-        dataRetiradaStr ? `Data de retirada: ${dataRetiradaStr}` : "",
-        `Horas/dia: ${horasPorDia}`,
-        `Total de horas: ${totalHoras}`,
-        `KVA: ${quantidadeKVA}`,
-        `Modo de uso: ${modoUso === "continuo" ? "Uso contínuo" : "Standby"}`,
-        `Tensão trifásica: ${tensao}V`,
-        anexoNome ? `Anexo: ${anexoNome}` : "",
-      ].filter(Boolean).join(" | "),
-      formacao: "",
-      experiencia: "",
-      conhecimentos: "",
-      faixaSalarialDe: "",
-      faixaSalarialAte: "",
-      tipoContrato: modoUso,
-      horarioDe: dataDeStr,
-      horarioAte: dataAteStr,
-      caracteristicas: {},
-      observacoes,
-    });
-
-    toast({ title: "Solicitação de Gerador enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Gerador",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: "",
+        unidadeDestino: "",
+        departamentoDestino: "",
+        diretorArea: "",
+        tipoVaga: "",
+        nomeSubstituido: "",
+        justificativa: [
+          `Data de: ${dataDeStr}`,
+          `Data até: ${dataAteStr}`,
+          `Dias: ${dias}`,
+          dataRetiradaStr ? `Data de retirada: ${dataRetiradaStr}` : "",
+          `Horas/dia: ${horasPorDia}`,
+          `Total de horas: ${totalHoras}`,
+          `KVA: ${quantidadeKVA}`,
+          `Modo de uso: ${modoUso === "continuo" ? "Uso contínuo" : "Standby"}`,
+          `Tensão trifásica: ${tensao}V`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: "",
+        experiencia: "",
+        conhecimentos: "",
+        faixaSalarialDe: "",
+        faixaSalarialAte: "",
+        tipoContrato: modoUso,
+        horarioDe: dataDeStr,
+        horarioAte: dataAteStr,
+        caracteristicas: {},
+        observacoes,
+      });
+      toast({ title: "Solicitação de Gerador enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   // ── shared date field renderer ──

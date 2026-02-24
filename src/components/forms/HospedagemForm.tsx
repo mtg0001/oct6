@@ -222,7 +222,7 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -230,42 +230,45 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
       .map((h) => `${h.nome} (CPF: ${h.cpf}, RG: ${h.rg}, Depto: ${h.departamento})`)
       .join("; ");
 
-    addSolicitacao({
-      tipo: "Hospedagem",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      cargo: "",
-      unidadeDestino: `${cidade}/${estadoUF}`,
-      departamentoDestino: "",
-      diretorArea: "",
-      tipoVaga: "",
-      nomeSubstituido: "",
-      justificativa: [
-        `Local: ${cidade}/${estadoUF}`,
-        `Entrada: ${dataEntradaStr}`,
-        `Saída: ${dataSaidaStr}`,
-        `Hóspedes: ${hospedesStr}`,
-        anexoNome ? `Anexo: ${anexoNome}` : "",
-      ].filter(Boolean).join(" | "),
-      formacao: "",
-      experiencia: "",
-      conhecimentos: "",
-      faixaSalarialDe: "",
-      faixaSalarialAte: "",
-      tipoContrato: "",
-      horarioDe: dataEntradaStr,
-      horarioAte: dataSaidaStr,
-      caracteristicas: {},
-      observacoes,
-    });
-
-    toast({ title: "Solicitação de Hospedagem enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Hospedagem",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: "",
+        unidadeDestino: `${cidade}/${estadoUF}`,
+        departamentoDestino: "",
+        diretorArea: "",
+        tipoVaga: "",
+        nomeSubstituido: "",
+        justificativa: [
+          `Local: ${cidade}/${estadoUF}`,
+          `Entrada: ${dataEntradaStr}`,
+          `Saída: ${dataSaidaStr}`,
+          `Hóspedes: ${hospedesStr}`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: "",
+        experiencia: "",
+        conhecimentos: "",
+        faixaSalarialDe: "",
+        faixaSalarialAte: "",
+        tipoContrato: "",
+        horarioDe: dataEntradaStr,
+        horarioAte: dataSaidaStr,
+        caracteristicas: {},
+        observacoes,
+      });
+      toast({ title: "Solicitação de Hospedagem enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   // Date field component

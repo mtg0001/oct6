@@ -98,7 +98,7 @@ const MinhasSolicitacoes = () => {
             </div>
             <div className="flex gap-2">
               {isPendente && (
-                <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id)}>
+                <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id).catch(console.error)}>
                   Cancelar
                 </Button>
               )}

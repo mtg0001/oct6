@@ -1,10 +1,30 @@
-import { useSyncExternalStore } from "react";
-import { getUsuarios, subscribeUsuarios, getCurrentUser } from "@/stores/usuariosStore";
+import { useState, useEffect } from "react";
+import {
+  getUsuarios,
+  subscribeUsuarios,
+  getCurrentUser,
+  ensureUsuariosLoaded,
+  type Usuario,
+} from "@/stores/usuariosStore";
 
 export function useUsuarios() {
-  return useSyncExternalStore(subscribeUsuarios, getUsuarios);
+  const [data, setData] = useState<Usuario[]>(getUsuarios());
+
+  useEffect(() => {
+    ensureUsuariosLoaded().then(() => setData(getUsuarios()));
+    return subscribeUsuarios(() => setData(getUsuarios()));
+  }, []);
+
+  return data;
 }
 
 export function useCurrentUser() {
-  return useSyncExternalStore(subscribeUsuarios, getCurrentUser);
+  const [data, setData] = useState<Usuario | undefined>(getCurrentUser());
+
+  useEffect(() => {
+    ensureUsuariosLoaded().then(() => setData(getCurrentUser()));
+    return subscribeUsuarios(() => setData(getCurrentUser()));
+  }, []);
+
+  return data;
 }

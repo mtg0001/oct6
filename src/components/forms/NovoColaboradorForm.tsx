@@ -97,41 +97,45 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
     setCaracteristicas({});
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!diretorArea) {
       toast({ title: "Selecione o Diretor da Área", variant: "destructive" });
       return;
     }
-    addSolicitacao({
-      tipo: "Novo Colaborador",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      cargo,
-      unidadeDestino,
-      departamentoDestino,
-      diretorArea,
-      tipoVaga,
-      nomeSubstituido,
-      justificativa,
-      formacao,
-      experiencia,
-      conhecimentos,
-      faixaSalarialDe: faixaDe,
-      faixaSalarialAte: faixaAte,
-      tipoContrato,
-      horarioDe,
-      horarioAte,
-      caracteristicas,
-      observacoes,
-    });
-    toast({ title: "Solicitação enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Novo Colaborador",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo,
+        unidadeDestino,
+        departamentoDestino,
+        diretorArea,
+        tipoVaga,
+        nomeSubstituido,
+        justificativa,
+        formacao,
+        experiencia,
+        conhecimentos,
+        faixaSalarialDe: faixaDe,
+        faixaSalarialAte: faixaAte,
+        tipoContrato,
+        horarioDe,
+        horarioAte,
+        caracteristicas,
+        observacoes,
+      });
+      toast({ title: "Solicitação enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   const setCarac = (name: string, value: string) => {

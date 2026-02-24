@@ -14,7 +14,202 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      andamentos: {
+        Row: {
+          anexos: string[]
+          created_at: string
+          id: string
+          solicitacao_id: string
+          texto: string
+        }
+        Insert: {
+          anexos?: string[]
+          created_at?: string
+          id?: string
+          solicitacao_id: string
+          texto: string
+        }
+        Update: {
+          anexos?: string[]
+          created_at?: string
+          id?: string
+          solicitacao_id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "andamentos_solicitacao_id_fkey"
+            columns: ["solicitacao_id"]
+            isOneToOne: false
+            referencedRelation: "solicitacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solicitacoes: {
+        Row: {
+          caracteristicas: Json
+          cargo: string
+          conhecimentos: string
+          created_at: string
+          departamento: string
+          departamento_destino: string
+          diretor_area: string
+          evento: string
+          experiencia: string
+          faixa_salarial_ate: string
+          faixa_salarial_de: string
+          formacao: string
+          horario_ate: string
+          horario_de: string
+          id: string
+          justificativa: string
+          nome_substituido: string
+          observacoes: string
+          prioridade: string
+          solicitante: string
+          solicitante_id: string | null
+          status: string
+          tipo: string
+          tipo_contrato: string
+          tipo_vaga: string
+          unidade: string
+          unidade_destino: string
+          updated_at: string
+        }
+        Insert: {
+          caracteristicas?: Json
+          cargo?: string
+          conhecimentos?: string
+          created_at?: string
+          departamento?: string
+          departamento_destino?: string
+          diretor_area?: string
+          evento?: string
+          experiencia?: string
+          faixa_salarial_ate?: string
+          faixa_salarial_de?: string
+          formacao?: string
+          horario_ate?: string
+          horario_de?: string
+          id?: string
+          justificativa?: string
+          nome_substituido?: string
+          observacoes?: string
+          prioridade?: string
+          solicitante?: string
+          solicitante_id?: string | null
+          status?: string
+          tipo: string
+          tipo_contrato?: string
+          tipo_vaga?: string
+          unidade: string
+          unidade_destino?: string
+          updated_at?: string
+        }
+        Update: {
+          caracteristicas?: Json
+          cargo?: string
+          conhecimentos?: string
+          created_at?: string
+          departamento?: string
+          departamento_destino?: string
+          diretor_area?: string
+          evento?: string
+          experiencia?: string
+          faixa_salarial_ate?: string
+          faixa_salarial_de?: string
+          formacao?: string
+          horario_ate?: string
+          horario_de?: string
+          id?: string
+          justificativa?: string
+          nome_substituido?: string
+          observacoes?: string
+          prioridade?: string
+          solicitante?: string
+          solicitante_id?: string | null
+          status?: string
+          tipo?: string
+          tipo_contrato?: string
+          tipo_vaga?: string
+          unidade?: string
+          unidade_destino?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitacoes_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usuarios: {
+        Row: {
+          administrador: boolean
+          ativo: boolean
+          created_at: string
+          departamento: string
+          diretoria: string[]
+          email: string
+          id: string
+          login: string
+          nome: string
+          nova_solicitacao_unidades: string[]
+          resolve_expedicao: boolean
+          resolve_logistica_compras: boolean
+          resolve_recursos_humanos: boolean
+          senha: string
+          servicos_permitidos: string[]
+          unidade_padrao: string
+          updated_at: string
+          visualiza_solicitacoes_unidades: string[]
+        }
+        Insert: {
+          administrador?: boolean
+          ativo?: boolean
+          created_at?: string
+          departamento: string
+          diretoria?: string[]
+          email: string
+          id?: string
+          login: string
+          nome: string
+          nova_solicitacao_unidades?: string[]
+          resolve_expedicao?: boolean
+          resolve_logistica_compras?: boolean
+          resolve_recursos_humanos?: boolean
+          senha: string
+          servicos_permitidos?: string[]
+          unidade_padrao?: string
+          updated_at?: string
+          visualiza_solicitacoes_unidades?: string[]
+        }
+        Update: {
+          administrador?: boolean
+          ativo?: boolean
+          created_at?: string
+          departamento?: string
+          diretoria?: string[]
+          email?: string
+          id?: string
+          login?: string
+          nome?: string
+          nova_solicitacao_unidades?: string[]
+          resolve_expedicao?: boolean
+          resolve_logistica_compras?: boolean
+          resolve_recursos_humanos?: boolean
+          senha?: string
+          servicos_permitidos?: string[]
+          unidade_padrao?: string
+          updated_at?: string
+          visualiza_solicitacoes_unidades?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
