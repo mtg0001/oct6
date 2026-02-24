@@ -23,10 +23,12 @@ import {
   SERVICOS_SOLICITACAO,
   DIRETORES,
   type Usuario,
-  addUsuario,
   updateUsuario,
+  loadUsuarios,
 } from "@/stores/usuariosStore";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -49,9 +51,27 @@ const emptyForm = {
   visualizaSolicitacoesUnidades: [] as string[],
 };
 
+function validatePassword(pw: string) {
+  const errors: string[] = [];
+  if (pw.length < 8) errors.push("Mínimo 8 caracteres");
+  if (!/[A-Z]/.test(pw)) errors.push("Uma letra maiúscula");
+  if (!/[a-z]/.test(pw)) errors.push("Uma letra minúscula");
+  if (!/[0-9]/.test(pw)) errors.push("Um número");
+  if (!/[^A-Za-z0-9]/.test(pw)) errors.push("Um caractere especial");
+  return errors;
+}
+
 export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props) {
   const [form, setForm] = useState(emptyForm);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const isEditing = !!usuario;
 
   useEffect(() => {
     if (usuario) {
@@ -69,13 +89,21 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         servicosPermitidos: [...usuario.servicosPermitidos],
         visualizaSolicitacoesUnidades: [...(usuario.visualizaSolicitacoesUnidades || [])],
       });
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
     } else {
       setForm(emptyForm);
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
     }
   }, [usuario, open]);
 
   const toggleArray = (arr: string[], value: string) =>
     arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+
+  const passwordErrors = password ? validatePassword(password) : [];
 
   const handleSubmit = async () => {
     if (!form.nome || !form.email || !form.departamento || !form.unidadePadrao) {
@@ -83,8 +111,9 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
       return;
     }
 
+    setLoading(true);
     try {
-      if (usuario) {
+      if (isEditing) {
         const data: Partial<Usuario> = {
           nome: form.nome,
           email: form.email,
@@ -102,27 +131,55 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         await updateUsuario(usuario.id, data);
         toast({ title: "Usuário atualizado com sucesso!" });
       } else {
-        await addUsuario({
-          nome: form.nome,
-          email: form.email,
-          departamento: form.departamento,
-          unidadePadrao: form.unidadePadrao,
-          ativo: true,
-          userId: null,
-          administrador: form.administrador,
-          novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
-          resolveExpedicao: form.resolveExpedicao,
-          resolveLogisticaCompras: form.resolveLogisticaCompras,
-          resolveRecursosHumanos: form.resolveRecursosHumanos,
-          diretoria: form.diretoria,
-          servicosPermitidos: form.servicosPermitidos,
-          visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+        // Creating new user - requires username and password
+        if (!username) {
+          toast({ title: "Informe o login (nome.sobrenome)", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        if (passwordErrors.length > 0) {
+          toast({ title: "Senha não atende aos requisitos", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        if (password !== confirmPassword) {
+          toast({ title: "As senhas não coincidem", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await supabase.functions.invoke("create-user", {
+          body: {
+            username,
+            password,
+            nome: form.nome,
+            email: form.email,
+            departamento: form.departamento,
+            unidadePadrao: form.unidadePadrao,
+            administrador: form.administrador,
+            novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
+            resolveExpedicao: form.resolveExpedicao,
+            resolveLogisticaCompras: form.resolveLogisticaCompras,
+            resolveRecursosHumanos: form.resolveRecursosHumanos,
+            diretoria: form.diretoria,
+            servicosPermitidos: form.servicosPermitidos,
+            visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+          },
         });
+
+        if (res.error || res.data?.error) {
+          throw new Error(res.data?.error || res.error?.message || "Erro ao criar usuário");
+        }
+
+        await loadUsuarios();
         toast({ title: "Usuário criado com sucesso!" });
       }
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao salvar usuário", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,7 +187,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>{usuario ? "Editar Usuário" : "Adicionar Novo Usuário"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Editar Usuário" : "Adicionar Novo Usuário"}</DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] pr-4">
           <div className="space-y-4">
@@ -168,9 +225,85 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              A autenticação é gerenciada pelo Supabase Auth. O usuário precisa se cadastrar com o mesmo email acima.
-            </p>
+            {/* Auth fields - only for new users */}
+            {!isEditing && (
+              <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
+                <h3 className="font-semibold text-sm text-foreground">Credenciais de Acesso</h3>
+                <div className="space-y-1">
+                  <Label>Login (nome.sobrenome) *</Label>
+                  <Input
+                    placeholder="nome.sobrenome"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9.]/g, ""))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    O usuário fará login com: <strong>{username || "nome.sobrenome"}</strong>
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label>Senha *</Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Confirmar Senha *</Label>
+                    <div className="relative">
+                      <Input
+                        type={showConfirm ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowConfirm(!showConfirm)}
+                        tabIndex={-1}
+                      >
+                        {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {confirmPassword && password !== confirmPassword && (
+                      <p className="text-xs text-destructive">As senhas não coincidem</p>
+                    )}
+                  </div>
+                </div>
+                {password && passwordErrors.length > 0 && (
+                  <div className="text-xs space-y-0.5">
+                    <p className="text-muted-foreground font-medium">Requisitos da senha:</p>
+                    {["Mínimo 8 caracteres", "Uma letra maiúscula", "Uma letra minúscula", "Um número", "Um caractere especial"].map((req) => (
+                      <p key={req} className={passwordErrors.includes(req) ? "text-destructive" : "text-green-600"}>
+                        {passwordErrors.includes(req) ? "✗" : "✓"} {req}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  O usuário será obrigado a alterar a senha no primeiro acesso.
+                </p>
+              </div>
+            )}
+
+            {isEditing && (
+              <p className="text-xs text-muted-foreground">
+                Para redefinir a senha deste usuário, utilize a opção de reset na lista de usuários.
+              </p>
+            )}
 
             {/* Permissões */}
             <div className="border-t border-border pt-4 space-y-4">
@@ -277,7 +410,9 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
 
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-              <Button onClick={handleSubmit}>{usuario ? "Salvar" : "Criar Usuário"}</Button>
+              <Button onClick={handleSubmit} disabled={loading}>
+                {loading ? "Salvando..." : isEditing ? "Salvar" : "Criar Usuário"}
+              </Button>
             </div>
           </div>
         </ScrollArea>
