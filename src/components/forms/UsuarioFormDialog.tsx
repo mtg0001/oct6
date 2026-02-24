@@ -129,6 +129,32 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
         };
         await updateUsuario(usuario.id, data);
+
+        // If admin provided a new password, update it
+        if (password) {
+          if (passwordErrors.length > 0) {
+            toast({ title: "Senha não atende aos requisitos", variant: "destructive" });
+            setLoading(false);
+            return;
+          }
+          if (password !== confirmPassword) {
+            toast({ title: "As senhas não coincidem", variant: "destructive" });
+            setLoading(false);
+            return;
+          }
+          if (!usuario.userId) {
+            toast({ title: "Usuário sem conta de autenticação vinculada", variant: "destructive" });
+            setLoading(false);
+            return;
+          }
+          const res = await supabase.functions.invoke("update-user-password", {
+            body: { userId: usuario.userId, password },
+          });
+          if (res.error || res.data?.error) {
+            throw new Error(res.data?.error || res.error?.message || "Erro ao redefinir senha");
+          }
+        }
+
         toast({ title: "Usuário atualizado com sucesso!" });
       } else {
         // Creating new user - requires username and password
@@ -225,10 +251,12 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
               </div>
             </div>
 
-            {/* Auth fields - only for new users */}
-            {!isEditing && (
-              <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
-                <h3 className="font-semibold text-sm text-foreground">Credenciais de Acesso</h3>
+            {/* Auth fields */}
+            <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
+              <h3 className="font-semibold text-sm text-foreground">
+                {isEditing ? "Redefinir Senha (opcional)" : "Credenciais de Acesso"}
+              </h3>
+              {!isEditing && (
                 <div className="space-y-1">
                   <Label>Login (nome.sobrenome) *</Label>
                   <Input
@@ -240,70 +268,68 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                     O usuário fará login com: <strong>{username || "nome.sobrenome"}</strong>
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label>Senha *</Label>
-                    <div className="relative">
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Confirmar Senha *</Label>
-                    <div className="relative">
-                      <Input
-                        type={showConfirm ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => setShowConfirm(!showConfirm)}
-                        tabIndex={-1}
-                      >
-                        {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    {confirmPassword && password !== confirmPassword && (
-                      <p className="text-xs text-destructive">As senhas não coincidem</p>
-                    )}
+              )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label>{isEditing ? "Nova Senha" : "Senha *"}</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={isEditing ? "Deixe vazio para manter" : ""}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
                 </div>
-                {password && passwordErrors.length > 0 && (
-                  <div className="text-xs space-y-0.5">
-                    <p className="text-muted-foreground font-medium">Requisitos da senha:</p>
-                    {["Mínimo 8 caracteres", "Uma letra maiúscula", "Uma letra minúscula", "Um número", "Um caractere especial"].map((req) => (
-                      <p key={req} className={passwordErrors.includes(req) ? "text-destructive" : "text-green-600"}>
-                        {passwordErrors.includes(req) ? "✗" : "✓"} {req}
-                      </p>
-                    ))}
+                <div className="space-y-1">
+                  <Label>{isEditing ? "Confirmar Nova Senha" : "Confirmar Senha *"}</Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirm ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder={isEditing ? "Deixe vazio para manter" : ""}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      tabIndex={-1}
+                    >
+                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  O usuário será obrigado a alterar a senha no primeiro acesso.
-                </p>
+                  {confirmPassword && password !== confirmPassword && (
+                    <p className="text-xs text-destructive">As senhas não coincidem</p>
+                  )}
+                </div>
               </div>
-            )}
-
-            {isEditing && (
+              {password && passwordErrors.length > 0 && (
+                <div className="text-xs space-y-0.5">
+                  <p className="text-muted-foreground font-medium">Requisitos da senha:</p>
+                  {["Mínimo 8 caracteres", "Uma letra maiúscula", "Uma letra minúscula", "Um número", "Um caractere especial"].map((req) => (
+                    <p key={req} className={passwordErrors.includes(req) ? "text-destructive" : "text-green-600"}>
+                      {passwordErrors.includes(req) ? "✗" : "✓"} {req}
+                    </p>
+                  ))}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
-                Para redefinir a senha deste usuário, utilize a opção de reset na lista de usuários.
+                {isEditing
+                  ? "Se informar uma nova senha, o usuário será obrigado a alterá-la no próximo acesso."
+                  : "O usuário será obrigado a alterar a senha no primeiro acesso."}
               </p>
-            )}
+            </div>
 
             {/* Permissões */}
             <div className="border-t border-border pt-4 space-y-4">
