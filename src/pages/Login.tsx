@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,6 +43,8 @@ export default function Login() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  // Use a ref to block redirect while checking must_change_password
+  const blockRedirectRef = useRef(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -56,7 +58,7 @@ export default function Login() {
     );
   }
 
-  if (user && !changePasswordOpen) {
+  if (user && !changePasswordOpen && !blockRedirectRef.current) {
     return <Navigate to="/" replace />;
   }
 
@@ -64,10 +66,12 @@ export default function Login() {
     e.preventDefault();
     if (!username.trim()) return;
     setLoading(true);
+    blockRedirectRef.current = true;
     try {
       const email = username.includes("@") ? username : username + EMAIL_DOMAIN;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
+        blockRedirectRef.current = false;
         toast({ title: "Erro ao entrar", description: formatAuthError(error.message), variant: "destructive" });
       } else if (data.user) {
         // Check if must change password
@@ -80,10 +84,12 @@ export default function Login() {
         if (usuario?.must_change_password) {
           setChangePasswordOpen(true);
         } else {
+          blockRedirectRef.current = false;
           navigate("/");
         }
       }
     } catch (err: any) {
+      blockRedirectRef.current = false;
       toast({ title: "Erro", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
