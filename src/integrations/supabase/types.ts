@@ -174,6 +174,7 @@ export type Database = {
           diretoria: string[]
           email: string
           id: string
+          must_change_password: boolean
           nome: string
           nova_solicitacao_unidades: string[]
           resolve_expedicao: boolean
@@ -193,6 +194,7 @@ export type Database = {
           diretoria?: string[]
           email: string
           id?: string
+          must_change_password?: boolean
           nome: string
           nova_solicitacao_unidades?: string[]
           resolve_expedicao?: boolean
@@ -212,6 +214,7 @@ export type Database = {
           diretoria?: string[]
           email?: string
           id?: string
+          must_change_password?: boolean
           nome?: string
           nova_solicitacao_unidades?: string[]
           resolve_expedicao?: boolean
