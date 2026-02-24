@@ -22,13 +22,13 @@ const Usuarios = () => {
 
   // Filters
   const [fNome, setFNome] = useState("");
-  const [fLogin, setFLogin] = useState("");
+  const [fEmail, setFEmail] = useState("");
   const [fDep, setFDep] = useState("");
   const [fUnidade, setFUnidade] = useState("");
 
   const filtered = usuarios.filter((u) => {
     if (fNome && !u.nome.toLowerCase().includes(fNome.toLowerCase())) return false;
-    if (fLogin && !u.login.toLowerCase().includes(fLogin.toLowerCase())) return false;
+    if (fEmail && !u.email.toLowerCase().includes(fEmail.toLowerCase())) return false;
     if (fDep && !u.departamento.toLowerCase().includes(fDep.toLowerCase())) return false;
     if (fUnidade && !u.unidadePadrao.toLowerCase().includes(fUnidade.toLowerCase())) return false;
     return true;
@@ -36,7 +36,7 @@ const Usuarios = () => {
 
   const clearFilters = () => {
     setFNome("");
-    setFLogin("");
+    setFEmail("");
     setFDep("");
     setFUnidade("");
   };
@@ -64,7 +64,7 @@ const Usuarios = () => {
             <TableRow>
               <TableHead className="w-10">#</TableHead>
               <TableHead>Nome</TableHead>
-              <TableHead>Usuário (Login)</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Departamento</TableHead>
               <TableHead>Unidade</TableHead>
               <TableHead>Status</TableHead>
@@ -75,7 +75,7 @@ const Usuarios = () => {
                 <button onClick={clearFilters} className="text-xs text-primary hover:underline">Limpar</button>
               </TableHead>
               <TableHead><Input placeholder="Filtrar nome..." value={fNome} onChange={(e) => setFNome(e.target.value)} className="h-7 text-xs" /></TableHead>
-              <TableHead><Input placeholder="Filtrar login..." value={fLogin} onChange={(e) => setFLogin(e.target.value)} className="h-7 text-xs" /></TableHead>
+              <TableHead><Input placeholder="Filtrar email..." value={fEmail} onChange={(e) => setFEmail(e.target.value)} className="h-7 text-xs" /></TableHead>
               <TableHead><Input placeholder="Filtrar departamento..." value={fDep} onChange={(e) => setFDep(e.target.value)} className="h-7 text-xs" /></TableHead>
               <TableHead><Input placeholder="Filtrar unidade..." value={fUnidade} onChange={(e) => setFUnidade(e.target.value)} className="h-7 text-xs" /></TableHead>
               <TableHead />
@@ -87,7 +87,7 @@ const Usuarios = () => {
               <TableRow key={u.id}>
                 <TableCell className="font-medium">{i + 1}</TableCell>
                 <TableCell>{u.nome}</TableCell>
-                <TableCell>{u.login}</TableCell>
+                <TableCell>{u.email}</TableCell>
                 <TableCell>{u.departamento}</TableCell>
                 <TableCell>{u.unidadePadrao}</TableCell>
                 <TableCell>

@@ -37,9 +37,6 @@ interface Props {
 const emptyForm = {
   nome: "",
   email: "",
-  login: "",
-  senha: "",
-  confirmarSenha: "",
   departamento: "",
   unidadePadrao: "",
   administrador: false,
@@ -61,9 +58,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
       setForm({
         nome: usuario.nome,
         email: usuario.email,
-        login: usuario.login,
-        senha: "",
-        confirmarSenha: "",
         departamento: usuario.departamento,
         unidadePadrao: usuario.unidadePadrao,
         administrador: usuario.administrador,
@@ -84,12 +78,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
     arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
 
   const handleSubmit = async () => {
-    if (!form.nome || !form.email || !form.login || !form.departamento || !form.unidadePadrao) {
+    if (!form.nome || !form.email || !form.departamento || !form.unidadePadrao) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
-      return;
-    }
-    if (!usuario && (!form.senha || form.senha !== form.confirmarSenha)) {
-      toast({ title: "Senhas não conferem ou estão vazias", variant: "destructive" });
       return;
     }
 
@@ -98,7 +88,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         const data: Partial<Usuario> = {
           nome: form.nome,
           email: form.email,
-          login: form.login,
           departamento: form.departamento,
           unidadePadrao: form.unidadePadrao,
           administrador: form.administrador,
@@ -110,18 +99,16 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           servicosPermitidos: form.servicosPermitidos,
           visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
         };
-        if (form.senha) data.senha = form.senha;
         await updateUsuario(usuario.id, data);
         toast({ title: "Usuário atualizado com sucesso!" });
       } else {
         await addUsuario({
           nome: form.nome,
           email: form.email,
-          login: form.login,
-          senha: form.senha,
           departamento: form.departamento,
           unidadePadrao: form.unidadePadrao,
           ativo: true,
+          userId: null,
           administrador: form.administrador,
           novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
           resolveExpedicao: form.resolveExpedicao,
@@ -158,10 +145,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <Label>Usuário Login * (nome.sobrenome)</Label>
-                <Input value={form.login} onChange={(e) => setForm({ ...form, login: e.target.value })} placeholder="nome.sobrenome" />
-              </div>
-              <div className="space-y-1">
                 <Label>Departamento *</Label>
                 <Select value={form.departamento} onValueChange={(v) => setForm({ ...form, departamento: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
@@ -185,17 +168,9 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
               </div>
             </div>
 
-            {/* Senha */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>{usuario ? "Nova Senha (deixe vazio para manter)" : "Senha *"}</Label>
-                <Input type="password" value={form.senha} onChange={(e) => setForm({ ...form, senha: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <Label>Confirmar Senha</Label>
-                <Input type="password" value={form.confirmarSenha} onChange={(e) => setForm({ ...form, confirmarSenha: e.target.value })} />
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              A autenticação é gerenciada pelo Supabase Auth. O usuário precisa se cadastrar com o mesmo email acima.
+            </p>
 
             {/* Permissões */}
             <div className="border-t border-border pt-4 space-y-4">
