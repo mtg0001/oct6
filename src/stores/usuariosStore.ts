@@ -42,10 +42,9 @@ export const DIRETORES = ["Osorio", "Jessica", "Soraya", "Danielle"] as const;
 
 export interface Usuario {
   id: string;
+  userId: string | null; // auth.users id
   nome: string;
   email: string;
-  login: string;
-  senha: string;
   departamento: string;
   unidadePadrao: string;
   ativo: boolean;
@@ -63,10 +62,9 @@ export interface Usuario {
 function mapRow(row: any): Usuario {
   return {
     id: row.id,
+    userId: row.user_id || null,
     nome: row.nome,
     email: row.email,
-    login: row.login,
-    senha: row.senha,
     departamento: row.departamento,
     unidadePadrao: row.unidade_padrao,
     ativo: row.ativo,
@@ -86,8 +84,6 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   const m: Record<string, any> = {};
   if (u.nome !== undefined) m.nome = u.nome;
   if (u.email !== undefined) m.email = u.email;
-  if (u.login !== undefined) m.login = u.login;
-  if (u.senha !== undefined) m.senha = u.senha;
   if (u.departamento !== undefined) m.departamento = u.departamento;
   if (u.unidadePadrao !== undefined) m.unidade_padrao = u.unidadePadrao;
   if (u.ativo !== undefined) m.ativo = u.ativo;
@@ -99,6 +95,7 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   if (u.diretoria !== undefined) m.diretoria = u.diretoria;
   if (u.servicosPermitidos !== undefined) m.servicos_permitidos = u.servicosPermitidos;
   if (u.visualizaSolicitacoesUnidades !== undefined) m.visualiza_solicitacoes_unidades = u.visualizaSolicitacoesUnidades;
+  if (u.userId !== undefined) m.user_id = u.userId;
   return m;
 }
 
@@ -158,20 +155,31 @@ export async function toggleUsuarioAtivo(id: string) {
   notify();
 }
 
-// Current logged system user (stored in localStorage)
-const CURRENT_USER_KEY = "octarte_current_user_id";
-
-export function getCurrentUserId(): string | null {
-  return localStorage.getItem(CURRENT_USER_KEY);
+// Current logged user - resolved from Supabase Auth session
+export async function getCurrentAuthUserId(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id || null;
 }
 
 export function getCurrentUser(): Usuario | undefined {
-  const id = getCurrentUserId();
-  if (!id) return usuarios[0]; // fallback to first (admin)
-  return usuarios.find((u) => u.id === id) || usuarios[0];
+  // Find the usuario linked to the current Supabase Auth user
+  // This requires the auth uid to be passed or cached
+  return _currentUsuario;
 }
 
-export function setCurrentUser(id: string) {
-  localStorage.setItem(CURRENT_USER_KEY, id);
+let _currentUsuario: Usuario | undefined;
+
+export async function resolveCurrentUser(): Promise<Usuario | undefined> {
+  const authUid = await getCurrentAuthUserId();
+  if (!authUid) {
+    _currentUsuario = undefined;
+    return undefined;
+  }
+  _currentUsuario = usuarios.find((u) => u.userId === authUid);
+  return _currentUsuario;
+}
+
+export function setCurrentUsuarioFromAuth(authUid: string) {
+  _currentUsuario = usuarios.find((u) => u.userId === authUid);
   notify();
 }
