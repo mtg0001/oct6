@@ -100,7 +100,7 @@ const Usuarios = () => {
                   <Button
                     variant={u.ativo ? "destructive" : "outline"}
                     size="sm"
-                    onClick={() => toggleUsuarioAtivo(u.id)}
+                    onClick={() => toggleUsuarioAtivo(u.id).catch(console.error)}
                   >
                     {u.ativo ? "Desativar" : "Reativar"}
                   </Button>

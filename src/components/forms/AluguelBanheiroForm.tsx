@@ -120,48 +120,50 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    addSolicitacao({
-      tipo: "Aluguel de Banheiro",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      cargo: "",
-      unidadeDestino: "",
-      departamentoDestino: "",
-      diretorArea: "",
-      tipoVaga: "",
-      nomeSubstituido: "",
-      justificativa: [
-        `Qtd. Banheiros: ${qtdBanheiros}`,
-        `Climatizado: ${climatizado === "sim" ? "Sim" : "Não"}`,
-        `Insumos Inclusos: ${insumos === "sim" ? "Sim" : "Não"}`,
-        `Stand: ${stand}`,
-        `Data de Entrega: ${dataEntrega}`,
-        `Data de Retirada: ${dataRetirada}`,
-        anexoNome ? `Anexo: ${anexoNome}` : "",
-      ].filter(Boolean).join(" | "),
-      formacao: "",
-      experiencia: "",
-      conhecimentos: "",
-      faixaSalarialDe: "",
-      faixaSalarialAte: "",
-      tipoContrato: "",
-      horarioDe: dataEntrega,
-      horarioAte: dataRetirada,
-      caracteristicas: {},
-      observacoes,
-    });
-
-    toast({ title: "Solicitação de Aluguel de Banheiro enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Aluguel de Banheiro",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: "",
+        unidadeDestino: "",
+        departamentoDestino: "",
+        diretorArea: "",
+        tipoVaga: "",
+        nomeSubstituido: "",
+        justificativa: [
+          `Qtd. Banheiros: ${qtdBanheiros}`,
+          `Climatizado: ${climatizado === "sim" ? "Sim" : "Não"}`,
+          `Insumos Inclusos: ${insumos === "sim" ? "Sim" : "Não"}`,
+          `Stand: ${stand}`,
+          `Data de Entrega: ${dataEntrega}`,
+          `Data de Retirada: ${dataRetirada}`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: "",
+        experiencia: "",
+        conhecimentos: "",
+        faixaSalarialDe: "",
+        faixaSalarialAte: "",
+        tipoContrato: "",
+        horarioDe: dataEntrega,
+        horarioAte: dataRetirada,
+        caracteristicas: {},
+        observacoes,
+      });
+      toast({ title: "Solicitação de Aluguel de Banheiro enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   return (

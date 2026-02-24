@@ -87,10 +87,10 @@ const Expedicao = () => {
             <div className="flex gap-2">
               {isPendente && (
                 <>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => concluirSolicitacao(sol.id)}>
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => concluirSolicitacao(sol.id).catch(console.error)}>
                     Resolver
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id)}>
+                  <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id).catch(console.error)}>
                     Cancelar
                   </Button>
                 </>

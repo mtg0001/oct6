@@ -11,65 +11,27 @@ import {
   getTotaisPorStatus,
   getTotaisPorUnidadeEStatus,
   subscribe,
+  ensureSolicitacoesLoaded,
   type SolicitacaoColaborador,
 } from "@/stores/solicitacoesStore";
 
-export function useSolicitacoes() {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoes());
-  useEffect(() => subscribe(() => setData(getSolicitacoes())), []);
+function useSubscribe<T>(getter: () => T, deps: any[] = []) {
+  const [data, setData] = useState<T>(getter());
+  useEffect(() => {
+    ensureSolicitacoesLoaded().then(() => setData(getter()));
+    return subscribe(() => setData(getter()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
   return data;
 }
 
-export function useSolicitacoesDiretor(diretor: string) {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesByDiretor(diretor));
-  useEffect(() => subscribe(() => setData(getSolicitacoesByDiretor(diretor))), [diretor]);
-  return data;
-}
-
-export function useSolicitacao(id: string) {
-  const [data, setData] = useState(getSolicitacaoById(id));
-  useEffect(() => subscribe(() => setData(getSolicitacaoById(id))), [id]);
-  return data;
-}
-
-export function useSolicitacoesByStatus(status: string) {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesByStatus(status));
-  useEffect(() => subscribe(() => setData(getSolicitacoesByStatus(status))), [status]);
-  return data;
-}
-
-export function useSolicitacoesLogistica(status?: string) {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesLogistica(status));
-  useEffect(() => subscribe(() => setData(getSolicitacoesLogistica(status))), [status]);
-  return data;
-}
-
-export function useSolicitacoesExpedicao(status?: string) {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesExpedicao(status));
-  useEffect(() => subscribe(() => setData(getSolicitacoesExpedicao(status))), [status]);
-  return data;
-}
-
-export function useSolicitacoesByUser(userId: string, status?: string) {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesByUser(userId, status));
-  useEffect(() => subscribe(() => setData(getSolicitacoesByUser(userId, status))), [userId, status]);
-  return data;
-}
-
-export function useSolicitacoesHoje() {
-  const [data, setData] = useState<SolicitacaoColaborador[]>(getSolicitacoesHoje());
-  useEffect(() => subscribe(() => setData(getSolicitacoesHoje())), []);
-  return data;
-}
-
-export function useTotaisPorStatus() {
-  const [data, setData] = useState(getTotaisPorStatus());
-  useEffect(() => subscribe(() => setData(getTotaisPorStatus())), []);
-  return data;
-}
-
-export function useTotaisPorUnidade(unidade: string) {
-  const [data, setData] = useState(getTotaisPorUnidadeEStatus(unidade));
-  useEffect(() => subscribe(() => setData(getTotaisPorUnidadeEStatus(unidade))), [unidade]);
-  return data;
-}
+export function useSolicitacoes() { return useSubscribe(() => getSolicitacoes()); }
+export function useSolicitacoesDiretor(diretor: string) { return useSubscribe(() => getSolicitacoesByDiretor(diretor), [diretor]); }
+export function useSolicitacao(id: string) { return useSubscribe(() => getSolicitacaoById(id), [id]); }
+export function useSolicitacoesByStatus(status: string) { return useSubscribe(() => getSolicitacoesByStatus(status), [status]); }
+export function useSolicitacoesLogistica(status?: string) { return useSubscribe(() => getSolicitacoesLogistica(status), [status]); }
+export function useSolicitacoesExpedicao(status?: string) { return useSubscribe(() => getSolicitacoesExpedicao(status), [status]); }
+export function useSolicitacoesByUser(userId: string, status?: string) { return useSubscribe(() => getSolicitacoesByUser(userId, status), [userId, status]); }
+export function useSolicitacoesHoje() { return useSubscribe(() => getSolicitacoesHoje()); }
+export function useTotaisPorStatus() { return useSubscribe(() => getTotaisPorStatus()); }
+export function useTotaisPorUnidade(unidade: string) { return useSubscribe(() => getTotaisPorUnidadeEStatus(unidade), [unidade]); }

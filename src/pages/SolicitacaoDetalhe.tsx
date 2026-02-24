@@ -72,9 +72,9 @@ const SolicitacaoDetalhe = () => {
     .filter(([_, v]) => v === "aplica")
     .map(([k]) => k);
 
-  const handleEnviarAndamento = () => {
+  const handleEnviarAndamento = async () => {
     if (!textoAndamento.trim()) return;
-    addAndamento(sol.id, textoAndamento, anexoNomes);
+    await addAndamento(sol.id, textoAndamento, anexoNomes);
     setTextoAndamento("");
     setAnexoNomes([]);
     setShowAndamento(false);
@@ -237,8 +237,8 @@ const SolicitacaoDetalhe = () => {
           >
             Andamento
           </Button>
-          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => { aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
-          <Button variant="destructive" onClick={() => { reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
+          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
+          <Button variant="destructive" onClick={async () => { await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>
             Voltar
           </Button>

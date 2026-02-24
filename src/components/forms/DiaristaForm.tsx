@@ -227,51 +227,52 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    addSolicitacao({
-      tipo: "Serviço de Diarista",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      // extra diarista fields stored in existing generic fields
-      cargo: nomeDiarista,
-      unidadeDestino: "",
-      departamentoDestino: "",
-      diretorArea: "",
-      tipoVaga: "",
-      nomeSubstituido: "",
-      justificativa: [
-        `CPF: ${cpf}`,
-        `RG: ${rg}`,
-        `Datas: ${datasAdicionadas.map((d) => format(d, "dd/MM/yyyy")).join(", ")}`,
-        `Qtd Diárias: ${qtdDiarias}`,
-        `Valor Diária: R$ ${valorDiaria}`,
-        `Total: R$ ${totalFormatado}`,
-        `Data Pgto: ${dataPagamento}`,
-        `Chave PIX (${tipoChavePix}): ${chavePix}`,
-        anexoNome ? `Anexo: ${anexoNome}` : "",
-      ].filter(Boolean).join(" | "),
-      formacao: "",
-      experiencia: "",
-      conhecimentos: "",
-      faixaSalarialDe: valorDiaria,
-      faixaSalarialAte: totalFormatado,
-      tipoContrato: tipoChavePix,
-      horarioDe: dataPagamento,
-      horarioAte: "",
-      caracteristicas: {},
-      observacoes,
-    });
-
-    toast({ title: "Solicitação de Diarista enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Serviço de Diarista",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: nomeDiarista,
+        unidadeDestino: "",
+        departamentoDestino: "",
+        diretorArea: "",
+        tipoVaga: "",
+        nomeSubstituido: "",
+        justificativa: [
+          `CPF: ${cpf}`,
+          `RG: ${rg}`,
+          `Datas: ${datasAdicionadas.map((d) => format(d, "dd/MM/yyyy")).join(", ")}`,
+          `Qtd Diárias: ${qtdDiarias}`,
+          `Valor Diária: R$ ${valorDiaria}`,
+          `Total: R$ ${totalFormatado}`,
+          `Data Pgto: ${dataPagamento}`,
+          `Chave PIX (${tipoChavePix}): ${chavePix}`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: "",
+        experiencia: "",
+        conhecimentos: "",
+        faixaSalarialDe: valorDiaria,
+        faixaSalarialAte: totalFormatado,
+        tipoContrato: tipoChavePix,
+        horarioDe: dataPagamento,
+        horarioAte: "",
+        caracteristicas: {},
+        observacoes,
+      });
+      toast({ title: "Solicitação de Diarista enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   const pixPlaceholder: Record<string, string> = {

@@ -83,7 +83,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
   const toggleArray = (arr: string[], value: string) =>
     arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.nome || !form.email || !form.login || !form.departamento || !form.unidadePadrao) {
       toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
       return;
@@ -93,46 +93,50 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
       return;
     }
 
-    if (usuario) {
-      const data: Partial<Usuario> = {
-        nome: form.nome,
-        email: form.email,
-        login: form.login,
-        departamento: form.departamento,
-        unidadePadrao: form.unidadePadrao,
-        administrador: form.administrador,
-        novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
-        resolveExpedicao: form.resolveExpedicao,
-        resolveLogisticaCompras: form.resolveLogisticaCompras,
-        resolveRecursosHumanos: form.resolveRecursosHumanos,
-        diretoria: form.diretoria,
-        servicosPermitidos: form.servicosPermitidos,
-        visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
-      };
-      if (form.senha) data.senha = form.senha;
-      updateUsuario(usuario.id, data);
-      toast({ title: "Usuário atualizado com sucesso!" });
-    } else {
-      addUsuario({
-        nome: form.nome,
-        email: form.email,
-        login: form.login,
-        senha: form.senha,
-        departamento: form.departamento,
-        unidadePadrao: form.unidadePadrao,
-        ativo: true,
-        administrador: form.administrador,
-        novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
-        resolveExpedicao: form.resolveExpedicao,
-        resolveLogisticaCompras: form.resolveLogisticaCompras,
-        resolveRecursosHumanos: form.resolveRecursosHumanos,
-        diretoria: form.diretoria,
-        servicosPermitidos: form.servicosPermitidos,
-        visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
-      });
-      toast({ title: "Usuário criado com sucesso!" });
+    try {
+      if (usuario) {
+        const data: Partial<Usuario> = {
+          nome: form.nome,
+          email: form.email,
+          login: form.login,
+          departamento: form.departamento,
+          unidadePadrao: form.unidadePadrao,
+          administrador: form.administrador,
+          novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
+          resolveExpedicao: form.resolveExpedicao,
+          resolveLogisticaCompras: form.resolveLogisticaCompras,
+          resolveRecursosHumanos: form.resolveRecursosHumanos,
+          diretoria: form.diretoria,
+          servicosPermitidos: form.servicosPermitidos,
+          visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+        };
+        if (form.senha) data.senha = form.senha;
+        await updateUsuario(usuario.id, data);
+        toast({ title: "Usuário atualizado com sucesso!" });
+      } else {
+        await addUsuario({
+          nome: form.nome,
+          email: form.email,
+          login: form.login,
+          senha: form.senha,
+          departamento: form.departamento,
+          unidadePadrao: form.unidadePadrao,
+          ativo: true,
+          administrador: form.administrador,
+          novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
+          resolveExpedicao: form.resolveExpedicao,
+          resolveLogisticaCompras: form.resolveLogisticaCompras,
+          resolveRecursosHumanos: form.resolveRecursosHumanos,
+          diretoria: form.diretoria,
+          servicosPermitidos: form.servicosPermitidos,
+          visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+        });
+        toast({ title: "Usuário criado com sucesso!" });
+      }
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao salvar usuário", description: err.message, variant: "destructive" });
     }
-    onOpenChange(false);
   };
 
   return (

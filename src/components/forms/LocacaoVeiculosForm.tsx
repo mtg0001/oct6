@@ -313,53 +313,55 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    addSolicitacao({
-      tipo: "Locação de Veículos",
-      solicitanteId: currentUser?.id || "",
-      unidade,
-      evento,
-      departamento: currentUser?.departamento || "—",
-      solicitante: currentUser?.nome || "—",
-      prioridade,
-      cargo: tipoVeiculo,
-      unidadeDestino: cepDestino,
-      departamentoDestino: enderecoDestino,
-      diretorArea: "",
-      tipoVaga: quantidade,
-      nomeSubstituido: nomeCondutor,
-      justificativa: [
-        `Tipo de Veículo: ${tipoVeiculo}`,
-        `Quantidade: ${quantidade}`,
-        `Data de Retirada: ${dataRetirada}`,
-        `Data de Devolução: ${dataDevolucao}`,
-        `CEP Origem: ${cepOrigem} — ${enderecoOrigem}`,
-        `CEP Destino: ${cepDestino} — ${enderecoDestino}`,
-        kmIda ? `KM Ida: ${kmIda} | Volta: ${kmVolta} | Total: ${kmTotal}` : "",
-        `Condutor: ${nomeCondutor}`,
-        `CNH: ${cnh}`,
-        `CPF: ${cpf}`,
-        `RG: ${rg}`,
-        anexoNome ? `Anexo: ${anexoNome}` : "",
-      ].filter(Boolean).join(" | "),
-      formacao: cnh,
-      experiencia: rg,
-      conhecimentos: cpf,
-      faixaSalarialDe: kmIda,
-      faixaSalarialAte: kmTotal,
-      tipoContrato: tipoVeiculo,
-      horarioDe: dataRetirada,
-      horarioAte: dataDevolucao,
-      caracteristicas: {},
-      observacoes,
-    });
-
-    toast({ title: "Solicitação de Locação de Veículos enviada com sucesso!" });
-    resetForm();
-    onOpenChange(false);
+    try {
+      await addSolicitacao({
+        tipo: "Locação de Veículos",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: tipoVeiculo,
+        unidadeDestino: cepDestino,
+        departamentoDestino: enderecoDestino,
+        diretorArea: "",
+        tipoVaga: quantidade,
+        nomeSubstituido: nomeCondutor,
+        justificativa: [
+          `Tipo de Veículo: ${tipoVeiculo}`,
+          `Quantidade: ${quantidade}`,
+          `Data de Retirada: ${dataRetirada}`,
+          `Data de Devolução: ${dataDevolucao}`,
+          `CEP Origem: ${cepOrigem} — ${enderecoOrigem}`,
+          `CEP Destino: ${cepDestino} — ${enderecoDestino}`,
+          kmIda ? `KM Ida: ${kmIda} | Volta: ${kmVolta} | Total: ${kmTotal}` : "",
+          `Condutor: ${nomeCondutor}`,
+          `CNH: ${cnh}`,
+          `CPF: ${cpf}`,
+          `RG: ${rg}`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: cnh,
+        experiencia: rg,
+        conhecimentos: cpf,
+        faixaSalarialDe: kmIda,
+        faixaSalarialAte: kmTotal,
+        tipoContrato: tipoVeiculo,
+        horarioDe: dataRetirada,
+        horarioAte: dataDevolucao,
+        caracteristicas: {},
+        observacoes,
+      });
+      toast({ title: "Solicitação de Locação de Veículos enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
   };
 
   return (
