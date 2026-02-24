@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { LogIn } from "lucide-react";
-import { Navigate } from "react-router-dom";
+import { LogIn, Loader2 } from "lucide-react";
 
 function formatAuthError(message: string): string {
   if (message.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
@@ -24,9 +24,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
 
   if (!isSupabaseConfigured()) {
     return <Navigate to="/config" replace />;
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
