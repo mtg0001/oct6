@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import CursorFollower from "@/components/CursorFollower";
 import Index from "./pages/Index";
 import NovaSolicitacao from "./pages/NovaSolicitacao";
 import DiretoriaAprovacao from "./pages/DiretoriaAprovacao";
@@ -28,6 +29,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <CursorFollower />
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
