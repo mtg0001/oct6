@@ -103,29 +103,33 @@ const NovaSolicitacao = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
         {solicitacoes.map((item) => (
-          <div
+          <button
             key={item.title}
-            className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all duration-200 flex flex-col gap-2 group"
+            disabled={!item.available}
+            onClick={() => handleSelecionar(item.title)}
+            className={`bg-card rounded-xl p-3 shadow-sm border border-border text-left flex flex-col gap-2 group transition-all duration-200 ${
+              item.available
+                ? "hover:shadow-md hover:border-primary/30 active:scale-[0.98]"
+                : "opacity-60 cursor-not-allowed"
+            }`}
           >
-            <div className="h-8 w-8 rounded-lg bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
               <item.icon className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-foreground text-[12px] leading-tight line-clamp-2">{item.title}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
+              <p className="font-semibold text-foreground text-[11px] sm:text-[12px] leading-tight line-clamp-2">{item.title}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">{item.description}</p>
             </div>
-            <button
-              disabled={!item.available}
-              onClick={() => handleSelecionar(item.title)}
-              className={`self-start px-3 py-1 rounded-md text-[11px] font-semibold transition-all duration-200 mt-auto ${
+            <span
+              className={`inline-block w-full text-center py-1 rounded-md text-[10px] sm:text-[11px] font-semibold mt-auto ${
                 item.available
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
-                  : "bg-muted text-muted-foreground cursor-not-allowed"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               {item.available ? "Selecionar" : "Em breve"}
-            </button>
-          </div>
+            </span>
+          </button>
         ))}
       </div>
 
