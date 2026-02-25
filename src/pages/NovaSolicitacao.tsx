@@ -121,7 +121,7 @@ const NovaSolicitacao = () => {
               <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">{item.description}</p>
             </div>
             <span
-              className={`inline-block w-full text-center py-1 rounded-md text-[10px] sm:text-[11px] font-semibold mt-auto ${
+              className={`block w-full text-center py-1.5 rounded-md text-[11px] font-semibold mt-auto whitespace-nowrap overflow-hidden text-ellipsis ${
                 item.available
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"
