@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { useAuth } from "@/contexts/AuthContext";
+import octarteLogo from "@/assets/octarte-logo.png";
 
 interface MenuItem {
   title: string;
@@ -195,16 +196,11 @@ export function AppSidebar() {
         <div className="flex items-center justify-between px-5 h-16 border-b border-[hsl(var(--sidebar-border))]">
           {!collapsed && (
             <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-[hsl(var(--sidebar-primary))] flex items-center justify-center">
-                <span className="text-[hsl(var(--sidebar-primary-foreground))] font-bold text-sm">O</span>
-              </div>
-              <span className="text-base font-bold tracking-wider text-[hsl(var(--sidebar-accent-foreground))]">OCTARTE</span>
+              <img src={octarteLogo} alt="Octarte" className="h-9 object-contain" />
             </div>
           )}
           {collapsed && (
-            <div className="h-8 w-8 rounded-lg bg-[hsl(var(--sidebar-primary))] flex items-center justify-center mx-auto">
-              <span className="text-[hsl(var(--sidebar-primary-foreground))] font-bold text-sm">O</span>
-            </div>
+            <img src={octarteLogo} alt="Octarte" className="h-8 object-contain mx-auto" />
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
