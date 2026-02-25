@@ -50,8 +50,8 @@ export default function Login() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#080b0e" }}>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -77,7 +77,6 @@ export default function Login() {
           .select("must_change_password")
           .eq("user_id", data.user.id)
           .maybeSingle();
-
         if (usuario?.must_change_password) {
           setChangePasswordOpen(true);
         } else {
@@ -116,102 +115,95 @@ export default function Login() {
     }
   };
 
+  // Green brand color
+  const brandGreen = "#6b8c23";
+  const brandGreenGlow = "rgba(107,140,35,0.35)";
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #0a0a0f 0%, #111118 40%, #0d1117 100%)" }}>
+      style={{ background: "linear-gradient(160deg, #060a06 0%, #0a0f0a 40%, #080d08 100%)" }}>
 
-      {/* Animated grid background */}
-      <div className="absolute inset-0 opacity-[0.04]"
+      {/* Grid background */}
+      <div className="absolute inset-0 opacity-[0.03]"
         style={{
-          backgroundImage: `linear-gradient(hsl(var(--accent)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--accent)) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(${brandGreen} 1px, transparent 1px), linear-gradient(90deg, ${brandGreen} 1px, transparent 1px)`,
           backgroundSize: "60px 60px",
         }}
       />
 
-      {/* Glow orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-[0.06] blur-[120px]"
-        style={{ background: "hsl(var(--accent))" }} />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full opacity-[0.04] blur-[100px]"
-        style={{ background: "hsl(var(--primary))" }} />
+      {/* Green glow orbs */}
+      <div className="absolute top-1/3 left-1/3 w-[600px] h-[600px] rounded-full blur-[150px]"
+        style={{ background: brandGreen, opacity: 0.06 }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px]"
+        style={{ background: brandGreen, opacity: 0.04 }} />
 
-      {/* Floating particles */}
+      {/* Particles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(6)].map((_, i) => (
-          <div key={i}
-            className="absolute w-1 h-1 rounded-full animate-pulse"
+          <div key={i} className="absolute w-1 h-1 rounded-full animate-pulse"
             style={{
-              background: "hsl(var(--accent))",
-              top: `${15 + i * 15}%`,
+              background: brandGreen,
+              top: `${15 + i * 14}%`,
               left: `${10 + i * 14}%`,
               animationDelay: `${i * 0.7}s`,
               animationDuration: `${2 + i * 0.5}s`,
-              opacity: 0.3 + (i * 0.05),
+              opacity: 0.35,
             }}
           />
         ))}
       </div>
 
       {/* Login card */}
-      <div className="relative z-10 w-full max-w-[400px] mx-4">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <img src={octarteLogo} alt="Octarte" className="h-16 sm:h-20 object-contain drop-shadow-lg" 
-            style={{ filter: "drop-shadow(0 0 20px hsl(var(--accent) / 0.15))" }} />
-        </div>
+      <div className="relative z-10 w-full max-w-[380px] mx-4">
 
         {/* Glass card */}
         <div className="backdrop-blur-xl rounded-2xl p-6 sm:p-8 border"
           style={{
-            background: "rgba(255,255,255,0.03)",
-            borderColor: "rgba(255,255,255,0.08)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+            background: "rgba(255,255,255,0.025)",
+            borderColor: "rgba(255,255,255,0.07)",
+            boxShadow: `0 8px 40px rgba(0,0,0,0.5), 0 0 80px ${brandGreenGlow}, inset 0 1px 0 rgba(255,255,255,0.04)`,
           }}>
-          
-          <div className="text-center mb-6">
-            <h1 className="text-xl font-semibold text-white/90">Bem-vindo</h1>
-            <p className="text-sm text-white/40 mt-1">Acesse sua conta para continuar</p>
+
+          {/* Logo replacing "Bem-vindo" */}
+          <div className="flex justify-center mb-6">
+            <img
+              src={octarteLogo}
+              alt="Octarte"
+              className="h-20 sm:h-24 object-contain"
+              style={{ mixBlendMode: "screen", filter: `drop-shadow(0 0 20px ${brandGreenGlow})` }}
+            />
           </div>
+
+          <p className="text-center text-sm text-white/40 mb-6">Acesse sua conta para continuar</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="username" className="text-xs text-white/50 uppercase tracking-wider font-medium">Usuário</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="nome.sobrenome"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 h-11 rounded-xl focus:border-accent/50 focus:ring-accent/20 transition-all"
+                id="username" type="text" placeholder="nome.sobrenome"
+                value={username} onChange={(e) => setUsername(e.target.value)} required
+                className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 h-11 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all"
               />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password" className="text-xs text-white/50 uppercase tracking-wider font-medium">Senha</Label>
               <div className="relative">
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 h-11 rounded-xl focus:border-accent/50 focus:ring-accent/20 transition-all pr-10"
+                  id="password" type={showPassword ? "text" : "password"} placeholder="••••••••"
+                  value={password} onChange={(e) => setPassword(e.target.value)} required
+                  className="bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 h-11 rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all pr-10"
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                >
+                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
             <Button type="submit" className="w-full h-11 rounded-xl font-medium text-sm mt-2" disabled={loading}
               style={{
-                background: loading ? "hsl(var(--accent) / 0.5)" : "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent) / 0.8))",
-                color: "#0a0a0f",
-                boxShadow: "0 4px 15px hsl(var(--accent) / 0.3)",
+                background: loading ? "rgba(107,140,35,0.5)" : `linear-gradient(135deg, ${brandGreen}, rgba(107,140,35,0.75))`,
+                color: "#fff",
+                boxShadow: `0 4px 20px ${brandGreenGlow}`,
               }}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
             </Button>
@@ -225,7 +217,8 @@ export default function Login() {
 
       {/* Password change dialog */}
       <Dialog open={changePasswordOpen} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md bg-[#13131a] border-white/10 text-white" onPointerDownOutside={(e) => e.preventDefault()}>
+        <DialogContent className="sm:max-w-md border text-white" style={{ background: "#0d120d", borderColor: "rgba(107,140,35,0.15)" }}
+          onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-white">Alterar Senha</DialogTitle>
             <DialogDescription className="text-white/50">
@@ -259,8 +252,8 @@ export default function Login() {
               <p className={/[0-9]/.test(newPassword) ? "text-green-400" : ""}>• Números</p>
               <p className={/[^a-zA-Z0-9]/.test(newPassword) ? "text-green-400" : ""}>• Caracteres especiais</p>
             </div>
-            <Button className="w-full h-11 rounded-xl" disabled={changingPassword} onClick={handleChangePassword}
-              style={{ background: "linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent) / 0.8))", color: "#0a0a0f" }}>
+            <Button className="w-full h-11 rounded-xl text-white" disabled={changingPassword} onClick={handleChangePassword}
+              style={{ background: `linear-gradient(135deg, ${brandGreen}, rgba(107,140,35,0.75))`, boxShadow: `0 4px 20px ${brandGreenGlow}` }}>
               {changingPassword ? "Salvando..." : "Salvar Nova Senha"}
             </Button>
           </div>
