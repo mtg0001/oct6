@@ -13,6 +13,8 @@ import {
   ChevronDown,
   LogOut,
   Menu,
+  X,
+  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -47,7 +49,6 @@ export function AppSidebar() {
       { title: "Dashboard", icon: LayoutDashboard, path: "/" },
     ];
 
-    // Nova Solicitação - only show allowed units
     const solUnidades = isAdmin
       ? [
           { title: "Goiânia", path: "/nova-solicitacao/goiania" },
@@ -71,7 +72,6 @@ export function AppSidebar() {
       ],
     });
 
-    // Logística & Compras
     if (isAdmin || u?.resolveLogisticaCompras) {
       items.push({
         title: "Logística & Compras",
@@ -84,7 +84,6 @@ export function AppSidebar() {
       });
     }
 
-    // Expedição
     if (isAdmin || u?.resolveExpedicao) {
       items.push({
         title: "Expedição",
@@ -97,7 +96,6 @@ export function AppSidebar() {
       });
     }
 
-    // Recursos Humanos
     if (isAdmin || u?.resolveRecursosHumanos) {
       items.push({
         title: "Recursos Humanos",
@@ -111,7 +109,6 @@ export function AppSidebar() {
       });
     }
 
-    // Diretoria - show only allowed submenus
     const diretoriaChildren = isAdmin
       ? [
           { title: "Osorio", path: "/diretoria/osorio" },
@@ -127,12 +124,10 @@ export function AppSidebar() {
       items.push({ title: "Diretoria Aprovação", icon: ShieldCheck, children: diretoriaChildren });
     }
 
-    // Usuários - admin only
     if (isAdmin) {
       items.push({ title: "Usuários", icon: UserCog, path: "/usuarios" });
     }
 
-    // Solicitações GO / SP - based on permission
     if (isAdmin || u?.visualizaSolicitacoesUnidades?.includes("GOIÂNIA")) {
       items.push({
         title: "Solicitações GO",
@@ -167,73 +162,79 @@ export function AppSidebar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  const initials = currentUser?.nome
+    ? currentUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()
+    : "U";
+
   return (
     <>
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
+      {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-3 left-3 z-50 p-2 rounded-md bg-card shadow-md lg:hidden"
+        className="fixed top-3 left-3 z-50 p-2 rounded-lg bg-card shadow-lg border border-border lg:hidden"
       >
-        <Menu className="h-5 w-5 text-foreground" />
+        {mobileOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
       </button>
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300",
-          collapsed ? "lg:w-16" : "lg:w-64",
-          mobileOpen ? "w-64 translate-x-0" : "-translate-x-full lg:translate-x-0"
+          "fixed left-0 top-0 z-40 h-screen bg-[hsl(var(--sidebar-background))] flex flex-col transition-all duration-300 ease-in-out shadow-2xl",
+          collapsed ? "lg:w-[68px]" : "lg:w-[260px]",
+          mobileOpen ? "w-[280px] translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="flex items-center gap-2 px-4 py-5 border-b border-sidebar-border">
+        {/* Logo header */}
+        <div className="flex items-center justify-between px-5 h-16 border-b border-[hsl(var(--sidebar-border))]">
           {!collapsed && (
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-xs text-muted-foreground">≡</span>
-                <span className="text-lg font-bold tracking-wide text-foreground">OCTARTE</span>
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-[hsl(var(--sidebar-primary))] flex items-center justify-center">
+                <span className="text-[hsl(var(--sidebar-primary-foreground))] font-bold text-sm">O</span>
               </div>
+              <span className="text-base font-bold tracking-wider text-[hsl(var(--sidebar-accent-foreground))]">OCTARTE</span>
+            </div>
+          )}
+          {collapsed && (
+            <div className="h-8 w-8 rounded-lg bg-[hsl(var(--sidebar-primary))] flex items-center justify-center mx-auto">
+              <span className="text-[hsl(var(--sidebar-primary-foreground))] font-bold text-sm">O</span>
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto hidden lg:block p-1 rounded hover:bg-sidebar-accent"
+            className="hidden lg:flex items-center justify-center h-7 w-7 rounded-md hover:bg-[hsl(var(--sidebar-accent))] transition-colors"
           >
-            <Menu className="h-4 w-4 text-sidebar-foreground" />
+            <ChevronLeft className={cn("h-4 w-4 text-[hsl(var(--sidebar-muted))] transition-transform", collapsed && "rotate-180")} />
           </button>
         </div>
 
+        {/* User section */}
         {!collapsed && (
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-sidebar-border">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold">
-              {currentUser?.nome?.charAt(0) || "A"}
+          <div className="px-4 py-3 border-b border-[hsl(var(--sidebar-border))]">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[hsl(var(--sidebar-primary))] to-[hsl(80,30%,25%)] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] text-xs font-bold shrink-0">
+                {initials}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-[hsl(var(--sidebar-accent-foreground))] truncate">
+                  {currentUser?.nome || "Usuário"}
+                </p>
+                <p className="text-[11px] text-[hsl(var(--sidebar-muted))] truncate">
+                  {user?.email}
+                </p>
+              </div>
             </div>
-            <span className="text-sm font-medium text-sidebar-foreground truncate">
-              {currentUser?.nome || "Admin"}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="ml-auto text-xs text-muted-foreground hover:text-destructive flex items-center gap-1"
-              title="Sair"
-            >
-              <LogOut className="h-3 w-3" /> Sair
-            </button>
           </div>
         )}
 
-        {!collapsed && user && (
-          <div className="px-4 py-2 border-b border-sidebar-border">
-            <p className="text-xs text-muted-foreground truncate" title={user.email}>
-              {user.email}
-            </p>
-          </div>
-        )}
-
-        <nav className="flex-1 overflow-y-auto py-2 px-2">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
           {menuItems.map((item) => {
             if (item.path) {
               return (
@@ -242,15 +243,15 @@ export function AppSidebar() {
                   to={item.path}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
                       isActive
-                        ? "bg-sidebar-accent text-sidebar-primary font-semibold"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent"
+                        ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]"
+                        : "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
                     )
                   }
                 >
-                  {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
-                  {!collapsed && <span>{item.title}</span>}
+                  {item.icon && <item.icon className="h-[18px] w-[18px] shrink-0" />}
+                  {!collapsed && <span className="truncate">{item.title}</span>}
                 </NavLink>
               );
             }
@@ -260,30 +261,33 @@ export function AppSidebar() {
               <div key={item.title}>
                 <button
                   onClick={() => toggleMenu(item.title)}
-                  className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                  className={cn(
+                    "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
+                    "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
+                  )}
                 >
-                  {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
+                  {item.icon && <item.icon className="h-[18px] w-[18px] shrink-0" />}
                   {!collapsed && (
                     <>
-                      <span className="flex-1 text-left">{item.title}</span>
+                      <span className="flex-1 text-left truncate">{item.title}</span>
                       <ChevronDown
-                        className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")}
+                        className={cn("h-3.5 w-3.5 text-[hsl(var(--sidebar-muted))] transition-transform duration-200", isOpen && "rotate-180")}
                       />
                     </>
                   )}
                 </button>
                 {!collapsed && isOpen && item.children && (
-                  <div className="ml-6 border-l border-sidebar-border pl-3 mt-1 space-y-1">
+                  <div className="ml-5 border-l-2 border-[hsl(var(--sidebar-border))] pl-3 mt-1 mb-1 space-y-0.5">
                     {item.children.map((child) => (
                       <NavLink
                         key={child.path}
                         to={child.path}
                         className={({ isActive }) =>
                           cn(
-                            "block px-3 py-1.5 rounded-md text-sm transition-colors",
+                            "block px-3 py-1.5 rounded-md text-[12px] transition-all duration-200",
                             isActive
-                              ? "text-sidebar-primary font-medium bg-sidebar-accent"
-                              : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                              ? "text-[hsl(var(--sidebar-primary))] font-semibold bg-[hsl(var(--sidebar-accent))]"
+                              : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
                           )
                         }
                       >
@@ -297,16 +301,20 @@ export function AppSidebar() {
           })}
         </nav>
 
-        {!collapsed && (
-          <div className="px-2 py-3 border-t border-sidebar-border space-y-1">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-xs text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <LogOut className="h-3.5 w-3.5" /> Sair
-            </button>
-          </div>
-        )}
+        {/* Footer */}
+        <div className="px-3 py-3 border-t border-[hsl(var(--sidebar-border))]">
+          <button
+            onClick={handleLogout}
+            className={cn(
+              "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
+              "text-[hsl(var(--sidebar-muted))] hover:bg-[hsl(0,65%,55%,0.15)] hover:text-[hsl(0,80%,65%)]",
+              collapsed && "justify-center"
+            )}
+          >
+            <LogOut className="h-[18px] w-[18px] shrink-0" />
+            {!collapsed && <span>Sair</span>}
+          </button>
+        </div>
       </aside>
     </>
   );

@@ -26,22 +26,23 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      {/* Top stats row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Quick Access */}
-        <div className="bg-card rounded-lg p-4 shadow-sm border border-border">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Acesso Rápido</p>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <FilePlus className="h-5 w-5 text-primary" />
+        <div className="bg-card rounded-xl p-3.5 shadow-sm border border-border hover:shadow-md transition-shadow">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Acesso Rápido</p>
+          <div className="flex items-center gap-2.5 mt-2">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <FilePlus className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-lg font-bold text-foreground">Nova Solicitação</p>
-              <div className="flex gap-2 mt-1">
+              <p className="text-sm font-bold text-foreground leading-tight">Nova Solicitação</p>
+              <div className="flex gap-1.5 mt-1">
                 {showGO && (
-                  <Link to="/nova-solicitacao/goiania" className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">GO</Link>
+                  <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors font-medium">GO</Link>
                 )}
                 {showSP && (
-                  <Link to="/nova-solicitacao/sao-paulo" className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">SP</Link>
+                  <Link to="/nova-solicitacao/sao-paulo" className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors font-medium">SP</Link>
                 )}
               </div>
             </div>
@@ -49,33 +50,35 @@ const Index = () => {
         </div>
 
         {/* Entradas Hoje */}
-        <div className="bg-card rounded-lg p-4 shadow-sm border border-border">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Chamados Hoje</p>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="h-10 w-10 rounded-full bg-success/20 flex items-center justify-center">
-              <ArrowDownToLine className="h-5 w-5 text-success" />
+        <div className="bg-card rounded-xl p-3.5 shadow-sm border border-border hover:shadow-md transition-shadow">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chamados Hoje</p>
+          <div className="flex items-center gap-2.5 mt-2">
+            <div className="h-9 w-9 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+              <ArrowDownToLine className="h-4 w-4 text-success" />
             </div>
-            <p className="text-3xl font-bold text-foreground">{entradasHoje}</p>
+            <p className="text-2xl font-bold text-foreground">{entradasHoje}</p>
           </div>
         </div>
 
         {/* Saídas Hoje */}
-        <div className="bg-card rounded-lg p-4 shadow-sm border border-border">
-          <p className="text-xs font-semibold text-muted-foreground uppercase">Resolvidos / Cancelados Hoje</p>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
-              <ArrowUpFromLine className="h-5 w-5 text-destructive" />
+        <div className="bg-card rounded-xl p-3.5 shadow-sm border border-border hover:shadow-md transition-shadow">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Resolv. / Canc. Hoje</p>
+          <div className="flex items-center gap-2.5 mt-2">
+            <div className="h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+              <ArrowUpFromLine className="h-4 w-4 text-destructive" />
             </div>
-            <p className="text-3xl font-bold text-foreground">{saidasHoje}</p>
+            <p className="text-2xl font-bold text-foreground">{saidasHoje}</p>
           </div>
         </div>
 
         {/* Clock */}
         <LiveClock />
+      </div>
 
-        {/* Donut Charts */}
+      {/* Charts + Calculator row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
         <DonutChart
-          title="Minhas Solicitações (Geral)"
+          title="Geral"
           pendente={totaisGeral.pendente}
           resolvido={totaisGeral.resolvido}
           cancelado={totaisGeral.cancelado}
@@ -96,8 +99,6 @@ const Index = () => {
             cancelado={totaisSP.cancelado}
           />
         )}
-
-        {/* Calculator */}
         <Calculator />
       </div>
     </AppLayout>

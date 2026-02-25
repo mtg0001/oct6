@@ -44,23 +44,23 @@ export function Calculator() {
   const addDot = () => { if (!display.includes(".")) setDisplay(display + "."); };
 
   const Btn = ({ label, onClick, variant = "default" }: { label: string; onClick: () => void; variant?: "default" | "op" | "action" | "equals" }) => {
-    const base = "h-9 rounded-md text-sm font-medium transition-colors flex items-center justify-center";
+    const base = "h-8 rounded-lg text-xs font-medium transition-colors flex items-center justify-center";
     const styles = {
       default: "bg-card border border-border text-foreground hover:bg-muted",
       op: "bg-card border border-border text-accent hover:bg-muted",
-      action: "bg-accent/20 text-accent border border-accent/30 hover:bg-accent/30",
-      equals: "bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30",
+      action: "bg-accent/15 text-accent border border-accent/20 hover:bg-accent/25",
+      equals: "bg-primary/15 text-primary border border-primary/20 hover:bg-primary/25",
     };
     return <button className={`${base} ${styles[variant]}`} onClick={onClick}>{label}</button>;
   };
 
   return (
-    <div className="bg-card rounded-lg p-4 shadow-sm border border-border">
-      <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Calculadora</p>
-      <div className="bg-muted rounded-md px-3 py-2 mb-3 text-right text-xl font-mono text-foreground">
+    <div className="bg-card rounded-xl p-3.5 shadow-sm border border-border hover:shadow-md transition-shadow">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Calculadora</p>
+      <div className="bg-muted rounded-lg px-3 py-1.5 mb-2 text-right text-lg font-mono text-foreground">
         {display}
       </div>
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-4 gap-1">
         <Btn label="AC" onClick={clear} variant="action" />
         <Btn label="C" onClick={clearEntry} variant="action" />
         <Btn label="⌫" onClick={() => setDisplay(display.length > 1 ? display.slice(0, -1) : "0")} variant="op" />
@@ -78,7 +78,7 @@ export function Calculator() {
         <div className="col-span-4">
           <button
             onClick={calculate}
-            className="w-full h-9 rounded-md text-sm font-medium bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
+            className="w-full h-8 rounded-lg text-xs font-semibold bg-primary/15 text-primary border border-primary/20 hover:bg-primary/25 transition-colors"
           >
             =
           </button>

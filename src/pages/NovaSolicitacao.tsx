@@ -69,60 +69,57 @@ const NovaSolicitacao = () => {
   const [passagensOpen, setPassagensOpen] = useState(false);
   const currentUser = useCurrentUser();
 
-  // Filter cards by user permissions
   const solicitacoes = allSolicitacoes.filter((item) => {
     if (currentUser?.administrador) return true;
     return currentUser?.servicosPermitidos.includes(item.serviceKey);
   });
 
   const handleSelecionar = (title: string) => {
-    if (title === "Solicitação de Novo Colaborador") {
-      setColaboradorOpen(true);
-    } else if (title === "Serviço de Diarista") {
-      setDiaristaOpen(true);
-    } else if (title === "Solicitação de Aluguel de Banheiro") {
-      setAluguelBanheiroOpen(true);
-    } else if (title === "Solicitação de Locação de Veículos") {
-      setLocacaoVeiculosOpen(true);
-    } else if (title === "Solicitação de Gerador") {
-      setGeradorOpen(true);
-    } else if (title === "Solicitação de Hospedagem") {
-      setHospedagemOpen(true);
-    } else if (title === "Solicitação de Passagens") {
-      setPassagensOpen(true);
-    }
+    if (title === "Solicitação de Novo Colaborador") setColaboradorOpen(true);
+    else if (title === "Serviço de Diarista") setDiaristaOpen(true);
+    else if (title === "Solicitação de Aluguel de Banheiro") setAluguelBanheiroOpen(true);
+    else if (title === "Solicitação de Locação de Veículos") setLocacaoVeiculosOpen(true);
+    else if (title === "Solicitação de Gerador") setGeradorOpen(true);
+    else if (title === "Solicitação de Hospedagem") setHospedagemOpen(true);
+    else if (title === "Solicitação de Passagens") setPassagensOpen(true);
   };
 
   return (
     <AppLayout>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-1">
-          {nomeUnidade}
-        </h1>
-        <span className="text-sm text-muted-foreground">
-          {new Date().toLocaleDateString("pt-BR")} {new Date().toLocaleTimeString("pt-BR", { hour12: false })}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <span className="text-primary font-bold text-sm">{nomeUnidade[0]}</span>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-foreground leading-tight">{nomeUnidade}</h1>
+            <p className="text-[11px] text-muted-foreground">Selecione o tipo de solicitação</p>
+          </div>
+        </div>
+        <span className="text-[11px] text-muted-foreground hidden sm:block">
+          {new Date().toLocaleDateString("pt-BR")}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
         {solicitacoes.map((item) => (
           <div
             key={item.title}
-            className="bg-card rounded-lg p-4 shadow-sm border border-border flex flex-col gap-3"
+            className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md hover:border-primary/30 transition-all duration-200 flex flex-col gap-2 group"
           >
-            <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
-              <item.icon className="h-5 w-5 text-primary" />
+            <div className="h-8 w-8 rounded-lg bg-primary/8 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <item.icon className="h-4 w-4 text-primary" />
             </div>
-            <div>
-              <p className="font-semibold text-foreground text-sm">{item.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-foreground text-[12px] leading-tight line-clamp-2">{item.title}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
             </div>
             <button
               disabled={!item.available}
               onClick={() => handleSelecionar(item.title)}
-              className={`self-start px-4 py-1.5 rounded text-xs font-medium transition-colors ${
+              className={`self-start px-3 py-1 rounded-md text-[11px] font-semibold transition-all duration-200 mt-auto ${
                 item.available
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                   : "bg-muted text-muted-foreground cursor-not-allowed"
               }`}
             >
@@ -132,41 +129,13 @@ const NovaSolicitacao = () => {
         ))}
       </div>
 
-      <NovoColaboradorForm
-        open={colaboradorOpen}
-        onOpenChange={setColaboradorOpen}
-        unidade={unidade || "goiania"}
-      />
-      <DiaristaForm
-        open={diaristaOpen}
-        onOpenChange={setDiaristaOpen}
-        unidade={unidade || "goiania"}
-      />
-      <AluguelBanheiroForm
-        open={aluguelBanheiroOpen}
-        onOpenChange={setAluguelBanheiroOpen}
-        unidade={unidade || "goiania"}
-      />
-      <LocacaoVeiculosForm
-        open={locacaoVeiculosOpen}
-        onOpenChange={setLocacaoVeiculosOpen}
-        unidade={unidade || "goiania"}
-      />
-      <GeradorForm
-        open={geradorOpen}
-        onOpenChange={setGeradorOpen}
-        unidade={unidade || "goiania"}
-      />
-      <HospedagemForm
-        open={hospedagemOpen}
-        onOpenChange={setHospedagemOpen}
-        unidade={unidade || "goiania"}
-      />
-      <PassagensForm
-        open={passagensOpen}
-        onOpenChange={setPassagensOpen}
-        unidade={unidade || "goiania"}
-      />
+      <NovoColaboradorForm open={colaboradorOpen} onOpenChange={setColaboradorOpen} unidade={unidade || "goiania"} />
+      <DiaristaForm open={diaristaOpen} onOpenChange={setDiaristaOpen} unidade={unidade || "goiania"} />
+      <AluguelBanheiroForm open={aluguelBanheiroOpen} onOpenChange={setAluguelBanheiroOpen} unidade={unidade || "goiania"} />
+      <LocacaoVeiculosForm open={locacaoVeiculosOpen} onOpenChange={setLocacaoVeiculosOpen} unidade={unidade || "goiania"} />
+      <GeradorForm open={geradorOpen} onOpenChange={setGeradorOpen} unidade={unidade || "goiania"} />
+      <HospedagemForm open={hospedagemOpen} onOpenChange={setHospedagemOpen} unidade={unidade || "goiania"} />
+      <PassagensForm open={passagensOpen} onOpenChange={setPassagensOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
