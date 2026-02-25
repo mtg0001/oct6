@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.sharepoint-manager]
 verify_jwt = false
+
+[functions.generate-solicitacao-pdf]
+verify_jwt = false

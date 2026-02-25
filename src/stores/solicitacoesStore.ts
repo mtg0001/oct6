@@ -267,6 +267,16 @@ export async function reprovarSolicitacao(solId: string) {
 
 export async function concluirSolicitacao(solId: string) {
   await updateStatus(solId, { status: "resolvido" });
+
+  // Generate PDF and upload to SharePoint (non-blocking)
+  try {
+    const { error } = await supabase.functions.invoke("generate-solicitacao-pdf", {
+      body: { solicitacaoId: solId },
+    });
+    if (error) console.error("Erro ao gerar PDF para SharePoint:", error);
+  } catch (err) {
+    console.error("Erro ao enviar PDF para SharePoint:", err);
+  }
 }
 
 export async function cancelarSolicitacao(solId: string) {
