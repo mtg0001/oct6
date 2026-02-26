@@ -15,6 +15,8 @@ import RHSolicitacaoDetalhe from "./pages/RHSolicitacaoDetalhe";
 import LogisticaCompras from "./pages/LogisticaCompras";
 import Expedicao from "./pages/Expedicao";
 import MinhasSolicitacoes from "./pages/MinhasSolicitacoes";
+import SolicitacaoServico from "./pages/SolicitacaoServico";
+import SolicitacoesUnidade from "./pages/SolicitacoesUnidade";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/Usuarios";
 import Chat from "./pages/Chat";
@@ -43,9 +45,16 @@ const App = () => (
             <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
             <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoDetalhe /></ProtectedRoute>} />
             <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />
+            <Route path="/logistica/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/expedicao/:filtro" element={<ProtectedRoute><Expedicao /></ProtectedRoute>} />
+            <Route path="/expedicao/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes/:filtro" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
+            <Route path="/minhas-solicitacoes/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
+            <Route path="/solicitacoes-go/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="goiania" title="Solicitações GO" /></ProtectedRoute>} />
+            <Route path="/solicitacoes-go/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
+            <Route path="/solicitacoes-sp/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="saopaulo" title="Solicitações SP" /></ProtectedRoute>} />
+            <Route path="/solicitacoes-sp/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
