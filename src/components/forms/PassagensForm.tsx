@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Plus, Trash2, Paperclip } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Paperclip, X } from "lucide-react";
 import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -445,12 +445,29 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
             <div className="mt-3 space-y-4">
               <div>
                 <Label className="text-xs font-bold">Anexar Documento (PDF)</Label>
-                <div className="mt-1 flex items-center gap-2 border border-input rounded-md px-3 py-2 cursor-pointer hover:border-primary transition-colors" onClick={() => fileInputRef.current?.click()}>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
+                    anexoNome && "border-primary/50 bg-primary/5"
+                  )}
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-sm text-muted-foreground truncate">{anexoNome ?? "Nenhum arquivo escolhido"}</span>
+                  <span className={cn("text-sm truncate", anexoNome ? "text-foreground" : "text-muted-foreground")}>
+                    {anexoNome || "Nenhum arquivo escolhido"}
+                  </span>
+                  {anexoNome && (
+                    <button
+                      type="button"
+                      className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                      onClick={(e) => { e.stopPropagation(); setAnexoNome(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
                 <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
               </div>
               <div>
                 <Label className="text-xs font-bold">Observações</Label>
