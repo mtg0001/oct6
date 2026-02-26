@@ -2,15 +2,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
 import { addAndamento, concluirSolicitacao, cancelarSolicitacao } from "@/stores/solicitacoesStore";
+import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip, FileText, ArrowLeft, CheckCircle, XCircle, MessageSquarePlus } from "lucide-react";
+import { Paperclip, ArrowLeft } from "lucide-react";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
 import octarteLogo from "@/assets/octarte-logo.png";
 
-/** Parse the "justificativa" pipe-separated string into key-value pairs */
 function parseJustificativa(raw: string): Record<string, string> {
   const pairs: Record<string, string> = {};
   raw.split(" | ").forEach((segment) => {
@@ -22,15 +25,6 @@ function parseJustificativa(raw: string): Record<string, string> {
   return pairs;
 }
 
-const statusColors: Record<string, string> = {
-  pendente: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  aprovado_diretor: "bg-blue-100 text-blue-800 border-blue-300",
-  aprovado: "bg-blue-200 text-blue-900 border-blue-400",
-  resolvido: "bg-green-100 text-green-800 border-green-300",
-  cancelado: "bg-red-100 text-red-800 border-red-300",
-  reprovado: "bg-red-200 text-red-900 border-red-400",
-};
-
 const statusLabel: Record<string, string> = {
   pendente: "Pendente",
   aprovado_diretor: "Aprovado Diretor",
@@ -41,9 +35,10 @@ const statusLabel: Record<string, string> = {
 };
 
 const SolicitacaoServico = () => {
-  const { filtro, id, context } = useParams<{ filtro: string; id: string; context: string }>();
+  const { filtro, id } = useParams<{ filtro: string; id: string }>();
   const navigate = useNavigate();
   const sol = useSolicitacao(id || "");
+  const currentUser = useCurrentUser();
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
@@ -64,7 +59,9 @@ const SolicitacaoServico = () => {
 
   const handleEnviarAndamento = async () => {
     if (!textoAndamento.trim()) return;
-    await addAndamento(sol.id, textoAndamento, anexoNomes);
+    const nome = currentUser?.nome || "Usuário";
+    const textoComNome = `[${nome}] ${textoAndamento}`;
+    await addAndamento(sol.id, textoComNome, anexoNomes);
     setTextoAndamento(""); setAnexoNomes([]); setShowAndamento(false);
   };
 
@@ -74,237 +71,231 @@ const SolicitacaoServico = () => {
     }
   };
 
-  // ── Diarista-specific renderer ──
-  const renderDiarista = () => {
-    return (
-      <div className="space-y-4">
-        {/* Prestador */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Dados do Prestador</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <InfoCard label="Nome do(a) Diarista" value={sol.cargo || "—"} />
-            <InfoCard label="CPF" value={parsed["CPF"] || "—"} />
-            <InfoCard label="RG" value={parsed["RG"] || "—"} />
-          </div>
-        </div>
-
-        {/* Datas trabalhadas */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Datas Trabalhadas</p>
-          <div className="bg-muted/50 border border-border rounded-lg p-3">
-            {parsed["Datas"] ? (
-              <div className="flex flex-wrap gap-2">
-                {parsed["Datas"].split(", ").map((d, i) => (
-                  <span key={i} className="bg-primary/10 text-primary text-xs px-3 py-1.5 rounded-full font-semibold">
-                    {d}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">—</p>
-            )}
-          </div>
-        </div>
-
-        {/* Financeiro */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Dados Financeiros</p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <InfoCard label="Qtd. Diárias" value={parsed["Qtd Diárias"] || "—"} highlight />
-            <InfoCard label="Valor da Diária" value={sol.faixaSalarialDe ? `R$ ${sol.faixaSalarialDe}` : "—"} />
-            <InfoCard label="Valor Total" value={sol.faixaSalarialAte ? `R$ ${sol.faixaSalarialAte}` : "—"} highlight />
-            <InfoCard label="Data do Pagamento" value={sol.horarioDe || parsed["Data Pgto"] || "—"} />
-          </div>
-        </div>
-
-        {/* PIX */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Dados PIX</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <InfoCard label="Tipo de Chave" value={sol.tipoContrato || "—"} />
-            <InfoCard label="Chave PIX" value={parsed[`Chave PIX (${sol.tipoContrato})`] || "—"} />
-          </div>
-        </div>
-
-        {/* Anexo */}
-        {hasAnexo && (
-          <div>
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Anexo</p>
-            <div className="flex items-center gap-2 bg-accent/50 border border-border rounded-lg p-3">
-              <Paperclip className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{parsed["Anexo"]}</span>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+  // Parse andamento text to extract user name
+  const parseAndamento = (texto: string) => {
+    const match = texto.match(/^\[(.+?)\]\s?(.*)/s);
+    if (match) return { nome: match[1], texto: match[2] };
+    return { nome: null, texto };
   };
 
-  // ── Generic fallback renderer ──
-  const renderGeneric = () => {
+  // ── Diarista table rows ──
+  const getDiaristaRows = () => [
+    { campo: "Nome do(a) Diarista", valor: sol.cargo || "—" },
+    { campo: "CPF", valor: parsed["CPF"] || "—" },
+    { campo: "RG", valor: parsed["RG"] || "—" },
+    { campo: "Datas Trabalhadas", valor: parsed["Datas"] || "—" },
+    { campo: "Quantidade de Diárias", valor: parsed["Qtd Diárias"] || "—" },
+    { campo: "Valor da Diária (R$)", valor: sol.faixaSalarialDe ? `R$ ${sol.faixaSalarialDe}` : "—" },
+    { campo: "Valor Total (R$)", valor: sol.faixaSalarialAte ? `R$ ${sol.faixaSalarialAte}` : "—" },
+    { campo: "Data do Pagamento", valor: sol.horarioDe || parsed["Data Pgto"] || "—" },
+    { campo: "Tipo de Chave PIX", valor: sol.tipoContrato || "—" },
+    { campo: "Chave PIX", valor: parsed[`Chave PIX (${sol.tipoContrato})`] || "—" },
+  ];
+
+  // ── Generic table rows ──
+  const getGenericRows = () => {
     const entries = Object.entries(parsed);
     if (entries.length === 0 && sol.justificativa) {
-      return (
-        <div className="bg-muted/50 border border-border rounded-lg p-4 text-sm whitespace-pre-wrap">
-          {sol.justificativa}
-        </div>
-      );
+      return [{ campo: "Detalhes", valor: sol.justificativa }];
     }
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {entries.map(([k, v]) => (
-          <InfoCard key={k} label={k} value={v} />
-        ))}
-      </div>
-    );
+    return entries.map(([k, v]) => ({ campo: k, valor: v }));
   };
 
   const isDiarista = sol.tipo === "Serviço de Diarista";
+  const tableRows = isDiarista ? getDiaristaRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : "Dados da Solicitação";
 
   return (
     <AppLayout>
-      {/* ── Header com logo ── */}
-      <div className="bg-primary text-primary-foreground px-6 py-5 rounded-t-xl mb-0 relative overflow-hidden">
-        <div className="absolute top-0 right-0 h-full opacity-10">
-          <img src={octarteLogo} alt="" className="h-full object-contain" />
-        </div>
-        <div className="relative z-10 flex items-center gap-4">
-          <img src={octarteLogo} alt="Octarte" className="h-10 w-10 object-contain brightness-0 invert" />
-          <div>
-            <h1 className="text-lg font-bold uppercase tracking-wide">{sol.tipo}</h1>
-            <p className="text-xs opacity-80">Relatório de Solicitação</p>
-          </div>
-        </div>
+      {/* ── Título ── */}
+      <div className="bg-primary text-primary-foreground px-6 py-4 rounded-t-md">
+        <h1 className="text-center text-lg font-bold uppercase tracking-wide">
+          Solicitação — {sol.tipo}
+        </h1>
       </div>
 
-      <div className="border border-border border-t-0 rounded-b-xl p-6 space-y-6 bg-card shadow-lg">
-        {/* ── Resumo ── */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-1 space-y-3 border-r border-border pr-4">
-            <div>
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Protocolo</p>
-              <p className="text-lg font-black text-foreground">#{sol.id.slice(0, 8).toUpperCase()}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Status</p>
-              <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full border mt-1 ${statusColors[sol.status] || ""}`}>
-                {statusLabel[sol.status] || sol.status}
-              </span>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Data de Abertura</p>
-              <p className="text-sm font-medium">{sol.dataCriacao}</p>
-            </div>
+      <div className="border border-border border-t-0 rounded-b-md bg-card shadow-sm">
+        {/* ── Cabeçalho 3 colunas ── */}
+        <div className="grid grid-cols-1 md:grid-cols-[160px_1fr_1fr] border-b border-border">
+          {/* Logo */}
+          <div className="flex items-center justify-center p-4 border-r border-border bg-muted/20">
+            <img src={octarteLogo} alt="Octarte" className="h-16 w-auto object-contain" />
           </div>
 
-          <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4">
-            <InfoCard label="Solicitante" value={sol.solicitante} />
-            <InfoCard label="Departamento" value={sol.departamento || "—"} />
-            <InfoCard label="Unidade" value={siglaUnidade} highlight />
-            <InfoCard label="Evento" value={sol.evento || "—"} />
-            <InfoCard label="Prioridade" value={sol.prioridade ? sol.prioridade.charAt(0).toUpperCase() + sol.prioridade.slice(1) : "—"} />
-          </div>
-        </div>
-
-        <hr className="border-border" />
-
-        {/* ── Conteúdo específico do tipo ── */}
-        {isDiarista ? renderDiarista() : renderGeneric()}
-
-        {/* ── Observações ── */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Observações</p>
-          <div className="bg-muted/30 border border-border rounded-lg p-4 text-sm min-h-[48px]">
-            {sol.observacoes || "Nenhuma observação."}
-          </div>
-        </div>
-
-        {/* ── Andamentos ── */}
-        <div>
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Andamentos</p>
-          <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/10">
-            {sol.andamentos.length === 0 && !showAndamento && (
-              <p className="text-sm text-muted-foreground italic">Nenhum andamento registrado.</p>
-            )}
-            {sol.andamentos.map((a) => (
-              <div key={a.id} className="border-b border-border pb-3 last:border-0 last:pb-0">
-                <p className="text-[10px] text-muted-foreground font-semibold">{a.data}</p>
-                <p className="text-sm mt-1">{a.texto}</p>
-                {a.anexos && a.anexos.length > 0 && (
-                  <div className="flex gap-2 mt-1.5 flex-wrap">
-                    {a.anexos.map((anx, i) => (
-                      <Badge key={i} variant="outline" className="text-xs gap-1">
-                        <Paperclip className="h-3 w-3" /> {anx}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+          {/* Protocolo / Status / etc */}
+          <div className="p-4 border-r border-border text-sm space-y-1">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Protocolo</p>
+                <p className="font-black">Nº {sol.id.slice(0, 4).toUpperCase()}</p>
               </div>
-            ))}
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Unidade</p>
+                <span className="inline-block border border-border rounded px-2 py-0.5 font-bold text-xs">{siglaUnidade}</span>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Status</p>
+                <span className="inline-flex items-center gap-1 text-xs font-bold">
+                  <span className={`h-2 w-2 rounded-full ${sol.status === "pendente" ? "bg-yellow-500" : sol.status === "resolvido" ? "bg-green-500" : sol.status === "cancelado" ? "bg-red-500" : "bg-blue-500"}`} />
+                  {statusLabel[sol.status] || sol.status}
+                </span>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Prioridade</p>
+                <p className="font-bold capitalize text-xs">{sol.prioridade || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Data de Abertura</p>
+                <p className="text-xs">{sol.dataCriacao}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">Evento</p>
+                <p className="text-xs">{sol.evento || "—"}</p>
+              </div>
+            </div>
+          </div>
 
-            {showAndamento && (
-              <div className="space-y-3 pt-3 border-t border-border">
-                <Textarea value={textoAndamento} onChange={(e) => setTextoAndamento(e.target.value)} rows={3} placeholder="Descreva o andamento..." />
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-1 text-sm text-primary cursor-pointer hover:underline">
-                    <Paperclip className="h-4 w-4" /> Adicionar anexo
-                    <Input type="file" multiple className="hidden" onChange={handleFileChange} />
-                  </label>
-                  {anexoNomes.length > 0 && (
-                    <div className="flex gap-1 flex-wrap">
-                      {anexoNomes.map((n, i) => <Badge key={i} variant="outline" className="text-xs">{n}</Badge>)}
+          {/* Solicitante */}
+          <div className="p-4 text-sm space-y-1 bg-primary/5">
+            <div>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase">Solicitante</p>
+              <p className="font-bold">{sol.solicitante}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase">Departamento</p>
+              <p className="text-xs">{sol.departamento || "—"}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* ── Tabela de dados ── */}
+          <fieldset className="border border-border rounded-md overflow-hidden">
+            <legend className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2 ml-2">
+              {tableTitle}
+            </legend>
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30">
+                  <TableHead className="w-[200px] text-xs font-bold uppercase">Campo</TableHead>
+                  <TableHead className="text-xs font-bold uppercase">Valor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tableRows.map((row) => (
+                  <TableRow key={row.campo}>
+                    <TableCell className="font-semibold text-sm">{row.campo}</TableCell>
+                    <TableCell className="text-sm">{row.valor}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </fieldset>
+
+          {/* ── Anexos (compact) ── */}
+          <div className="flex flex-wrap gap-2">
+            <Badge
+              variant="outline"
+              className={`text-xs px-3 py-1.5 gap-1.5 ${hasAnexo ? "border-primary text-primary" : "border-border text-muted-foreground"}`}
+            >
+              <Paperclip className="h-3 w-3" />
+              {hasAnexo ? parsed["Anexo"] : "Não possui anexos"}
+            </Badge>
+          </div>
+
+          {/* ── Observações ── */}
+          <fieldset className="border border-border rounded-md p-3">
+            <legend className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2">
+              Observações (Solicitação)
+            </legend>
+            <p className="text-sm">{sol.observacoes || "—"}</p>
+          </fieldset>
+
+          {/* ── Andamentos ── */}
+          <fieldset className="border border-border rounded-md p-3">
+            <legend className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2">
+              Andamentos
+            </legend>
+            <div className="space-y-3">
+              {sol.andamentos.length === 0 && !showAndamento && (
+                <p className="text-sm text-muted-foreground">—</p>
+              )}
+              {sol.andamentos.map((a) => {
+                const { nome, texto } = parseAndamento(a.texto);
+                return (
+                  <div key={a.id} className="border-b border-border pb-2 last:border-0 last:pb-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] text-muted-foreground font-semibold">{a.data}</p>
+                      {nome && (
+                        <Badge variant="secondary" className="text-[10px] px-2 py-0">{nome}</Badge>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleEnviarAndamento}>Salvar Andamento</Button>
-                  <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); }}>Cancelar</Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+                    <p className="text-sm mt-1">{texto}</p>
+                    {a.anexos && a.anexos.length > 0 && (
+                      <div className="flex gap-2 mt-1 flex-wrap">
+                        {a.anexos.map((anx, i) => (
+                          <Badge key={i} variant="outline" className="text-xs gap-1">
+                            <Paperclip className="h-3 w-3" /> {anx}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
-        {/* ── Ações ── */}
-        <div className="flex flex-wrap gap-3 pt-3 items-center border-t border-border">
-          <Button
-            variant="outline"
-            className="border-primary text-primary gap-2"
-            onClick={() => setShowAndamento(true)}
-          >
-            <MessageSquarePlus className="h-4 w-4" />
-            Andamento
-          </Button>
-          {isPendente && (
-            <>
-              <Button className="bg-green-600 hover:bg-green-700 text-white gap-2" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>
-                <CheckCircle className="h-4 w-4" />
-                Resolver
-              </Button>
-              <Button variant="destructive" className="gap-2" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
-                <XCircle className="h-4 w-4" />
-                Cancelar
-              </Button>
-            </>
-          )}
-          <Button variant="outline" className="ml-auto gap-2" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Button>
+              {showAndamento && (
+                <div className="space-y-3 pt-2 border-t border-border">
+                  <Textarea value={textoAndamento} onChange={(e) => setTextoAndamento(e.target.value)} rows={3} placeholder="Descreva o andamento..." />
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-1 text-sm text-primary cursor-pointer hover:underline">
+                      <Paperclip className="h-4 w-4" /> Adicionar anexo
+                      <Input type="file" multiple className="hidden" onChange={handleFileChange} />
+                    </label>
+                    {anexoNomes.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {anexoNomes.map((n, i) => <Badge key={i} variant="outline" className="text-xs">{n}</Badge>)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleEnviarAndamento}>Salvar Andamento</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); }}>Cancelar</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </fieldset>
+
+          {/* ── Ações ── */}
+          <div className="flex flex-wrap gap-3 pt-2 items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-primary text-primary"
+              onClick={() => setShowAndamento(true)}
+            >
+              Em andamento
+            </Button>
+            {isPendente && (
+              <>
+                <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
+                  Cancelar
+                </Button>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>
+                  Concluir
+                </Button>
+              </>
+            )}
+            <Button variant="outline" size="sm" className="ml-auto" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Voltar
+            </Button>
+          </div>
         </div>
       </div>
     </AppLayout>
   );
 };
-
-/** Reusable info card */
-function InfoCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className={`rounded-lg border border-border p-3 ${highlight ? "bg-primary/5" : "bg-card"}`}>
-      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{label}</p>
-      <p className={`text-sm font-bold mt-0.5 ${highlight ? "text-primary" : "text-foreground"}`}>{value}</p>
-    </div>
-  );
-}
 
 export default SolicitacaoServico;
