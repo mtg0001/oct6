@@ -282,3 +282,52 @@ export async function concluirSolicitacao(solId: string) {
 export async function cancelarSolicitacao(solId: string) {
   await updateStatus(solId, { status: "cancelado" });
 }
+
+export async function excluirSolicitacao(solId: string, excluidoPor: string) {
+  const { error } = await supabase.from("solicitacoes").update({
+    excluido: true,
+    excluido_em: new Date().toISOString(),
+    excluido_por: excluidoPor,
+  }).eq("id", solId);
+  if (error) throw error;
+  solicitacoes = solicitacoes.filter((s) => s.id !== solId);
+  notify();
+}
+
+export async function restaurarSolicitacao(solId: string) {
+  const { error } = await supabase.from("solicitacoes").update({
+    excluido: false,
+    excluido_em: null,
+    excluido_por: "",
+  }).eq("id", solId);
+  if (error) throw error;
+  // Reload to get restored item back
+  await loadSolicitacoes();
+}
+
+// Load only deleted items (for trash page)
+let solicitacoesExcluidas: SolicitacaoColaborador[] = [];
+let trashLoaded = false;
+
+export async function loadSolicitacoesExcluidas() {
+  const { data: solRows, error: solErr } = await supabase
+    .from("solicitacoes").select("*").eq("excluido", true).order("created_at", { ascending: false });
+  if (solErr) { console.error("Erro ao carregar lixeira:", solErr); return; }
+
+  const { data: andRows } = await supabase.from("andamentos").select("*").order("created_at");
+  const andamentosBySol: Record<string, any[]> = {};
+  (andRows || []).forEach((a: any) => {
+    if (!andamentosBySol[a.solicitacao_id]) andamentosBySol[a.solicitacao_id] = [];
+    andamentosBySol[a.solicitacao_id].push(a);
+  });
+
+  solicitacoesExcluidas = (solRows || []).map((row) => mapSolRow(row, andamentosBySol[row.id] || []));
+  trashLoaded = true;
+  notify();
+}
+
+export function getSolicitacoesExcluidas() { return solicitacoesExcluidas; }
+export function ensureTrashLoaded() {
+  if (trashLoaded) return Promise.resolve();
+  return loadSolicitacoesExcluidas();
+}

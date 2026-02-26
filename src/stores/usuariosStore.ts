@@ -57,6 +57,8 @@ export interface Usuario {
   servicosPermitidos: string[];
   visualizaSolicitacoesUnidades: string[];
   avatarUrl: string | null;
+  podeExcluirChamado: boolean;
+  podeVerLixeira: boolean;
 }
 
 // Map DB row (snake_case) → app model (camelCase)
@@ -78,6 +80,8 @@ function mapRow(row: any): Usuario {
     servicosPermitidos: row.servicos_permitidos || [],
     visualizaSolicitacoesUnidades: row.visualiza_solicitacoes_unidades || [],
     avatarUrl: row.avatar_url || null,
+    podeExcluirChamado: row.pode_excluir_chamado || false,
+    podeVerLixeira: row.pode_ver_lixeira || false,
   };
 }
 
@@ -98,6 +102,8 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   if (u.servicosPermitidos !== undefined) m.servicos_permitidos = u.servicosPermitidos;
   if (u.visualizaSolicitacoesUnidades !== undefined) m.visualiza_solicitacoes_unidades = u.visualizaSolicitacoesUnidades;
   if (u.userId !== undefined) m.user_id = u.userId;
+  if (u.podeExcluirChamado !== undefined) m.pode_excluir_chamado = u.podeExcluirChamado;
+  if (u.podeVerLixeira !== undefined) m.pode_ver_lixeira = u.podeVerLixeira;
   return m;
 }
 

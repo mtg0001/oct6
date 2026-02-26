@@ -17,6 +17,7 @@ import {
   X,
   ChevronLeft,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -180,6 +181,10 @@ export function AppSidebar() {
           { title: "Cancelados", path: "/solicitacoes-sp/cancelados" },
         ],
       });
+    }
+
+    if (u?.podeVerLixeira || isAdmin) {
+      items.push({ title: "Lixeira", icon: Trash2, path: "/lixeira" });
     }
 
     return items;
