@@ -23,7 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, Paperclip, X } from "lucide-react";
+import { CalendarIcon, Paperclip, Plus, Trash2, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,12 @@ interface TendasFormProps {
   unidade: string;
 }
 
+interface TendaDetalhe {
+  id: number;
+  tipos: string[];
+  detalhes: Record<string, { alturaPe: string; largura: string; comprimento: string; lateraisFechadas: string }>;
+}
+
 function maskDate(value: string) {
   const d = value.replace(/\D/g, "").slice(0, 8);
   return d
@@ -46,18 +52,21 @@ function maskDate(value: string) {
 
 const TIPOS_TENDA = ["Tubolar", "Calhada", "Galpão", "Box"];
 
+let nextTendaId = 1;
+
+function criarTendaVazia(): TendaDetalhe {
+  return { id: nextTendaId++, tipos: [], detalhes: {} };
+}
+
 const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const currentUser = useCurrentUser();
   const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
 
-  // Dados do solicitante
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");
 
-  // Tipo de tenda
-  const [tiposSelecionados, setTiposSelecionados] = useState<string[]>([]);
+  const [tendas, setTendas] = useState<TendaDetalhe[]>([criarTendaVazia()]);
 
-  // Datas
   const [dataEntrega, setDataEntrega] = useState("");
   const [entregaCalOpen, setEntregaCalOpen] = useState(false);
   const [entregaCalDate, setEntregaCalDate] = useState<Date | undefined>();
@@ -66,17 +75,9 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const [retiradaCalOpen, setRetiradaCalOpen] = useState(false);
   const [retiradaCalDate, setRetiradaCalDate] = useState<Date | undefined>();
 
-  // Observações e anexo
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
-
-  const parseInputDate = (str: string): Date | null => {
-    const parts = str.split("/");
-    if (parts.length !== 3 || parts[2].length !== 4) return null;
-    const d = new Date(+parts[2], +parts[1] - 1, +parts[0]);
-    return isNaN(d.getTime()) ? null : d;
-  };
 
   const handleCalendarSelect = (
     date: Date | undefined,
@@ -90,10 +91,43 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
     setOpen(false);
   };
 
-  const toggleTipo = (tipo: string) => {
-    setTiposSelecionados((prev) =>
-      prev.includes(tipo) ? prev.filter((t) => t !== tipo) : [...prev, tipo]
-    );
+  const toggleTipoForTenda = (tendaIdx: number, tipo: string) => {
+    setTendas((prev) => {
+      const copy = [...prev];
+      const t = { ...copy[tendaIdx] };
+      if (t.tipos.includes(tipo)) {
+        t.tipos = t.tipos.filter((x) => x !== tipo);
+        const { [tipo]: _, ...rest } = t.detalhes;
+        t.detalhes = rest;
+      } else {
+        t.tipos = [...t.tipos, tipo];
+        t.detalhes = { ...t.detalhes, [tipo]: { alturaPe: "", largura: "", comprimento: "", lateraisFechadas: "" } };
+      }
+      copy[tendaIdx] = t;
+      return copy;
+    });
+  };
+
+  const updateDetalhe = (tendaIdx: number, tipo: string, field: string, value: string) => {
+    setTendas((prev) => {
+      const copy = [...prev];
+      const t = { ...copy[tendaIdx] };
+      t.detalhes = {
+        ...t.detalhes,
+        [tipo]: { ...t.detalhes[tipo], [field]: value },
+      };
+      copy[tendaIdx] = t;
+      return copy;
+    });
+  };
+
+  const adicionarTenda = () => {
+    setTendas((prev) => [...prev, criarTendaVazia()]);
+  };
+
+  const removerTenda = (idx: number) => {
+    if (tendas.length <= 1) return;
+    setTendas((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +144,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const resetForm = () => {
     setEvento("");
     setPrioridade("");
-    setTiposSelecionados([]);
+    setTendas([criarTendaVazia()]);
     setDataEntrega("");
     setEntregaCalDate(undefined);
     setDataRetirada("");
@@ -123,15 +157,31 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const validate = (): boolean => {
     if (!evento.trim()) { toast({ title: "Informe o Evento", variant: "destructive" }); return false; }
     if (!prioridade) { toast({ title: "Selecione a Prioridade", variant: "destructive" }); return false; }
-    if (tiposSelecionados.length === 0) { toast({ title: "Selecione ao menos um tipo de tenda", variant: "destructive" }); return false; }
+    const hasAnyTipo = tendas.some((t) => t.tipos.length > 0);
+    if (!hasAnyTipo) { toast({ title: "Selecione ao menos um tipo de tenda", variant: "destructive" }); return false; }
     if (dataEntrega.length < 10) { toast({ title: "Data de entrega inválida", variant: "destructive" }); return false; }
     if (dataRetirada.length < 10) { toast({ title: "Data de retirada inválida", variant: "destructive" }); return false; }
     return true;
   };
 
+  const buildTendasInfo = () => {
+    return tendas.map((t, i) => {
+      const tiposInfo = t.tipos.map((tipo) => {
+        const d = t.detalhes[tipo];
+        if (!d) return tipo;
+        return `${tipo} (Pé: ${d.alturaPe || "—"}m, ${d.largura || "—"}x${d.comprimento || "—"}m, Laterais: ${d.lateraisFechadas || "0"})`;
+      });
+      return `Tenda ${i + 1}: ${tiposInfo.join("; ")}`;
+    }).join(" | ");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
+    const allTipos = tendas.flatMap((t) => t.tipos);
+    const tendasInfo = buildTendasInfo();
+
     try {
       await addSolicitacao({
         tipo: "Tendas",
@@ -148,7 +198,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         tipoVaga: "",
         nomeSubstituido: "",
         justificativa: [
-          `Tipos: ${tiposSelecionados.join(", ")}`,
+          tendasInfo,
           `Entrega: ${dataEntrega}`,
           `Retirada: ${dataRetirada}`,
           anexoNome ? `Anexo: ${anexoNome}` : "",
@@ -158,10 +208,10 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         conhecimentos: "",
         faixaSalarialDe: "",
         faixaSalarialAte: "",
-        tipoContrato: tiposSelecionados.join(", "),
+        tipoContrato: allTipos.join(", "),
         horarioDe: dataEntrega,
         horarioAte: dataRetirada,
-        caracteristicas: { tipos: tiposSelecionados.join(", ") },
+        caracteristicas: { tendas: tendas.map((t) => ({ tipos: t.tipos, detalhes: t.detalhes })) } as any,
         observacoes,
       });
       toast({ title: "Solicitação de Tenda enviada com sucesso!" });
@@ -173,50 +223,31 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   };
 
   const DateField = ({
-    label,
-    value,
-    onChange,
-    calOpen,
-    setCalOpen,
-    calDate,
-    onCalSelect,
+    label, value, onChange, calOpen, setCalOpen, calDate, onCalSelect,
   }: {
-    label: string;
-    value: string;
-    onChange: (v: string) => void;
-    calOpen: boolean;
-    setCalOpen: (v: boolean) => void;
-    calDate: Date | undefined;
-    onCalSelect: (d: Date | undefined) => void;
+    label: string; value: string; onChange: (v: string) => void;
+    calOpen: boolean; setCalOpen: (v: boolean) => void;
+    calDate: Date | undefined; onCalSelect: (d: Date | undefined) => void;
   }) => (
     <div>
       <Label className="text-xs font-bold">{label} *</Label>
-      <div className="relative mt-1">
+      <div className="flex items-center gap-1 mt-1">
         <Input
           value={value}
           onChange={(e) => onChange(maskDate(e.target.value))}
           placeholder="dd/mm/aaaa"
           maxLength={10}
           inputMode="numeric"
-          className="pr-10"
+          className="flex-1"
         />
         <Popover open={calOpen} onOpenChange={setCalOpen}>
           <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
+            <button type="button" className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors">
               <CalendarIcon className="h-4 w-4" />
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              mode="single"
-              selected={calDate}
-              onSelect={onCalSelect}
-              locale={ptBR}
-              className={cn("p-3 pointer-events-auto")}
-            />
+            <Calendar mode="single" selected={calDate} onSelect={onCalSelect} locale={ptBR} className={cn("p-3 pointer-events-auto")} />
           </PopoverContent>
         </Popover>
       </div>
@@ -266,24 +297,88 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
             </div>
           </fieldset>
 
-          {/* ── Tipo de Tenda ── */}
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
-              Tipo de tenda
-            </legend>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-              {TIPOS_TENDA.map((tipo) => (
-                <div key={tipo} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`tenda-${tipo}`}
-                    checked={tiposSelecionados.includes(tipo)}
-                    onCheckedChange={() => toggleTipo(tipo)}
-                  />
-                  <Label htmlFor={`tenda-${tipo}`} className="text-sm cursor-pointer">{tipo}</Label>
-                </div>
-              ))}
-            </div>
-          </fieldset>
+          {/* ── Tendas ── */}
+          {tendas.map((tenda, tendaIdx) => (
+            <fieldset key={tenda.id} className="border border-primary/30 rounded-md p-4">
+              <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5 flex items-center gap-2">
+                Tenda {tendaIdx + 1}
+                {tendas.length > 1 && (
+                  <button type="button" onClick={() => removerTenda(tendaIdx)} className="ml-1 hover:text-destructive transition-colors" title="Remover tenda">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </legend>
+
+              {/* Checkboxes dos tipos */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
+                {TIPOS_TENDA.map((tipo) => (
+                  <div key={tipo} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`tenda-${tenda.id}-${tipo}`}
+                      checked={tenda.tipos.includes(tipo)}
+                      onCheckedChange={() => toggleTipoForTenda(tendaIdx, tipo)}
+                    />
+                    <Label htmlFor={`tenda-${tenda.id}-${tipo}`} className="text-sm cursor-pointer">{tipo}</Label>
+                  </div>
+                ))}
+              </div>
+
+              {/* Detalhes por tipo selecionado */}
+              {tenda.tipos.map((tipo) => {
+                const d = tenda.detalhes[tipo];
+                if (!d) return null;
+                return (
+                  <div key={tipo} className="border border-muted rounded-md p-3 mt-3">
+                    <p className="text-sm font-bold mb-2">{tipo}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-xs font-bold">Altura do pé (m)</Label>
+                        <Input
+                          value={d.alturaPe}
+                          onChange={(e) => updateDetalhe(tendaIdx, tipo, "alturaPe", e.target.value.replace(/[^\d.,]/g, ""))}
+                          className="mt-1"
+                          placeholder="Ex: 3"
+                          inputMode="decimal"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs font-bold">Medida</Label>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Input
+                            value={d.largura}
+                            onChange={(e) => updateDetalhe(tendaIdx, tipo, "largura", e.target.value.replace(/[^\d.,]/g, ""))}
+                            placeholder="Largura (m)"
+                            inputMode="decimal"
+                          />
+                          <span className="text-sm text-muted-foreground font-bold">x</span>
+                          <Input
+                            value={d.comprimento}
+                            onChange={(e) => updateDetalhe(tendaIdx, tipo, "comprimento", e.target.value.replace(/[^\d.,]/g, ""))}
+                            placeholder="Comprimento (m)"
+                            inputMode="decimal"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-bold">Qtd. de laterais fechadas</Label>
+                        <Input
+                          value={d.lateraisFechadas}
+                          onChange={(e) => updateDetalhe(tendaIdx, tipo, "lateraisFechadas", e.target.value.replace(/\D/g, ""))}
+                          className="mt-1"
+                          placeholder="Ex: 2"
+                          inputMode="numeric"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </fieldset>
+          ))}
+
+          <Button type="button" variant="outline" className="w-full border-dashed" onClick={adicionarTenda}>
+            <Plus className="h-4 w-4 mr-2" /> Adicionar mais tendas
+          </Button>
 
           {/* ── Datas ── */}
           <fieldset className="border border-primary/30 rounded-md p-4">
@@ -292,21 +387,13 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
             </legend>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
               <DateField
-                label="Data de entrega"
-                value={dataEntrega}
-                onChange={setDataEntrega}
-                calOpen={entregaCalOpen}
-                setCalOpen={setEntregaCalOpen}
-                calDate={entregaCalDate}
+                label="Data de entrega" value={dataEntrega} onChange={setDataEntrega}
+                calOpen={entregaCalOpen} setCalOpen={setEntregaCalOpen} calDate={entregaCalDate}
                 onCalSelect={(d) => handleCalendarSelect(d, setEntregaCalDate, setDataEntrega, setEntregaCalOpen)}
               />
               <DateField
-                label="Data de retirada"
-                value={dataRetirada}
-                onChange={setDataRetirada}
-                calOpen={retiradaCalOpen}
-                setCalOpen={setRetiradaCalOpen}
-                calDate={retiradaCalDate}
+                label="Data de retirada" value={dataRetirada} onChange={setDataRetirada}
+                calOpen={retiradaCalOpen} setCalOpen={setRetiradaCalOpen} calDate={retiradaCalDate}
                 onCalSelect={(d) => handleCalendarSelect(d, setRetiradaCalDate, setDataRetirada, setRetiradaCalOpen)}
               />
             </div>
@@ -332,15 +419,8 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
                     {anexoNome || "Nenhum arquivo escolhido"}
                   </span>
                   {anexoNome && (
-                    <button
-                      type="button"
-                      className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAnexoNome(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                    >
+                    <button type="button" className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                      onClick={(e) => { e.stopPropagation(); setAnexoNome(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}>
                       <X className="h-3.5 w-3.5" />
                     </button>
                   )}
@@ -348,25 +428,15 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
                 <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
                 <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
               </div>
-
               <div>
                 <Label className="text-xs font-bold">Observações</Label>
-                <Textarea
-                  value={observacoes}
-                  onChange={(e) => setObservacoes(e.target.value)}
-                  rows={3}
-                  className="mt-1"
-                  placeholder="Informações adicionais..."
-                />
+                <Textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={3} className="mt-1" placeholder="Informações adicionais..." />
               </div>
             </div>
           </fieldset>
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-1">
-            <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
-              Cancelar
-            </Button>
+            <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>Cancelar</Button>
             <Button type="submit">Enviar Solicitação</Button>
           </div>
         </form>
