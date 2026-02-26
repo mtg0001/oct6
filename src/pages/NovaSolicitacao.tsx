@@ -14,6 +14,7 @@ import PlataformaElevatoriaForm from "@/components/forms/PlataformaElevatoriaFor
 import MateriaisForm from "@/components/forms/MateriaisForm";
 import EquipamentosTIForm from "@/components/forms/EquipamentosTIForm";
 import NegociacaoMaoDeObraForm from "@/components/forms/NegociacaoMaoDeObraForm";
+import ManutencaoPredialForm from "@/components/forms/ManutencaoPredialForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -58,7 +59,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Negociação de Mão de Obra", serviceKey: "Negociação de Mão de Obra", description: "Abrir formulário para enviar.", icon: Handshake, available: true },
   { title: "Solicitação de Novo Colaborador", serviceKey: "Novo Colaborador", description: "Abrir formulário para enviar.", icon: UserPlus, available: true },
   { title: "Solicitação de Equipamentos de TI", serviceKey: "Equipamentos de TI", description: "Notebooks, tablets e periféricos.", icon: Monitor, available: true },
-  { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: false },
+  { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: true },
   { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: true },
   { title: "Solicitação de Materiais de Escritório", serviceKey: "Materiais de Escritório", description: "Materiais de escritório em geral.", icon: PenTool, available: true },
 ];
@@ -82,6 +83,7 @@ const NovaSolicitacao = () => {
   const [uniformesEPIOpen, setUniformesEPIOpen] = useState(false);
   const [negociacaoOpen, setNegociacaoOpen] = useState(false);
   const [freteOpen, setFreteOpen] = useState(false);
+  const [manutencaoOpen, setManutencaoOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -106,6 +108,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Materiais de Escritório") setMateriaisEscritorioOpen(true);
     else if (title === "Solicitação de Uniformes e EPI") setUniformesEPIOpen(true);
     else if (title === "Negociação de Mão de Obra") setNegociacaoOpen(true);
+    else if (title === "Solicitação de Manutenção Predial") setManutencaoOpen(true);
   };
 
   return (
@@ -173,6 +176,7 @@ const NovaSolicitacao = () => {
       <MateriaisForm open={uniformesEPIOpen} onOpenChange={setUniformesEPIOpen} unidade={unidade || "goiania"} tipo="Uniformes e EPI" />
       <NegociacaoMaoDeObraForm open={negociacaoOpen} onOpenChange={setNegociacaoOpen} unidade={unidade || "goiania"} />
       <FreteForm open={freteOpen} onOpenChange={setFreteOpen} unidade={unidade || "goiania"} />
+      <ManutencaoPredialForm open={manutencaoOpen} onOpenChange={setManutencaoOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
