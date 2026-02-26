@@ -9,6 +9,7 @@ import GeradorForm from "@/components/forms/GeradorForm";
 import HospedagemForm from "@/components/forms/HospedagemForm";
 import PassagensForm from "@/components/forms/PassagensForm";
 import TendasForm from "@/components/forms/TendasForm";
+import PlataformaElevatoriaForm from "@/components/forms/PlataformaElevatoriaForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -69,6 +70,7 @@ const NovaSolicitacao = () => {
   const [hospedagemOpen, setHospedagemOpen] = useState(false);
   const [passagensOpen, setPassagensOpen] = useState(false);
   const [tendasOpen, setTendasOpen] = useState(false);
+  const [plataformaOpen, setPlataformaOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -85,6 +87,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Hospedagem") setHospedagemOpen(true);
     else if (title === "Solicitação de Passagens") setPassagensOpen(true);
     else if (title === "Solicitação de Tendas") setTendasOpen(true);
+    else if (title === "Solicitação de Plataforma Elevatória") setPlataformaOpen(true);
   };
 
   return (
@@ -144,6 +147,7 @@ const NovaSolicitacao = () => {
       <HospedagemForm open={hospedagemOpen} onOpenChange={setHospedagemOpen} unidade={unidade || "goiania"} />
       <PassagensForm open={passagensOpen} onOpenChange={setPassagensOpen} unidade={unidade || "goiania"} />
       <TendasForm open={tendasOpen} onOpenChange={setTendasOpen} unidade={unidade || "goiania"} />
+      <PlataformaElevatoriaForm open={plataformaOpen} onOpenChange={setPlataformaOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
