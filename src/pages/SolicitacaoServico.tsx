@@ -92,6 +92,16 @@ const SolicitacaoServico = () => {
     { campo: "Chave PIX", valor: parsed[`Chave PIX (${sol.tipoContrato})`] || "—" },
   ];
 
+  // ── Aluguel de Banheiro table rows ──
+  const getAluguelBanheiroRows = () => [
+    { campo: "Qtd. Banheiros", valor: parsed["Qtd. Banheiros"] || "—" },
+    { campo: "Climatizado", valor: parsed["Climatizado"] || "—" },
+    { campo: "Insumos Inclusos", valor: parsed["Insumos Inclusos"] || "—" },
+    { campo: "Stand", valor: parsed["Stand"] || "—" },
+    { campo: "Data de Entrega", valor: sol.horarioDe || parsed["Data de Entrega"] || "—" },
+    { campo: "Data de Retirada", valor: sol.horarioAte || parsed["Data de Retirada"] || "—" },
+  ];
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -102,8 +112,9 @@ const SolicitacaoServico = () => {
   };
 
   const isDiarista = sol.tipo === "Serviço de Diarista";
-  const tableRows = isDiarista ? getDiaristaRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : "Dados da Solicitação";
+  const isAluguelBanheiro = sol.tipo === "Aluguel de Banheiro";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : "Dados da Solicitação";
 
   return (
     <AppLayout>
