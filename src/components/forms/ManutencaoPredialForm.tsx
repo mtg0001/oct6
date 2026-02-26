@@ -127,7 +127,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
     if (!validate()) return;
 
     const servicosInfo = servicos
-      .map((s, i) => `Serviço ${i + 1}: ${s.tipoServico} | Melhor dia: ${s.dataExecucao}`)
+      .map((s, i) => `Serviço ${i + 1}: ${s.tipoServico} | Melhor data: ${s.dataExecucao}`)
       .join("\n");
 
     try {
@@ -236,7 +236,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
                     />
                   </div>
                   <div>
-                    <Label className="text-xs font-bold">Melhor dia para Execução *</Label>
+                    <Label className="text-xs font-bold">Melhor data para Execução *</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <Input
                         value={s.dataExecucao}
