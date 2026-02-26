@@ -167,6 +167,28 @@ const SolicitacaoServico = () => {
     return rows;
   };
 
+  // ── Passagens table rows ──
+  const getPassagensRows = () => {
+    const rows = [
+      { campo: "Tipo de Transporte", valor: parsed["Transporte"] || sol.tipoVaga || "—" },
+      { campo: "Data de Ida", valor: sol.horarioDe || parsed["Data ida"] || "—" },
+      { campo: "Data de Volta", valor: sol.horarioAte || parsed["Data volta"] || "—" },
+      { campo: "Dias", valor: parsed["Dias"] || "—" },
+      { campo: "Origem", valor: parsed["Origem"] || "—" },
+      { campo: "Destino", valor: parsed["Destino"] || sol.unidadeDestino || "—" },
+    ];
+    const passageirosRaw = parsed["Passageiros"] || "";
+    if (passageirosRaw) {
+      const lista = passageirosRaw.split(";").map((p) => p.trim()).filter(Boolean);
+      lista.forEach((p, i) => {
+        rows.push({ campo: lista.length === 1 ? "Passageiro" : `Passageiro ${i + 1}`, valor: p });
+      });
+    } else {
+      rows.push({ campo: "Passageiros", valor: "—" });
+    }
+    return rows;
+  };
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -182,8 +204,9 @@ const SolicitacaoServico = () => {
   const isFrete = sol.tipo === "Frete";
   const isGerador = sol.tipo === "Gerador";
   const isHospedagem = sol.tipo === "Hospedagem";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : "Dados da Solicitação";
+  const isPassagens = sol.tipo === "Passagens";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : "Dados da Solicitação";
 
   return (
     <AppLayout>
