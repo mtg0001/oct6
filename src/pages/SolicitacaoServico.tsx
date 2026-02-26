@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
-import { getSharePointDownloadLink, uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -94,7 +94,7 @@ const SolicitacaoServico = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };
@@ -513,7 +513,7 @@ const SolicitacaoServico = () => {
                 }}
               >
                 {downloadingAnexo ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
-                {parsed["Anexo"]}
+                {getDisplayFileName(parsed["Anexo"])}
                 <ExternalLink className="h-3 w-3" />
               </button>
             ) : (

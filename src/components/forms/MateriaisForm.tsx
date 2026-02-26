@@ -20,7 +20,7 @@ import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Trash2, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -85,7 +85,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(file.name);
+      setAnexoNome(buildStoredFileName(file.name));
     }
   };
 
