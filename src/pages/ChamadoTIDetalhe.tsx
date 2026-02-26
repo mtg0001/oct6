@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, Paperclip, ExternalLink,
@@ -18,6 +19,8 @@ import {
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { AndamentoBubble } from "@/components/AndamentoBubble";
 import octarteLogo from "@/assets/octarte-logo.png";
 
 const URGENCIA_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -43,6 +46,8 @@ export default function ChamadoTIDetalhe() {
   const [andamentoTexto, setAndamentoTexto] = useState("");
   const [andamentos, setAndamentos] = useState<any[]>([]);
   const [sendingAndamento, setSendingAndamento] = useState(false);
+  const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
+  const [anexoFiles, setAnexoFiles] = useState<File[]>([]);
 
   // Detect if accessed from /ti/ (Tecnologia da Informação) or /chamado-ti/ (Abrir Chamados)
   const isTI = location.pathname.startsWith("/ti/");
@@ -84,18 +89,29 @@ export default function ChamadoTIDetalhe() {
   };
 
   const handleAddAndamento = async () => {
-    if (!andamentoTexto.trim() || !id) return;
+    if (!andamentoTexto.trim() || !id || !chamado) return;
     setSendingAndamento(true);
     try {
       const nome = nomeUsuario;
       const texto = `[${nome}] ${andamentoTexto.trim()}`;
+      // Upload files to SharePoint
+      for (const file of anexoFiles) {
+        await uploadAttachmentToSharePoint({
+          file,
+          unidade: chamado.departamento || "ti",
+          servico: "Chamados TI",
+          userName: nome,
+        });
+      }
       const { error } = await supabase.from("andamentos_ti" as any).insert({
         chamado_id: id,
         texto,
-        anexos: [],
+        anexos: anexoNomes,
       });
       if (error) throw error;
       setAndamentoTexto("");
+      setAnexoNomes([]);
+      setAnexoFiles([]);
       setAndamentoOpen(false);
       toast.success("Andamento adicionado!");
       await loadAndamentos();
@@ -103,6 +119,14 @@ export default function ChamadoTIDetalhe() {
       toast.error("Erro ao adicionar andamento");
     } finally {
       setSendingAndamento(false);
+    }
+  };
+
+  const handleAndamentoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoFiles((prev) => [...prev, ...files]);
     }
   };
 
@@ -224,29 +248,17 @@ export default function ChamadoTIDetalhe() {
           <Card className="p-5 mb-6 border-primary/10">
             <h3 className="text-sm font-semibold text-foreground mb-4">Andamentos</h3>
             <div className="space-y-4">
-              {andamentos.map((a) => {
-                const match = a.texto?.match(/^\[(.+?)\]\s?(.*)/s);
-                const nome = match ? match[1] : "?";
-                const msg = match ? match[2] : a.texto;
-                return (
-                  <div key={a.id} className="flex gap-3 items-start">
-                    <div className="h-8 w-8 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                      {nome.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="bg-muted/60 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-primary">{nome}</span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {new Date(a.created_at).toLocaleString("pt-BR")}
-                          </span>
-                        </div>
-                        <p className="text-sm text-foreground whitespace-pre-wrap">{msg}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {andamentos.map((a) => (
+                <AndamentoBubble
+                  key={a.id}
+                  texto={a.texto}
+                  data={new Date(a.created_at).toLocaleString("pt-BR")}
+                  anexos={a.anexos}
+                  unidade={chamado?.departamento || "ti"}
+                  servico="Chamados TI"
+                  userName={nomeUsuario}
+                />
+              ))}
             </div>
           </Card>
         )}
@@ -261,8 +273,19 @@ export default function ChamadoTIDetalhe() {
               onChange={(e) => setAndamentoTexto(e.target.value)}
               className="mb-3 min-h-[80px]"
             />
+            <div className="flex items-center gap-3 mb-3">
+              <label className="flex items-center gap-1 text-sm text-primary cursor-pointer hover:underline">
+                <Paperclip className="h-4 w-4" /> Adicionar anexo
+                <Input type="file" multiple className="hidden" onChange={handleAndamentoFileChange} />
+              </label>
+              {anexoNomes.length > 0 && (
+                <div className="flex gap-1 flex-wrap">
+                  {anexoNomes.map((n, i) => <Badge key={i} variant="outline" className="text-xs">{n}</Badge>)}
+                </div>
+              )}
+            </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => { setAndamentoOpen(false); setAndamentoTexto(""); }}>
+              <Button variant="outline" size="sm" onClick={() => { setAndamentoOpen(false); setAndamentoTexto(""); setAnexoNomes([]); setAnexoFiles([]); }}>
                 Cancelar
               </Button>
               <Button size="sm" className="gap-1.5" onClick={handleAddAndamento} disabled={sendingAndamento || !andamentoTexto.trim()}>
