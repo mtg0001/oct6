@@ -161,7 +161,7 @@ export function AppSidebar() {
       items.push({ title: "Usuários", icon: UserCog, path: "/usuarios" });
     }
 
-    if (isAdmin || u?.visualizaSolicitacoesUnidades?.includes("GOIÂNIA")) {
+    if (isAdmin) {
       items.push({
         title: "Solicitações GO",
         icon: FileSearch,
@@ -171,8 +171,6 @@ export function AppSidebar() {
           { title: "Cancelados", path: "/solicitacoes-go/cancelados" },
         ],
       });
-    }
-    if (isAdmin || u?.visualizaSolicitacoesUnidades?.includes("SÃO PAULO")) {
       items.push({
         title: "Solicitações SP",
         icon: FileSearch,
