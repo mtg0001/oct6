@@ -288,6 +288,7 @@ export type Database = {
         Row: {
           administrador: boolean
           ativo: boolean
+          avatar_url: string | null
           created_at: string
           departamento: string
           diretoria: string[]
@@ -308,6 +309,7 @@ export type Database = {
         Insert: {
           administrador?: boolean
           ativo?: boolean
+          avatar_url?: string | null
           created_at?: string
           departamento: string
           diretoria?: string[]
@@ -328,6 +330,7 @@ export type Database = {
         Update: {
           administrador?: boolean
           ativo?: boolean
+          avatar_url?: string | null
           created_at?: string
           departamento?: string
           diretoria?: string[]
