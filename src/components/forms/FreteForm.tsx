@@ -104,8 +104,10 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
 
   // Ponto Octarte
   const [pontoOctarte, setPontoOctarte] = useState(false);
-  const [octarteGoiania, setOctarteGoiania] = useState(false);
-  const [octarteSP, setOctarteSP] = useState(false);
+  const [octarteColeta, setOctarteColeta] = useState(false);
+  const [octarteEntrega, setOctarteEntrega] = useState(false);
+  const [octarteColetaUnidade, setOctarteColetaUnidade] = useState("");
+  const [octarteEntregaUnidade, setOctarteEntregaUnidade] = useState("");
 
   // Anexo / Obs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,7 +138,8 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
     setOrigemUF(""); setOrigemCidade(""); setDestinoUF(""); setDestinoCidade("");
     setDataCarga(""); setDataCargaCal(undefined);
     setDataDescarga(""); setDataDescargaCal(undefined);
-    setPontoOctarte(false); setOctarteGoiania(false); setOctarteSP(false);
+    setPontoOctarte(false); setOctarteColeta(false); setOctarteEntrega(false);
+    setOctarteColetaUnidade(""); setOctarteEntregaUnidade("");
     setAnexoNome(null); setObservacoes("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -153,7 +156,9 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
     if (!destinoUF || !destinoCidade) { toast({ title: "Selecione o Local de Destino (Estado e Cidade)", variant: "destructive" }); return false; }
     if (dataCarga.length < 10) { toast({ title: "Data de Carga inválida", variant: "destructive" }); return false; }
     if (dataDescarga.length < 10) { toast({ title: "Data de Descarga inválida", variant: "destructive" }); return false; }
-    if (pontoOctarte && !octarteGoiania && !octarteSP) { toast({ title: "Selecione ao menos uma unidade Octarte", variant: "destructive" }); return false; }
+    if (pontoOctarte && !octarteColeta && !octarteEntrega) { toast({ title: "Selecione Coleta e/ou Entrega", variant: "destructive" }); return false; }
+    if (pontoOctarte && octarteColeta && !octarteColetaUnidade) { toast({ title: "Selecione a unidade Octarte para Coleta", variant: "destructive" }); return false; }
+    if (pontoOctarte && octarteEntrega && !octarteEntregaUnidade) { toast({ title: "Selecione a unidade Octarte para Entrega", variant: "destructive" }); return false; }
     return true;
   };
 
@@ -161,8 +166,11 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const octarteUnidades = pontoOctarte
-      ? [octarteGoiania && "Octarte Goiânia", octarteSP && "Octarte São Paulo"].filter(Boolean).join(", ")
+    const octarteInfo = pontoOctarte
+      ? [
+          octarteColeta && `Coleta: ${octarteColetaUnidade}`,
+          octarteEntrega && `Entrega: ${octarteEntregaUnidade}`,
+        ].filter(Boolean).join(" | ")
       : "Não";
 
     try {
@@ -190,7 +198,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
           `Destino: ${destinoCidade}/${destinoUF}`,
           `Data Carga: ${dataCarga}`,
           `Data Descarga: ${dataDescarga}`,
-          `Ponto Octarte: ${octarteUnidades}`,
+          `Ponto Octarte: ${octarteInfo}`,
           anexoNome ? `Anexo: ${anexoNome}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
@@ -211,7 +219,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
           origemCidade,
           destinoUF,
           destinoCidade,
-          pontoOctarte: octarteUnidades,
+          pontoOctarte: octarteInfo,
         },
         observacoes,
       });
@@ -454,7 +462,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
                     onCheckedChange={(v) => {
                       const checked = v === true;
                       setPontoOctarte(checked);
-                      if (!checked) { setOctarteGoiania(false); setOctarteSP(false); }
+                      if (!checked) { setOctarteColeta(false); setOctarteEntrega(false); setOctarteColetaUnidade(""); setOctarteEntregaUnidade(""); }
                     }}
                   />
                   <Label htmlFor="pontoOctarte" className="text-xs font-bold cursor-pointer">
@@ -463,14 +471,44 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
                 </div>
 
                 {pontoOctarte && (
-                  <div className="flex items-center gap-6 ml-6">
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="octGyn" checked={octarteGoiania} onCheckedChange={(v) => setOctarteGoiania(v === true)} />
-                      <Label htmlFor="octGyn" className="text-xs cursor-pointer">Octarte Goiânia</Label>
+                  <div className="ml-6 space-y-3">
+                    {/* Coleta */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="octColeta" checked={octarteColeta} onCheckedChange={(v) => { setOctarteColeta(v === true); if (!v) setOctarteColetaUnidade(""); }} />
+                        <Label htmlFor="octColeta" className="text-xs font-bold cursor-pointer">Coleta</Label>
+                      </div>
+                      {octarteColeta && (
+                        <div className="flex items-center gap-4 ml-6">
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="coletaGyn" checked={octarteColetaUnidade === "Octarte Goiânia"} onCheckedChange={() => setOctarteColetaUnidade("Octarte Goiânia")} />
+                            <Label htmlFor="coletaGyn" className="text-xs cursor-pointer">Octarte Goiânia</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="coletaSP" checked={octarteColetaUnidade === "Octarte São Paulo"} onCheckedChange={() => setOctarteColetaUnidade("Octarte São Paulo")} />
+                            <Label htmlFor="coletaSP" className="text-xs cursor-pointer">Octarte São Paulo</Label>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="octSP" checked={octarteSP} onCheckedChange={(v) => setOctarteSP(v === true)} />
-                      <Label htmlFor="octSP" className="text-xs cursor-pointer">Octarte São Paulo</Label>
+                    {/* Entrega */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox id="octEntrega" checked={octarteEntrega} onCheckedChange={(v) => { setOctarteEntrega(v === true); if (!v) setOctarteEntregaUnidade(""); }} />
+                        <Label htmlFor="octEntrega" className="text-xs font-bold cursor-pointer">Entrega</Label>
+                      </div>
+                      {octarteEntrega && (
+                        <div className="flex items-center gap-4 ml-6">
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="entregaGyn" checked={octarteEntregaUnidade === "Octarte Goiânia"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte Goiânia")} />
+                            <Label htmlFor="entregaGyn" className="text-xs cursor-pointer">Octarte Goiânia</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="entregaSP" checked={octarteEntregaUnidade === "Octarte São Paulo"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte São Paulo")} />
+                            <Label htmlFor="entregaSP" className="text-xs cursor-pointer">Octarte São Paulo</Label>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
