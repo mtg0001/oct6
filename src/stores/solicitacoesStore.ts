@@ -300,16 +300,19 @@ export async function cancelarSolicitacao(solId: string) {
   await updateStatus(solId, { status: "cancelado" });
 }
 
-export async function encaminharSolicitacao(solId: string, destino: string, diretorNome?: string) {
+export async function encaminharSolicitacao(solId: string, destino: string, diretorNome?: string, novoStatus?: string) {
   const updates: Record<string, any> = { setor_atual: destino };
   if (destino === 'diretoria' && diretorNome) {
     updates.diretor_area = diretorNome;
+  }
+  if (novoStatus) {
+    updates.status = novoStatus;
   }
   const { error } = await supabase.from("solicitacoes").update(updates).eq("id", solId);
   if (error) throw error;
   solicitacoes = solicitacoes.map((s) => {
     if (s.id !== solId) return s;
-    return { ...s, setorAtual: destino, ...(diretorNome ? { diretorArea: diretorNome } : {}) };
+    return { ...s, setorAtual: destino, ...(diretorNome ? { diretorArea: diretorNome } : {}), ...(novoStatus ? { status: novoStatus as any } : {}) };
   });
   notify();
 }
