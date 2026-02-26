@@ -160,6 +160,7 @@ export type Database = {
           nome_substituido: string
           observacoes: string
           prioridade: string
+          setor_atual: string
           solicitante: string
           solicitante_id: string | null
           status: string
@@ -193,6 +194,7 @@ export type Database = {
           nome_substituido?: string
           observacoes?: string
           prioridade?: string
+          setor_atual?: string
           solicitante?: string
           solicitante_id?: string | null
           status?: string
@@ -226,6 +228,7 @@ export type Database = {
           nome_substituido?: string
           observacoes?: string
           prioridade?: string
+          setor_atual?: string
           solicitante?: string
           solicitante_id?: string | null
           status?: string

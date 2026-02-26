@@ -3,13 +3,13 @@ import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
 import { useCurrentUser } from "@/hooks/useUsuarios";
-import { addAndamento, aprovarSolicitacao, reprovarSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, aprovarSolicitacao, reprovarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip } from "lucide-react";
+import { Paperclip, Forward } from "lucide-react";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table,
@@ -231,8 +231,37 @@ const SolicitacaoDetalhe = () => {
           >
             Andamento
           </Button>
-          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ✅ Solicitação APROVADA por ${nome}`); await aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
-          <Button variant="destructive" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ❌ Solicitação REPROVADA por ${nome}`); await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
+          {sol.setorAtual === 'diretoria' ? (
+            <>
+              {/* Forwarded from expedition: Aprovar e encaminhar / Reprovar e devolver */}
+              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                const nome = currentUser?.nome || nomeDir;
+                await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
+                await aprovarSolicitacao(sol.id);
+                await encaminharSolicitacao(sol.id, 'logistica_encaminhado');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Aprovar e encaminhar para Logística
+              </Button>
+              <Button variant="destructive" onClick={async () => {
+                const nome = currentUser?.nome || nomeDir;
+                await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e devolvido para Expedição`);
+                await reprovarSolicitacao(sol.id);
+                await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Reprovar e devolver para Expedição
+              </Button>
+            </>
+          ) : (
+            <>
+              {/* Normal director flow */}
+              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ✅ Solicitação APROVADA por ${nome}`); await aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
+              <Button variant="destructive" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ❌ Solicitação REPROVADA por ${nome}`); await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
+            </>
+          )}
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>
             Voltar
           </Button>

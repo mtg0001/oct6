@@ -45,6 +45,7 @@ export interface SolicitacaoColaborador {
   dataCriacao: string;
   status: "pendente" | "aprovado_diretor" | "aprovado" | "reprovado" | "resolvido" | "cancelado";
   andamentos: Andamento[];
+  setorAtual: string;
 }
 
 function mapSolRow(row: any, andamentos: any[] = []): SolicitacaoColaborador {
@@ -76,6 +77,7 @@ function mapSolRow(row: any, andamentos: any[] = []): SolicitacaoColaborador {
     observacoes: row.observacoes || "",
     dataCriacao: new Date(row.created_at).toLocaleString("pt-BR"),
     status: row.status,
+    setorAtual: row.setor_atual || "",
     andamentos: andamentos.map((a) => ({
       id: a.id,
       texto: a.texto,
@@ -168,15 +170,18 @@ export function getSolicitacoesByStatus(status: string) { return solicitacoes.fi
 
 export function getSolicitacoesLogistica(status?: string) {
   return solicitacoes.filter((s) => {
-    const isLogistica = (LOGISTICA_SERVICES as readonly string[]).includes(s.tipo);
-    return status ? isLogistica && s.status === status : isLogistica;
+    const isLogisticaOriginal = (LOGISTICA_SERVICES as readonly string[]).includes(s.tipo) && (s.setorAtual === '' || s.setorAtual === 'logistica');
+    const isEncaminhado = s.setorAtual === 'logistica_encaminhado';
+    const inQueue = isLogisticaOriginal || isEncaminhado;
+    return status ? inQueue && s.status === status : inQueue;
   });
 }
 
 export function getSolicitacoesExpedicao(status?: string) {
   return solicitacoes.filter((s) => {
     const isExpedicao = (EXPEDICAO_SERVICES as readonly string[]).includes(s.tipo);
-    return status ? isExpedicao && s.status === status : isExpedicao;
+    const inExpedicaoQueue = s.setorAtual === '' || s.setorAtual === 'expedicao_devolvido';
+    return status ? isExpedicao && inExpedicaoQueue && s.status === status : isExpedicao && inExpedicaoQueue;
   });
 }
 
@@ -184,8 +189,10 @@ export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI"] as const;
 
 export function getSolicitacoesRH(status?: string) {
   return solicitacoes.filter((s) => {
-    const isRH = (RH_SERVICES as readonly string[]).includes(s.tipo);
-    return status ? isRH && s.status === status : isRH;
+    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo);
+    const isEncaminhado = s.setorAtual === 'rh_encaminhado';
+    const inQueue = isRHOriginal || isEncaminhado;
+    return status ? inQueue && s.status === status : inQueue;
   });
 }
 
@@ -217,7 +224,7 @@ export function getTotaisPorUnidadeEStatus(unidade: string) {
 }
 
 // Mutations
-export async function addSolicitacao(sol: Omit<SolicitacaoColaborador, "id" | "dataCriacao" | "status" | "andamentos">) {
+export async function addSolicitacao(sol: Omit<SolicitacaoColaborador, "id" | "dataCriacao" | "status" | "andamentos" | "setorAtual">) {
   const { data, error } = await supabase.from("solicitacoes").insert([toDbInsert(sol)] as any).select().single();
   if (error) throw error;
   const nova = mapSolRow(data, []);
@@ -254,6 +261,7 @@ async function updateStatus(solId: string, updates: Record<string, any>) {
     const patched = { ...s };
     if (updates.status) patched.status = updates.status;
     if (updates.diretor_area !== undefined) patched.diretorArea = updates.diretor_area;
+    if (updates.setor_atual !== undefined) patched.setorAtual = updates.setor_atual;
     return patched;
   });
   notify();
@@ -290,6 +298,20 @@ export async function concluirSolicitacao(solId: string) {
 
 export async function cancelarSolicitacao(solId: string) {
   await updateStatus(solId, { status: "cancelado" });
+}
+
+export async function encaminharSolicitacao(solId: string, destino: string, diretorNome?: string) {
+  const updates: Record<string, any> = { setor_atual: destino };
+  if (destino === 'diretoria' && diretorNome) {
+    updates.diretor_area = diretorNome;
+  }
+  const { error } = await supabase.from("solicitacoes").update(updates).eq("id", solId);
+  if (error) throw error;
+  solicitacoes = solicitacoes.map((s) => {
+    if (s.id !== solId) return s;
+    return { ...s, setorAtual: destino, ...(diretorNome ? { diretorArea: diretorNome } : {}) };
+  });
+  notify();
 }
 
 export async function excluirSolicitacao(solId: string, excluidoPor: string) {

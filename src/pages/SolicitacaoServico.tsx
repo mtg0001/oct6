@@ -2,14 +2,18 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
-import { addAndamento, concluirSolicitacao, cancelarSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
+import { DIRETORES } from "@/stores/usuariosStore";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip, ArrowLeft, Printer } from "lucide-react";
+import { Paperclip, ArrowLeft, Printer, Forward } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -43,6 +47,8 @@ const SolicitacaoServico = () => {
   const sol = useSolicitacao(id || "");
   const currentUser = useCurrentUser();
   const isMinhasSolicitacoes = location.pathname.includes("/minhas-solicitacoes/");
+  const isExpedicao = location.pathname.includes("/expedicao/");
+  const isLogistica = location.pathname.includes("/logistica/");
   const isAdmin = currentUser?.administrador === true;
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
@@ -60,6 +66,10 @@ const SolicitacaoServico = () => {
   const siglaUnidade = sol.unidade === "goiania" ? "GO" : "SP";
   const isPendente = filtro === "pendentes";
   const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin);
+  // Expedition forwarding logic
+  const isDevolvido = sol.setorAtual === 'expedicao_devolvido';
+  const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
+  const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const parsed = parseJustificativa(sol.justificativa);
   const hasAnexo = !!parsed["Anexo"];
 
@@ -527,7 +537,14 @@ const SolicitacaoServico = () => {
             >
               Em andamento
             </Button>
-            {showConcluirCancelar && (
+            {/* Expedition: if returned, only show Em andamento + Cancelar */}
+            {isExpedicao && isPendente && isDevolvido && (
+              <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
+                Cancelar
+              </Button>
+            )}
+            {/* Normal Concluir/Cancelar (not for returned expedition items) */}
+            {showConcluirCancelar && !(isExpedicao && isDevolvido) && (
               <>
                 <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
                   Cancelar
@@ -536,6 +553,62 @@ const SolicitacaoServico = () => {
                   Concluir
                 </Button>
               </>
+            )}
+            {/* Expedition: Encaminhar para dropdown */}
+            {showEncaminharExpedicao && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline" className="border-blue-500 text-blue-600">
+                    <Forward className="h-4 w-4 mr-1" />
+                    Encaminhar para
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={async () => {
+                    const nome = currentUser?.nome || "Expedição";
+                    await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Logística & Compras`);
+                    await encaminharSolicitacao(sol.id, 'logistica_encaminhado');
+                    navigate(-1);
+                  }}>
+                    Logística & Compras
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={async () => {
+                    const nome = currentUser?.nome || "Expedição";
+                    await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Recursos Humanos`);
+                    await encaminharSolicitacao(sol.id, 'rh_encaminhado');
+                    navigate(-1);
+                  }}>
+                    Recursos Humanos
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Diretoria Aprovação</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {DIRETORES.map((dir) => (
+                        <DropdownMenuItem key={dir} onClick={async () => {
+                          const nome = currentUser?.nome || "Expedição";
+                          await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Diretoria — ${dir}`);
+                          await encaminharSolicitacao(sol.id, 'diretoria', dir);
+                          navigate(-1);
+                        }}>
+                          {dir}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {/* Logística: item forwarded from expedition, can send back */}
+            {showEncaminharLogistica && (
+              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={async () => {
+                const nome = currentUser?.nome || "Logística";
+                await addAndamento(sol.id, `[${nome}] 📦 Encaminhado de volta para Expedição`);
+                await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Encaminhar para Expedição
+              </Button>
             )}
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="h-4 w-4 mr-1" />
