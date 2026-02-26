@@ -247,11 +247,9 @@ Deno.serve(async (req) => {
 
       for (const unidade of unidades) {
         for (const servico of servicos) {
-          const folderPath = `${rootFolder}/${unidade}/${servico}`;
-          // Ensure the parent folders exist
-          await ensureFolderPath(token, driveId, folderPath);
-          // Create user folder
-          const result = await createFolder(token, driveId, folderPath, userName);
+          const parentPath = `${rootFolder}/${unidade}/${servico}`;
+          // Only create the user folder — unidade and servico folders are fixed/pre-existing
+          const result = await createFolder(token, driveId, parentPath, userName);
           results.push({ unidade, servico, userName, result });
         }
       }
@@ -271,9 +269,10 @@ Deno.serve(async (req) => {
         );
       }
 
-      const folderPath = `${rootFolder}/${unidade}/${servico}/${userName}`;
-      // Ensure folder exists
-      await ensureFolderPath(token, driveId, folderPath);
+      const parentPath = `${rootFolder}/${unidade}/${servico}`;
+      const folderPath = `${parentPath}/${userName}`;
+      // Only create the user folder — unidade and servico folders are fixed/pre-existing
+      await createFolder(token, driveId, parentPath, userName);
 
       // Decode base64 to Uint8Array
       const binaryString = atob(fileBase64);
