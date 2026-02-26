@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip, ArrowLeft } from "lucide-react";
+import { Paperclip, ArrowLeft, Printer } from "lucide-react";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -193,10 +193,10 @@ const SolicitacaoServico = () => {
           </fieldset>
 
           {/* ── Anexos (compact) ── */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 print:hidden">
             <Badge
               variant="outline"
-              className={`text-xs px-3 py-1.5 gap-1.5 ${hasAnexo ? "border-primary text-primary" : "border-border text-muted-foreground"}`}
+              className={`text-xs px-3 py-1.5 gap-1.5 ${hasAnexo ? "border-orange-400 text-orange-600 bg-orange-50" : "border-border text-muted-foreground"}`}
             >
               <Paperclip className="h-3 w-3" />
               {hasAnexo ? parsed["Anexo"] : "Não possui anexos"}
@@ -212,7 +212,7 @@ const SolicitacaoServico = () => {
           </fieldset>
 
           {/* ── Andamentos ── */}
-          <fieldset className="border border-border rounded-md p-3">
+          <fieldset className="border border-border rounded-md p-3 print:hidden">
             <legend className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-2">
               Andamentos
             </legend>
@@ -268,7 +268,7 @@ const SolicitacaoServico = () => {
           </fieldset>
 
           {/* ── Ações ── */}
-          <div className="flex flex-wrap gap-3 pt-2 items-center">
+          <div className="flex flex-wrap gap-3 pt-2 items-center print:hidden">
             <Button
               variant="outline"
               size="sm"
@@ -287,6 +287,10 @@ const SolicitacaoServico = () => {
                 </Button>
               </>
             )}
+            <Button variant="outline" size="sm" onClick={() => window.print()}>
+              <Printer className="h-4 w-4 mr-1" />
+              Imprimir
+            </Button>
             <Button variant="outline" size="sm" className="ml-auto" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4 mr-1" />
               Voltar
