@@ -18,6 +18,9 @@ import {
   ChevronLeft,
   Plus,
   Trash2,
+  Monitor,
+  Headset,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -32,6 +35,7 @@ interface MenuItem {
   icon?: React.ElementType;
   path?: string;
   children?: { title: string; path: string }[];
+  variant?: 'red';
 }
 
 export function AppSidebar() {
@@ -83,12 +87,17 @@ export function AppSidebar() {
       { title: "Chat", icon: MessageCircle, path: "/chat" },
     ];
 
-    // "Abrir Chamado" shortcut — goes to default unit
-    const defaultUnidadePath = u?.unidadePadrao === "SÃO PAULO" ? "/nova-solicitacao/sao-paulo" : "/nova-solicitacao/goiania";
-    const canOpenChamado = isAdmin || (u?.novaSolicitacaoUnidades && u.novaSolicitacaoUnidades.length > 0);
-    if (canOpenChamado) {
-      items.push({ title: "Abrir Chamado", icon: FilePlus, path: defaultUnidadePath });
-    }
+    // Abrir Chamado TI (red variant)
+    items.push({
+      title: "Abrir Chamado TI",
+      icon: Headset,
+      variant: 'red',
+      children: [
+        { title: "Pendentes", path: "/chamado-ti/pendentes" },
+        { title: "Resolvidos", path: "/chamado-ti/resolvidos" },
+        { title: "Cancelados", path: "/chamado-ti/cancelados" },
+      ],
+    });
 
     const solUnidades = isAdmin
       ? [
@@ -189,6 +198,18 @@ export function AppSidebar() {
         ],
       });
     }
+
+    // Tecnologia da Informação
+    items.push({
+      title: "Tecnologia da Informação",
+      icon: Monitor,
+      children: [
+        { title: "Chamados Pendentes", path: "/ti/chamados/pendentes" },
+        { title: "Chamados Resolvidos", path: "/ti/chamados/resolvidos" },
+        { title: "Chamados Cancelados", path: "/ti/chamados/cancelados" },
+        { title: "GLPI", path: "/ti/glpi" },
+      ],
+    });
 
     if (u?.podeVerLixeira || isAdmin) {
       items.push({ title: "Lixeira", icon: Trash2, path: "/lixeira" });
@@ -336,6 +357,8 @@ export function AppSidebar() {
 
             const isOpen = openMenus[item.title];
             const hasActiveChild = item.children?.some((child) => location.pathname === child.path) ?? false;
+            const isRed = item.variant === 'red';
+            const activeBg = isRed ? "bg-destructive text-destructive-foreground shadow-md shadow-destructive/30" : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]";
             return (
               <div key={item.title}>
                 <button
@@ -343,7 +366,7 @@ export function AppSidebar() {
                   className={cn(
                     "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
                     hasActiveChild && !isOpen
-                      ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]"
+                      ? activeBg
                       : "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
                   )}
                 >
@@ -358,7 +381,7 @@ export function AppSidebar() {
                   )}
                 </button>
                 {!collapsed && isOpen && item.children && (
-                  <div className="ml-5 border-l-2 border-[hsl(var(--sidebar-border))] pl-3 mt-1 mb-1 space-y-0.5">
+                  <div className={cn("ml-5 border-l-2 pl-3 mt-1 mb-1 space-y-0.5", isRed ? "border-destructive/40" : "border-[hsl(var(--sidebar-border))]")}>
                     {item.children.map((child) => (
                       <NavLink
                         key={child.path}
@@ -367,7 +390,9 @@ export function AppSidebar() {
                           cn(
                             "block px-3 py-1.5 rounded-md text-[12px] transition-all duration-200",
                             isActive
-                              ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
+                              ? isRed
+                                ? "bg-destructive text-destructive-foreground font-semibold shadow-sm"
+                                : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
                               : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
                           )
                         }
