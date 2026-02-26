@@ -233,7 +233,7 @@ const SolicitacaoDetalhe = () => {
           </Button>
           {sol.setorAtual === 'diretoria' ? (
             <>
-              {/* Forwarded from expedition: Aprovar e encaminhar / Reprovar e devolver */}
+              {/* Forwarded from expedition: 3 options */}
               <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                 const nome = currentUser?.nome || nomeDir;
                 await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
@@ -243,6 +243,16 @@ const SolicitacaoDetalhe = () => {
               }}>
                 <Forward className="h-4 w-4 mr-1" />
                 Aprovar e encaminhar para Logística
+              </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                const nome = currentUser?.nome || nomeDir;
+                await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e devolvido para Expedição`);
+                await aprovarSolicitacao(sol.id);
+                await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Aprovar e devolver para Expedição
               </Button>
               <Button variant="destructive" onClick={async () => {
                 const nome = currentUser?.nome || nomeDir;
