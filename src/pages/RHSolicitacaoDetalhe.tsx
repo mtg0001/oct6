@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
+import { useCurrentUser } from "@/hooks/useUsuarios";
 import { addAndamento, concluirSolicitacao, cancelarSolicitacao } from "@/stores/solicitacoesStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +28,7 @@ const RHSolicitacaoDetalhe = () => {
   const { filtro, id } = useParams<{ filtro: string; id: string }>();
   const navigate = useNavigate();
   const sol = useSolicitacao(id || "");
+  const currentUser = useCurrentUser();
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
@@ -49,7 +51,9 @@ const RHSolicitacaoDetalhe = () => {
 
   const handleEnviarAndamento = async () => {
     if (!textoAndamento.trim()) return;
-    await addAndamento(sol.id, textoAndamento, anexoNomes);
+    const nome = currentUser?.nome || "RH";
+    const textoComNome = `[${nome}] ${textoAndamento}`;
+    await addAndamento(sol.id, textoComNome, anexoNomes);
     setTextoAndamento(""); setAnexoNomes([]); setShowAndamento(false);
   };
 
