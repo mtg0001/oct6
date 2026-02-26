@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
-import { getSharePointDownloadLink } from "@/lib/sharepointAttachments";
+import { getSharePointDownloadLink, uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -55,6 +55,7 @@ const SolicitacaoServico = () => {
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
+  const [anexoFiles, setAnexoFiles] = useState<File[]>([]);
   const [downloadingAnexo, setDownloadingAnexo] = useState(false);
 
   if (!sol) {
@@ -82,13 +83,19 @@ const SolicitacaoServico = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "Usuário";
     const textoComNome = `[${nome}] ${textoAndamento}`;
+    // Upload files to SharePoint
+    for (const file of anexoFiles) {
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome });
+    }
     await addAndamento(sol.id, textoComNome, anexoNomes);
-    setTextoAndamento(""); setAnexoNomes([]); setShowAndamento(false);
+    setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAnexoNomes((prev) => [...prev, ...Array.from(e.target.files!).map((f) => f.name)]);
+      const files = Array.from(e.target.files);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoFiles((prev) => [...prev, ...files]);
     }
   };
 
@@ -535,7 +542,7 @@ const SolicitacaoServico = () => {
                 <p className="text-sm text-muted-foreground">—</p>
               )}
               {sol.andamentos.map((a) => (
-                <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} />
+                <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} unidade={sol.unidade} servico={sol.tipo} userName={sol.solicitante} />
               ))}
 
               {showAndamento && (
@@ -554,7 +561,7 @@ const SolicitacaoServico = () => {
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={handleEnviarAndamento}>Salvar Andamento</Button>
-                    <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); }}>Cancelar</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); }}>Cancelar</Button>
                   </div>
                 </div>
               )}

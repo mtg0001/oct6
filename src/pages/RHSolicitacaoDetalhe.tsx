@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip, Forward } from "lucide-react";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -33,6 +34,7 @@ const RHSolicitacaoDetalhe = () => {
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
+  const [anexoFiles, setAnexoFiles] = useState<File[]>([]);
 
   if (!sol) {
     return (
@@ -54,13 +56,18 @@ const RHSolicitacaoDetalhe = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "RH";
     const textoComNome = `[${nome}] ${textoAndamento}`;
+    for (const file of anexoFiles) {
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome });
+    }
     await addAndamento(sol.id, textoComNome, anexoNomes);
-    setTextoAndamento(""); setAnexoNomes([]); setShowAndamento(false);
+    setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAnexoNomes((prev) => [...prev, ...Array.from(e.target.files!).map((f) => f.name)]);
+      const files = Array.from(e.target.files);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoFiles((prev) => [...prev, ...files]);
     }
   };
 
@@ -132,7 +139,7 @@ const RHSolicitacaoDetalhe = () => {
           <div className="border border-border rounded-md p-4 space-y-3">
             {sol.andamentos.length === 0 && !showAndamento && <p className="text-sm text-muted-foreground">—</p>}
             {sol.andamentos.map((a) => (
-              <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} />
+              <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} unidade={sol.unidade} servico={sol.tipo} userName={sol.solicitante} />
             ))}
             {showAndamento && (
               <div className="space-y-3 pt-2 border-t border-border">
@@ -150,7 +157,7 @@ const RHSolicitacaoDetalhe = () => {
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={handleEnviarAndamento}>Salvar Andamento</Button>
-                  <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); }}>Cancelar</Button>
+                  <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); }}>Cancelar</Button>
                 </div>
               </div>
             )}
