@@ -22,7 +22,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, Paperclip, Plus, Trash2, X } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -37,10 +36,18 @@ interface TendasFormProps {
   unidade: string;
 }
 
+interface DetalheItem {
+  alturaPe: string;
+  largura: string;
+  comprimento: string;
+  lateraisFechadas: string;
+}
+
 interface TendaDetalhe {
   id: number;
-  tipos: string[];
-  detalhes: Record<string, { alturaPe: string; largura: string; comprimento: string; lateraisFechadas: string }>;
+  tipo: string; // single type selection
+  quantidade: number;
+  itens: DetalheItem[];
 }
 
 function maskDate(value: string) {
@@ -54,8 +61,12 @@ const TIPOS_TENDA = ["Tubolar", "Calhada", "Galpão", "Box"];
 
 let nextTendaId = 1;
 
+function criarDetalheVazio(): DetalheItem {
+  return { alturaPe: "", largura: "", comprimento: "", lateraisFechadas: "" };
+}
+
 function criarTendaVazia(): TendaDetalhe {
-  return { id: nextTendaId++, tipos: [], detalhes: {} };
+  return { id: nextTendaId++, tipo: "", quantidade: 1, itens: [criarDetalheVazio()] };
 }
 
 const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
@@ -64,7 +75,6 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
 
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");
-
   const [tendas, setTendas] = useState<TendaDetalhe[]>([criarTendaVazia()]);
 
   const [dataEntrega, setDataEntrega] = useState("");
@@ -91,31 +101,42 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
     setOpen(false);
   };
 
-  const toggleTipoForTenda = (tendaIdx: number, tipo: string) => {
+  const setTipo = (tendaIdx: number, tipo: string) => {
     setTendas((prev) => {
       const copy = [...prev];
       const t = { ...copy[tendaIdx] };
-      if (t.tipos.includes(tipo)) {
-        t.tipos = t.tipos.filter((x) => x !== tipo);
-        const { [tipo]: _, ...rest } = t.detalhes;
-        t.detalhes = rest;
-      } else {
-        t.tipos = [...t.tipos, tipo];
-        t.detalhes = { ...t.detalhes, [tipo]: { alturaPe: "", largura: "", comprimento: "", lateraisFechadas: "" } };
-      }
+      t.tipo = tipo;
+      t.quantidade = 1;
+      t.itens = [criarDetalheVazio()];
       copy[tendaIdx] = t;
       return copy;
     });
   };
 
-  const updateDetalhe = (tendaIdx: number, tipo: string, field: string, value: string) => {
+  const setQuantidade = (tendaIdx: number, qtd: number) => {
     setTendas((prev) => {
       const copy = [...prev];
       const t = { ...copy[tendaIdx] };
-      t.detalhes = {
-        ...t.detalhes,
-        [tipo]: { ...t.detalhes[tipo], [field]: value },
-      };
+      const oldItens = t.itens;
+      t.quantidade = qtd;
+      // Preserve existing, add new if needed
+      const newItens: DetalheItem[] = [];
+      for (let i = 0; i < qtd; i++) {
+        newItens.push(oldItens[i] || criarDetalheVazio());
+      }
+      t.itens = newItens;
+      copy[tendaIdx] = t;
+      return copy;
+    });
+  };
+
+  const updateItem = (tendaIdx: number, itemIdx: number, field: keyof DetalheItem, value: string) => {
+    setTendas((prev) => {
+      const copy = [...prev];
+      const t = { ...copy[tendaIdx] };
+      const itens = [...t.itens];
+      itens[itemIdx] = { ...itens[itemIdx], [field]: value };
+      t.itens = itens;
       copy[tendaIdx] = t;
       return copy;
     });
@@ -157,7 +178,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const validate = (): boolean => {
     if (!evento.trim()) { toast({ title: "Informe o Evento", variant: "destructive" }); return false; }
     if (!prioridade) { toast({ title: "Selecione a Prioridade", variant: "destructive" }); return false; }
-    const hasAnyTipo = tendas.some((t) => t.tipos.length > 0);
+    const hasAnyTipo = tendas.some((t) => t.tipo !== "");
     if (!hasAnyTipo) { toast({ title: "Selecione ao menos um tipo de tenda", variant: "destructive" }); return false; }
     if (dataEntrega.length < 10) { toast({ title: "Data de entrega inválida", variant: "destructive" }); return false; }
     if (dataRetirada.length < 10) { toast({ title: "Data de retirada inválida", variant: "destructive" }); return false; }
@@ -165,13 +186,11 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   };
 
   const buildTendasInfo = () => {
-    return tendas.map((t, i) => {
-      const tiposInfo = t.tipos.map((tipo) => {
-        const d = t.detalhes[tipo];
-        if (!d) return tipo;
-        return `${tipo} (Pé: ${d.alturaPe || "—"}m, ${d.largura || "—"}x${d.comprimento || "—"}m, Laterais: ${d.lateraisFechadas || "0"})`;
-      });
-      return `Tenda ${i + 1}: ${tiposInfo.join("; ")}`;
+    return tendas.filter(t => t.tipo).map((t, i) => {
+      const itensInfo = t.itens.map((item, j) =>
+        `#${j + 1}: Pé ${item.alturaPe || "—"}m, ${item.largura || "—"}x${item.comprimento || "—"}m, Lat: ${item.lateraisFechadas || "0"}`
+      ).join("; ");
+      return `Tenda ${i + 1} [${t.tipo} x${t.quantidade}]: ${itensInfo}`;
     }).join(" | ");
   };
 
@@ -179,7 +198,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const allTipos = tendas.flatMap((t) => t.tipos);
+    const allTipos = tendas.filter(t => t.tipo).map(t => t.tipo);
     const tendasInfo = buildTendasInfo();
 
     try {
@@ -211,7 +230,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         tipoContrato: allTipos.join(", "),
         horarioDe: dataEntrega,
         horarioAte: dataRetirada,
-        caracteristicas: { tendas: tendas.map((t) => ({ tipos: t.tipos, detalhes: t.detalhes })) } as any,
+        caracteristicas: { tendas: tendas.filter(t => t.tipo).map(t => ({ tipo: t.tipo, quantidade: t.quantidade, itens: t.itens })) } as any,
         observacoes,
       });
       toast({ title: "Solicitação de Tenda enviada com sucesso!" });
@@ -250,6 +269,49 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
             <Calendar mode="single" selected={calDate} onSelect={onCalSelect} locale={ptBR} className={cn("p-3 pointer-events-auto")} />
           </PopoverContent>
         </Popover>
+      </div>
+    </div>
+  );
+
+  const DetalheRow = ({ tendaIdx, itemIdx, item, showLabel }: { tendaIdx: number; itemIdx: number; item: DetalheItem; showLabel: boolean }) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        {showLabel && <Label className="text-xs font-bold">Altura do pé (m)</Label>}
+        <Input
+          value={item.alturaPe}
+          onChange={(e) => updateItem(tendaIdx, itemIdx, "alturaPe", e.target.value.replace(/[^\d.,]/g, ""))}
+          className={showLabel ? "mt-1" : ""}
+          placeholder="Ex: 3"
+          inputMode="decimal"
+        />
+      </div>
+      <div>
+        {showLabel && <Label className="text-xs font-bold">Medida</Label>}
+        <div className={cn("flex items-center gap-1", showLabel && "mt-1")}>
+          <Input
+            value={item.largura}
+            onChange={(e) => updateItem(tendaIdx, itemIdx, "largura", e.target.value.replace(/[^\d.,]/g, ""))}
+            placeholder="Largura (m)"
+            inputMode="decimal"
+          />
+          <span className="text-sm text-muted-foreground font-bold">x</span>
+          <Input
+            value={item.comprimento}
+            onChange={(e) => updateItem(tendaIdx, itemIdx, "comprimento", e.target.value.replace(/[^\d.,]/g, ""))}
+            placeholder="Comprimento (m)"
+            inputMode="decimal"
+          />
+        </div>
+      </div>
+      <div>
+        {showLabel && <Label className="text-xs font-bold">Qtd. de laterais fechadas</Label>}
+        <Input
+          value={item.lateraisFechadas}
+          onChange={(e) => updateItem(tendaIdx, itemIdx, "lateraisFechadas", e.target.value.replace(/\D/g, ""))}
+          className={showLabel ? "mt-1" : ""}
+          placeholder="Ex: 2"
+          inputMode="numeric"
+        />
       </div>
     </div>
   );
@@ -309,70 +371,58 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
                 )}
               </legend>
 
-              {/* Checkboxes dos tipos */}
+              {/* Radio-style type selection */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
                 {TIPOS_TENDA.map((tipo) => (
                   <div key={tipo} className="flex items-center gap-2">
-                    <Checkbox
+                    <input
+                      type="radio"
+                      name={`tenda-tipo-${tenda.id}`}
                       id={`tenda-${tenda.id}-${tipo}`}
-                      checked={tenda.tipos.includes(tipo)}
-                      onCheckedChange={() => toggleTipoForTenda(tendaIdx, tipo)}
+                      checked={tenda.tipo === tipo}
+                      onChange={() => setTipo(tendaIdx, tipo)}
+                      className="accent-primary h-4 w-4 cursor-pointer"
                     />
                     <Label htmlFor={`tenda-${tenda.id}-${tipo}`} className="text-sm cursor-pointer">{tipo}</Label>
                   </div>
                 ))}
               </div>
 
-              {/* Detalhes por tipo selecionado */}
-              {tenda.tipos.map((tipo) => {
-                const d = tenda.detalhes[tipo];
-                if (!d) return null;
-                return (
-                  <div key={tipo} className="border border-muted rounded-md p-3 mt-3">
-                    <p className="text-sm font-bold mb-2">{tipo}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label className="text-xs font-bold">Altura do pé (m)</Label>
-                        <Input
-                          value={d.alturaPe}
-                          onChange={(e) => updateDetalhe(tendaIdx, tipo, "alturaPe", e.target.value.replace(/[^\d.,]/g, ""))}
-                          className="mt-1"
-                          placeholder="Ex: 3"
-                          inputMode="decimal"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs font-bold">Medida</Label>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Input
-                            value={d.largura}
-                            onChange={(e) => updateDetalhe(tendaIdx, tipo, "largura", e.target.value.replace(/[^\d.,]/g, ""))}
-                            placeholder="Largura (m)"
-                            inputMode="decimal"
-                          />
-                          <span className="text-sm text-muted-foreground font-bold">x</span>
-                          <Input
-                            value={d.comprimento}
-                            onChange={(e) => updateDetalhe(tendaIdx, tipo, "comprimento", e.target.value.replace(/[^\d.,]/g, ""))}
-                            placeholder="Comprimento (m)"
-                            inputMode="decimal"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <Label className="text-xs font-bold">Qtd. de laterais fechadas</Label>
-                        <Input
-                          value={d.lateraisFechadas}
-                          onChange={(e) => updateDetalhe(tendaIdx, tipo, "lateraisFechadas", e.target.value.replace(/\D/g, ""))}
-                          className="mt-1"
-                          placeholder="Ex: 2"
-                          inputMode="numeric"
-                        />
-                      </div>
+              {/* Detalhes quando tipo selecionado */}
+              {tenda.tipo && (
+                <div className="border border-muted rounded-md p-3 mt-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold">{tenda.tipo}</p>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs font-bold">Quantidade *</Label>
+                      <Select value={String(tenda.quantidade)} onValueChange={(v) => setQuantidade(tendaIdx, Number(v))}>
+                        <SelectTrigger className="w-20 h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+                            <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                );
-              })}
+
+                  {tenda.itens.map((item, itemIdx) => (
+                    <div key={itemIdx}>
+                      {tenda.quantidade > 1 && (
+                        <p className="text-xs text-muted-foreground font-medium mb-1">{tenda.tipo} {itemIdx + 1}</p>
+                      )}
+                      <DetalheRow
+                        tendaIdx={tendaIdx}
+                        itemIdx={itemIdx}
+                        item={item}
+                        showLabel={itemIdx === 0}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </fieldset>
           ))}
 
