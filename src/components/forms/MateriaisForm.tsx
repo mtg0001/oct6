@@ -20,6 +20,7 @@ import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Trash2, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -143,6 +144,10 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         caracteristicas: { itens: itensTexto },
         observacoes,
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: `${tituloForm} enviada com sucesso!` });
       resetForm();
       onOpenChange(false);
