@@ -10,6 +10,7 @@ import HospedagemForm from "@/components/forms/HospedagemForm";
 import PassagensForm from "@/components/forms/PassagensForm";
 import TendasForm from "@/components/forms/TendasForm";
 import PlataformaElevatoriaForm from "@/components/forms/PlataformaElevatoriaForm";
+import MateriaisForm from "@/components/forms/MateriaisForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -71,6 +72,8 @@ const NovaSolicitacao = () => {
   const [passagensOpen, setPassagensOpen] = useState(false);
   const [tendasOpen, setTendasOpen] = useState(false);
   const [plataformaOpen, setPlataformaOpen] = useState(false);
+  const [materiaisComprasOpen, setMateriaisComprasOpen] = useState(false);
+  const [materiaisExpedicaoOpen, setMateriaisExpedicaoOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -88,6 +91,8 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Passagens") setPassagensOpen(true);
     else if (title === "Solicitação de Tendas") setTendasOpen(true);
     else if (title === "Solicitação de Plataforma Elevatória") setPlataformaOpen(true);
+    else if (title === "Solicitação de Materiais (Compras)") setMateriaisComprasOpen(true);
+    else if (title === "Solicitação de Materiais (Expedição)") setMateriaisExpedicaoOpen(true);
   };
 
   return (
@@ -148,6 +153,8 @@ const NovaSolicitacao = () => {
       <PassagensForm open={passagensOpen} onOpenChange={setPassagensOpen} unidade={unidade || "goiania"} />
       <TendasForm open={tendasOpen} onOpenChange={setTendasOpen} unidade={unidade || "goiania"} />
       <PlataformaElevatoriaForm open={plataformaOpen} onOpenChange={setPlataformaOpen} unidade={unidade || "goiania"} />
+      <MateriaisForm open={materiaisComprasOpen} onOpenChange={setMateriaisComprasOpen} unidade={unidade || "goiania"} tipo="Materiais (Compras)" />
+      <MateriaisForm open={materiaisExpedicaoOpen} onOpenChange={setMateriaisExpedicaoOpen} unidade={unidade || "goiania"} tipo="Materiais (Expedição)" />
     </AppLayout>
   );
 };
