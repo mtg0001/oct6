@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip } from "lucide-react";
+import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table,
   TableBody,
@@ -182,19 +183,7 @@ const SolicitacaoDetalhe = () => {
               <p className="text-sm text-muted-foreground">—</p>
             )}
             {sol.andamentos.map((a) => (
-              <div key={a.id} className="border-b border-border pb-2 last:border-0">
-                <p className="text-xs text-muted-foreground">{a.data}</p>
-                <p className="text-sm mt-1">{a.texto}</p>
-                {a.anexos && a.anexos.length > 0 && (
-                  <div className="flex gap-2 mt-1 flex-wrap">
-                    {a.anexos.map((anx, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        <Paperclip className="h-3 w-3 mr-1" /> {anx}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} />
             ))}
 
             {showAndamento && (

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip, ArrowLeft, Printer } from "lucide-react";
+import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -489,29 +490,9 @@ const SolicitacaoServico = () => {
               {sol.andamentos.length === 0 && !showAndamento && (
                 <p className="text-sm text-muted-foreground">—</p>
               )}
-              {sol.andamentos.map((a) => {
-                const { nome, texto } = parseAndamento(a.texto);
-                return (
-                  <div key={a.id} className="border-b border-border pb-2 last:border-0 last:pb-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[10px] text-muted-foreground font-semibold">{a.data}</p>
-                      {nome && (
-                        <Badge variant="secondary" className="text-[10px] px-2 py-0">{nome}</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm mt-1">{texto}</p>
-                    {a.anexos && a.anexos.length > 0 && (
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        {a.anexos.map((anx, i) => (
-                          <Badge key={i} variant="outline" className="text-xs gap-1">
-                            <Paperclip className="h-3 w-3" /> {anx}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {sol.andamentos.map((a) => (
+                <AndamentoBubble key={a.id} texto={a.texto} data={a.data} anexos={a.anexos} />
+              ))}
 
               {showAndamento && (
                 <div className="space-y-3 pt-2 border-t border-border">
