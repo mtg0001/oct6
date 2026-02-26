@@ -46,6 +46,38 @@ export type Database = {
           },
         ]
       }
+      andamentos_ti: {
+        Row: {
+          anexos: string[]
+          chamado_id: string
+          created_at: string
+          id: string
+          texto: string
+        }
+        Insert: {
+          anexos?: string[]
+          chamado_id: string
+          created_at?: string
+          id?: string
+          texto: string
+        }
+        Update: {
+          anexos?: string[]
+          chamado_id?: string
+          created_at?: string
+          id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "andamentos_ti_chamado_id_fkey"
+            columns: ["chamado_id"]
+            isOneToOne: false
+            referencedRelation: "chamados_ti"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chamados_ti: {
         Row: {
           anexos: string[] | null

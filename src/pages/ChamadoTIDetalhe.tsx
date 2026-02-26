@@ -76,9 +76,9 @@ export default function ChamadoTIDetalhe() {
 
   const loadAndamentos = async () => {
     const { data } = await supabase
-      .from("andamentos")
+      .from("andamentos_ti" as any)
       .select("*")
-      .eq("solicitacao_id", id)
+      .eq("chamado_id", id)
       .order("created_at", { ascending: true });
     if (data) setAndamentos(data);
   };
@@ -89,8 +89,8 @@ export default function ChamadoTIDetalhe() {
     try {
       const nome = nomeUsuario;
       const texto = `[${nome}] ${andamentoTexto.trim()}`;
-      const { error } = await supabase.from("andamentos").insert({
-        solicitacao_id: id,
+      const { error } = await supabase.from("andamentos_ti" as any).insert({
+        chamado_id: id,
         texto,
         anexos: [],
       });
