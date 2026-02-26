@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import octarteLogo from "@/assets/octarte-logo.png";
 
 interface MenuItem {
@@ -37,6 +38,7 @@ export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const currentUser = useCurrentUser();
   const { user, signOut } = useAuth();
+  const unreadCount = useUnreadMessages();
 
   const handleLogout = async () => {
     await signOut();
@@ -250,6 +252,11 @@ export function AppSidebar() {
                 >
                   {item.icon && <item.icon className="h-[18px] w-[18px] shrink-0" />}
                   {!collapsed && <span className="truncate">{item.title}</span>}
+                  {item.title === "Chat" && unreadCount > 0 && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1 animate-pulse">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </NavLink>
               );
             }
