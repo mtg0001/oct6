@@ -83,6 +83,13 @@ export function AppSidebar() {
       { title: "Chat", icon: MessageCircle, path: "/chat" },
     ];
 
+    // "Abrir Chamado" shortcut — goes to default unit
+    const defaultUnidadePath = u?.unidadePadrao === "SÃO PAULO" ? "/nova-solicitacao/sao-paulo" : "/nova-solicitacao/goiania";
+    const canOpenChamado = isAdmin || (u?.novaSolicitacaoUnidades && u.novaSolicitacaoUnidades.length > 0);
+    if (canOpenChamado) {
+      items.push({ title: "Abrir Chamado", icon: FilePlus, path: defaultUnidadePath });
+    }
+
     const solUnidades = isAdmin
       ? [
           { title: "Goiânia", path: "/nova-solicitacao/goiania" },
