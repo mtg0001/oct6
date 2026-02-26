@@ -215,11 +215,29 @@ const SolicitacaoServico = () => {
   };
 
   // ── Plataforma Elevatória table rows ──
-  const getPlataformaRows = () => [
-    { campo: "Tipos de Plataforma", valor: sol.tipoContrato || parsed["Tipos"] || "—" },
-    { campo: "Data de Entrega", valor: sol.horarioDe || parsed["Entrega"] || "—" },
-    { campo: "Data de Retirada", valor: sol.horarioAte || parsed["Retirada"] || "—" },
-  ];
+  const getPlataformaRows = () => {
+    const rows: { campo: string; valor: string }[] = [];
+    let plataformas: any[] = [];
+    const raw = (sol.caracteristicas as any)?.plataformas;
+    if (typeof raw === "string") {
+      try { plataformas = JSON.parse(raw); } catch { /* ignore */ }
+    } else if (Array.isArray(raw)) {
+      plataformas = raw;
+    }
+    if (plataformas.length > 0) {
+      plataformas.forEach((p: any, i: number) => {
+        const prefix = plataformas.length > 1 ? `Plataforma ${i + 1} — ` : "";
+        rows.push({ campo: `${prefix}Tipo`, valor: (p.tipos || []).join(", ") || "—" });
+        rows.push({ campo: `${prefix}Data de Entrega`, valor: p.dataEntrega || "—" });
+        rows.push({ campo: `${prefix}Data de Retirada`, valor: p.dataRetirada || "—" });
+      });
+    } else {
+      rows.push({ campo: "Tipos de Plataforma", valor: sol.tipoContrato || parsed["Tipos"] || "—" });
+      rows.push({ campo: "Data de Entrega", valor: sol.horarioDe || parsed["Entrega"] || "—" });
+      rows.push({ campo: "Data de Retirada", valor: sol.horarioAte || parsed["Retirada"] || "—" });
+    }
+    return rows;
+  };
 
    // ── Generic table rows ──
   const getGenericRows = () => {
