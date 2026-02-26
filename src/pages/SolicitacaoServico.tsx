@@ -214,7 +214,14 @@ const SolicitacaoServico = () => {
     return rows;
   };
 
-  // ── Generic table rows ──
+  // ── Plataforma Elevatória table rows ──
+  const getPlataformaRows = () => [
+    { campo: "Tipos de Plataforma", valor: sol.tipoContrato || parsed["Tipos"] || "—" },
+    { campo: "Data de Entrega", valor: sol.horarioDe || parsed["Entrega"] || "—" },
+    { campo: "Data de Retirada", valor: sol.horarioAte || parsed["Retirada"] || "—" },
+  ];
+
+   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
     if (entries.length === 0 && sol.justificativa) {
@@ -231,8 +238,9 @@ const SolicitacaoServico = () => {
   const isHospedagem = sol.tipo === "Hospedagem";
   const isPassagens = sol.tipo === "Passagens";
   const isTendas = sol.tipo === "Tendas";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : "Dados da Solicitação";
+  const isPlataforma = sol.tipo === "Plataforma Elevatória";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : "Dados da Solicitação";
 
   return (
     <AppLayout>
