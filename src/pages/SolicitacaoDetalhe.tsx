@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
+import { useCurrentUser } from "@/hooks/useUsuarios";
 import { addAndamento, aprovarSolicitacao, reprovarSolicitacao } from "@/stores/solicitacoesStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +48,7 @@ const SolicitacaoDetalhe = () => {
   const { diretor, id } = useParams<{ diretor: string; id: string }>();
   const navigate = useNavigate();
   const sol = useSolicitacao(id || "");
+  const currentUser = useCurrentUser();
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
@@ -75,7 +77,9 @@ const SolicitacaoDetalhe = () => {
 
   const handleEnviarAndamento = async () => {
     if (!textoAndamento.trim()) return;
-    await addAndamento(sol.id, textoAndamento, anexoNomes);
+    const nome = currentUser?.nome || "Diretoria";
+    const textoComNome = `[${nome}] ${textoAndamento}`;
+    await addAndamento(sol.id, textoComNome, anexoNomes);
     setTextoAndamento("");
     setAnexoNomes([]);
     setShowAndamento(false);
@@ -238,8 +242,8 @@ const SolicitacaoDetalhe = () => {
           >
             Andamento
           </Button>
-          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
-          <Button variant="destructive" onClick={async () => { await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
+          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ✅ Solicitação APROVADA por ${nome}`); await aprovarSolicitacao(sol.id); navigate(-1); }}>Aprovar</Button>
+          <Button variant="destructive" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ❌ Solicitação REPROVADA por ${nome}`); await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>
             Voltar
           </Button>
