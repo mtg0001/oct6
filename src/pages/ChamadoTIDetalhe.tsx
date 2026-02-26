@@ -19,7 +19,7 @@ import {
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import octarteLogo from "@/assets/octarte-logo.png";
 
@@ -125,7 +125,7 @@ export default function ChamadoTIDetalhe() {
   const handleAndamentoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };

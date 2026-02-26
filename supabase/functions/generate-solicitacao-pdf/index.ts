@@ -433,12 +433,21 @@ Deno.serve(async (req) => {
     const driveId = await getDriveId(token, siteId);
     const rootFolder = Deno.env.get("SHAREPOINT_ROOT_FOLDER")!;
 
-    const folderPath = `${rootFolder}/${sol.unidade}/${sol.tipo}/${sol.solicitante}`;
-    await ensureFolderPath(token, driveId, folderPath);
+    const userFolderPath = `${rootFolder}/${sol.unidade}/${sol.tipo}/${sol.solicitante}`;
+    await ensureFolderPath(token, driveId, userFolderPath);
 
     const idShort = sol.id.substring(0, 8).toUpperCase();
-    const dataStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = now.getFullYear();
+    const dateFolder = `${dd}${mm}${yyyy}`;
+    const dataStr = now.toISOString().slice(0, 10).replace(/-/g, "");
     const fileName = `SOL-${idShort}_${dataStr}.pdf`;
+
+    // Create date subfolder inside user folder
+    await createFolderAtLocation(token, driveId, userFolderPath, dateFolder);
+    const folderPath = `${userFolderPath}/${dateFolder}`;
 
     const uploadResult = await uploadFileToSharePoint(
       token, driveId, folderPath, fileName, pdfBytes, "application/pdf"

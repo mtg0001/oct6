@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip, Forward } from "lucide-react";
-import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table,
@@ -95,7 +95,7 @@ const SolicitacaoDetalhe = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };

@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -101,7 +101,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
       toast({ title: "Arquivo excede 5 MB", variant: "destructive" });
       return;
     }
-    setAnexoNome(file.name);
+    setAnexoNome(buildStoredFileName(file.name));
   };
 
   const resetForm = () => {

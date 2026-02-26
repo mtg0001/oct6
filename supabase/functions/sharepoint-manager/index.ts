@@ -260,7 +260,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "upload-file") {
-      const { unidade, servico, userName, fileName, fileBase64, contentType } = body;
+      const { unidade, servico, userName, fileName, fileBase64, contentType, datePasta } = body;
 
       if (!unidade || !servico || !userName || !fileName || !fileBase64) {
         return new Response(
@@ -270,9 +270,15 @@ Deno.serve(async (req) => {
       }
 
       const parentPath = `${rootFolder}/${unidade}/${servico}`;
-      const folderPath = `${parentPath}/${userName}`;
-      // Only create the user folder — unidade and servico folders are fixed/pre-existing
+      // Create user folder inside the fixed service folder
       await createFolder(token, driveId, parentPath, userName);
+
+      // Create date subfolder inside user folder
+      const userPath = `${parentPath}/${userName}`;
+      const dateFolder = datePasta || new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      await createFolder(token, driveId, userPath, dateFolder);
+
+      const folderPath = `${userPath}/${dateFolder}`;
 
       // Decode base64 to Uint8Array
       const binaryString = atob(fileBase64);

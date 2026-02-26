@@ -1,19 +1,50 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
+ * Returns today's date as ddMMyyyy string for use as SharePoint subfolder.
+ */
+export function getDateFolder(): string {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}${mm}${yyyy}`;
+}
+
+/**
+ * Build the stored file name with date prefix: "ddMMyyyy/filename.pdf"
+ */
+export function buildStoredFileName(fileName: string): string {
+  return `${getDateFolder()}/${fileName}`;
+}
+
+/**
+ * Extract just the display name from a stored filename.
+ * "26072025/file.pdf" → "file.pdf"
+ * "file.pdf" → "file.pdf" (backward compat)
+ */
+export function getDisplayFileName(storedName: string): string {
+  const idx = storedName.indexOf("/");
+  if (idx >= 0) return storedName.substring(idx + 1);
+  return storedName;
+}
+
+/**
  * Upload a file to SharePoint via the sharepoint-manager edge function.
- * Path: ROOT / unidade / servico / userName / fileName
+ * Path: ROOT / unidade / servico / userName / datePasta / fileName
  */
 export async function uploadAttachmentToSharePoint({
   file,
   unidade,
   servico,
   userName,
+  datePasta,
 }: {
   file: File;
   unidade: string;
   servico: string;
   userName: string;
+  datePasta?: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const buffer = await file.arrayBuffer();
@@ -33,6 +64,7 @@ export async function uploadAttachmentToSharePoint({
         fileName: file.name,
         fileBase64,
         contentType: file.type || "application/pdf",
+        datePasta: datePasta || getDateFolder(),
       },
     });
 
@@ -47,7 +79,7 @@ export async function uploadAttachmentToSharePoint({
 
 /**
  * Get a download link for a file stored in SharePoint.
- * Builds the path from unidade/servico/userName/fileName.
+ * fileName can be "ddMMyyyy/filename.pdf" (new) or "filename.pdf" (legacy).
  */
 export async function getSharePointDownloadLink({
   unidade,
@@ -61,10 +93,24 @@ export async function getSharePointDownloadLink({
   fileName: string;
 }): Promise<string | null> {
   try {
+    // Parse date subfolder from stored name
+    let datePart = "";
+    let actualFileName = fileName;
+    const slashIdx = fileName.indexOf("/");
+    if (slashIdx >= 0) {
+      datePart = fileName.substring(0, slashIdx);
+      actualFileName = fileName.substring(slashIdx + 1);
+    }
+
+    const basePath = `${getRootFolder()}/${unidade}/${servico}/${userName}`;
+    const filePath = datePart
+      ? `${basePath}/${datePart}/${actualFileName}`
+      : `${basePath}/${actualFileName}`;
+
     const { data, error } = await supabase.functions.invoke("sharepoint-manager", {
       body: {
         action: "get-download-link",
-        filePath: `${getRootFolder()}/${unidade}/${servico}/${userName}/${fileName}`,
+        filePath,
       },
     });
 
@@ -76,7 +122,5 @@ export async function getSharePointDownloadLink({
 }
 
 function getRootFolder(): string {
-  // This must match the SHAREPOINT_ROOT_FOLDER env var on the edge function.
-  // We hardcode it here since the client can't read server secrets.
   return "General/DIRETORIA OPERACIONAL/ANEXOS ARMAZENADOS DO SISTEMA";
 }

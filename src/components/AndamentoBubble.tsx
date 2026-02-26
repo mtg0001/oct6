@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Paperclip, Loader2, ExternalLink } from "lucide-react";
 import { useState } from "react";
-import { getSharePointDownloadLink } from "@/lib/sharepointAttachments";
+import { getSharePointDownloadLink, getDisplayFileName } from "@/lib/sharepointAttachments";
 
 function parseAndamento(texto: string) {
   const match = texto.match(/^\[(.+?)\]\s?(.*)/s);
@@ -74,7 +74,7 @@ export function AndamentoBubble({ texto, data, anexos, unidade, servico, userNam
                 ) : (
                   <Paperclip className="h-3 w-3" />
                 )}
-                {anx}
+                {getDisplayFileName(anx)}
                 <ExternalLink className="h-3 w-3" />
               </button>
             ))}

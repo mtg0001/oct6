@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -201,7 +201,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
   // ── anexo ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(file.name);
+    if (file) setAnexoNome(buildStoredFileName(file.name));
   };
 
   // ── reset ──
