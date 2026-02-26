@@ -28,6 +28,7 @@ import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -266,6 +267,10 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
         caracteristicas: {},
         observacoes,
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Passagens", userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: "Solicitação de Passagens enviada com sucesso!" });
       resetForm();
       onOpenChange(false);

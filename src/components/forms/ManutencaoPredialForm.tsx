@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -158,6 +159,10 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
         horarioAte: "",
         caracteristicas: {},
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Manutenção Predial", userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();
       onOpenChange(false);

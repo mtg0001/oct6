@@ -29,6 +29,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -255,6 +256,10 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
         },
         observacoes,
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Novo Colaborador", userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();
       onOpenChange(false);

@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -234,6 +235,10 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         caracteristicas: { tendas: tendas.filter(t => t.tipo).map(t => ({ tipo: t.tipo, quantidade: t.quantidade, itens: t.itens })) } as any,
         observacoes,
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Tendas", userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: "Solicitação de Tenda enviada com sucesso!" });
       resetForm();
       onOpenChange(false);

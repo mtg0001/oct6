@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip, ArrowLeft, Printer, Forward } from "lucide-react";
+import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
+import { getSharePointDownloadLink } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -54,6 +55,7 @@ const SolicitacaoServico = () => {
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
+  const [downloadingAnexo, setDownloadingAnexo] = useState(false);
 
   if (!sol) {
     return (
@@ -477,13 +479,43 @@ const SolicitacaoServico = () => {
 
           {/* ── Anexos (compact) ── */}
           <div className="flex flex-wrap gap-2 print:hidden">
-            <Badge
-              variant="outline"
-              className={`text-xs px-3 py-1.5 gap-1.5 ${hasAnexo ? "border-orange-400 text-orange-600 bg-orange-50" : "border-border text-muted-foreground"}`}
-            >
-              <Paperclip className="h-3 w-3" />
-              {hasAnexo ? parsed["Anexo"] : "Não possui anexos"}
-            </Badge>
+            {hasAnexo ? (
+              <button
+                type="button"
+                disabled={downloadingAnexo}
+                className="inline-flex items-center gap-1.5 rounded-full border border-orange-400 text-orange-600 bg-orange-50 px-3 py-1.5 text-xs font-semibold hover:bg-orange-100 transition-colors cursor-pointer disabled:opacity-50"
+                onClick={async () => {
+                  setDownloadingAnexo(true);
+                  try {
+                    const unidadeMap: Record<string, string> = { goiania: "GOIÂNIA", "sao-paulo": "SÃO PAULO" };
+                    const link = await getSharePointDownloadLink({
+                      unidade: unidadeMap[sol.unidade] || sol.unidade,
+                      servico: sol.tipo,
+                      userName: sol.solicitante,
+                      fileName: parsed["Anexo"],
+                    });
+                    if (link) {
+                      window.open(link, "_blank");
+                    } else {
+                      alert("Não foi possível obter o link de download do anexo.");
+                    }
+                  } catch {
+                    alert("Erro ao buscar anexo no SharePoint.");
+                  } finally {
+                    setDownloadingAnexo(false);
+                  }
+                }}
+              >
+                {downloadingAnexo ? <Loader2 className="h-3 w-3 animate-spin" /> : <Paperclip className="h-3 w-3" />}
+                {parsed["Anexo"]}
+                <ExternalLink className="h-3 w-3" />
+              </button>
+            ) : (
+              <Badge variant="outline" className="text-xs px-3 py-1.5 gap-1.5 border-border text-muted-foreground">
+                <Paperclip className="h-3 w-3" />
+                Não possui anexos
+              </Badge>
+            )}
           </div>
 
           {/* ── Observações ── */}

@@ -20,6 +20,7 @@ import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { uploadAttachmentToSharePoint } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -137,6 +138,10 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
         caracteristicas: { itens: itensTexto },
         observacoes,
       });
+      const file = fileInputRef.current?.files?.[0];
+      if (file && anexoNome) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Equipamentos de TI", userName: currentUser?.nome || "Desconhecido" });
+      }
       toast({ title: "Solicitação de Equipamentos de TI enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
