@@ -22,6 +22,7 @@ import Usuarios from "./pages/Usuarios";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Lixeira from "./pages/Lixeira";
+import ChamadoTINovo from "./pages/ChamadoTINovo";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/lixeira" element={<ProtectedRoute><Lixeira /></ProtectedRoute>} />
+            <Route path="/chamado-ti/novo" element={<ProtectedRoute><ChamadoTINovo /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
