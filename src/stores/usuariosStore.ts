@@ -42,7 +42,7 @@ export const DIRETORES = ["Osorio", "Jessica", "Soraya", "Danielle"] as const;
 
 export interface Usuario {
   id: string;
-  userId: string | null; // auth.users id
+  userId: string | null;
   nome: string;
   email: string;
   departamento: string;
@@ -50,9 +50,12 @@ export interface Usuario {
   ativo: boolean;
   administrador: boolean;
   novaSolicitacaoUnidades: string[];
-  resolveExpedicao: boolean;
-  resolveLogisticaCompras: boolean;
-  resolveRecursosHumanos: boolean;
+  resolveExpedicaoGo: boolean;
+  resolveExpedicaoSp: boolean;
+  resolveLogisticaComprasGo: boolean;
+  resolveLogisticaComprasSp: boolean;
+  resolveRecursosHumanosGo: boolean;
+  resolveRecursosHumanosSp: boolean;
   diretoria: string[];
   servicosPermitidos: string[];
   visualizaSolicitacoesUnidades: string[];
@@ -61,7 +64,6 @@ export interface Usuario {
   podeVerLixeira: boolean;
 }
 
-// Map DB row (snake_case) → app model (camelCase)
 function mapRow(row: any): Usuario {
   return {
     id: row.id,
@@ -73,9 +75,12 @@ function mapRow(row: any): Usuario {
     ativo: row.ativo,
     administrador: row.administrador,
     novaSolicitacaoUnidades: row.nova_solicitacao_unidades || [],
-    resolveExpedicao: row.resolve_expedicao,
-    resolveLogisticaCompras: row.resolve_logistica_compras,
-    resolveRecursosHumanos: row.resolve_recursos_humanos,
+    resolveExpedicaoGo: row.resolve_expedicao_go || false,
+    resolveExpedicaoSp: row.resolve_expedicao_sp || false,
+    resolveLogisticaComprasGo: row.resolve_logistica_compras_go || false,
+    resolveLogisticaComprasSp: row.resolve_logistica_compras_sp || false,
+    resolveRecursosHumanosGo: row.resolve_recursos_humanos_go || false,
+    resolveRecursosHumanosSp: row.resolve_recursos_humanos_sp || false,
     diretoria: row.diretoria || [],
     servicosPermitidos: row.servicos_permitidos || [],
     visualizaSolicitacoesUnidades: row.visualiza_solicitacoes_unidades || [],
@@ -85,7 +90,6 @@ function mapRow(row: any): Usuario {
   };
 }
 
-// Map app model → DB insert/update
 function toDbRow(u: Partial<Usuario>): Record<string, any> {
   const m: Record<string, any> = {};
   if (u.nome !== undefined) m.nome = u.nome;
@@ -95,9 +99,12 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   if (u.ativo !== undefined) m.ativo = u.ativo;
   if (u.administrador !== undefined) m.administrador = u.administrador;
   if (u.novaSolicitacaoUnidades !== undefined) m.nova_solicitacao_unidades = u.novaSolicitacaoUnidades;
-  if (u.resolveExpedicao !== undefined) m.resolve_expedicao = u.resolveExpedicao;
-  if (u.resolveLogisticaCompras !== undefined) m.resolve_logistica_compras = u.resolveLogisticaCompras;
-  if (u.resolveRecursosHumanos !== undefined) m.resolve_recursos_humanos = u.resolveRecursosHumanos;
+  if (u.resolveExpedicaoGo !== undefined) m.resolve_expedicao_go = u.resolveExpedicaoGo;
+  if (u.resolveExpedicaoSp !== undefined) m.resolve_expedicao_sp = u.resolveExpedicaoSp;
+  if (u.resolveLogisticaComprasGo !== undefined) m.resolve_logistica_compras_go = u.resolveLogisticaComprasGo;
+  if (u.resolveLogisticaComprasSp !== undefined) m.resolve_logistica_compras_sp = u.resolveLogisticaComprasSp;
+  if (u.resolveRecursosHumanosGo !== undefined) m.resolve_recursos_humanos_go = u.resolveRecursosHumanosGo;
+  if (u.resolveRecursosHumanosSp !== undefined) m.resolve_recursos_humanos_sp = u.resolveRecursosHumanosSp;
   if (u.diretoria !== undefined) m.diretoria = u.diretoria;
   if (u.servicosPermitidos !== undefined) m.servicos_permitidos = u.servicosPermitidos;
   if (u.visualizaSolicitacoesUnidades !== undefined) m.visualiza_solicitacoes_unidades = u.visualizaSolicitacoesUnidades;
@@ -115,7 +122,6 @@ export function subscribeUsuarios(listener: () => void) {
   return () => { listeners = listeners.filter((l) => l !== listener); };
 }
 
-// In-memory cache, loaded from Supabase
 let usuarios: Usuario[] = [];
 let loaded = false;
 let loadingPromise: Promise<void> | null = null;
@@ -163,15 +169,12 @@ export async function toggleUsuarioAtivo(id: string) {
   notify();
 }
 
-// Current logged user - resolved from Supabase Auth session
 export async function getCurrentAuthUserId(): Promise<string | null> {
   const { data: { session } } = await supabase.auth.getSession();
   return session?.user?.id || null;
 }
 
 export function getCurrentUser(): Usuario | undefined {
-  // Find the usuario linked to the current Supabase Auth user
-  // This requires the auth uid to be passed or cached
   return _currentUsuario;
 }
 

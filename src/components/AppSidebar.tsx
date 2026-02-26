@@ -106,7 +106,7 @@ export function AppSidebar() {
       ],
     });
 
-    if (isAdmin || u?.resolveLogisticaCompras) {
+    if (isAdmin || u?.resolveLogisticaComprasGo || u?.resolveLogisticaComprasSp) {
       items.push({
         title: "Logística & Compras",
         icon: Package,
@@ -118,7 +118,7 @@ export function AppSidebar() {
       });
     }
 
-    if (isAdmin || u?.resolveExpedicao) {
+    if (isAdmin || u?.resolveExpedicaoGo || u?.resolveExpedicaoSp) {
       items.push({
         title: "Expedição",
         icon: Truck,
@@ -130,7 +130,7 @@ export function AppSidebar() {
       });
     }
 
-    if (isAdmin || u?.resolveRecursosHumanos) {
+    if (isAdmin || u?.resolveRecursosHumanosGo || u?.resolveRecursosHumanosSp) {
       items.push({
         title: "Recursos Humanos",
         icon: Users,
