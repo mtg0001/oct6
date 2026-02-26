@@ -251,10 +251,10 @@ export function AppSidebar() {
                   <img
                     src={avatarUrl}
                     alt="Avatar"
-                    className="h-12 w-12 rounded-full object-cover border-2 border-[hsl(var(--sidebar-primary))]"
+                    className="h-16 w-16 rounded-full object-cover border-2 border-[hsl(var(--sidebar-primary))]"
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[hsl(var(--sidebar-primary))] to-[hsl(80,30%,25%)] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] text-sm font-bold border-2 border-[hsl(var(--sidebar-primary))]">
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[hsl(var(--sidebar-primary))] to-[hsl(80,30%,25%)] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] text-lg font-bold border-2 border-[hsl(var(--sidebar-primary))]">
                     {initials}
                   </div>
                 )}
