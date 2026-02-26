@@ -5,12 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Headset, Monitor, CheckCircle2, XCircle, Clock, ArrowLeft } from "lucide-react";
+import { Headset, Monitor, Clock, Eye } from "lucide-react";
 import {
   getChamadosTIByStatus,
   ensureChamadosTILoaded,
   subscribeChamadosTI,
-  updateChamadoTIStatus,
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
 
@@ -40,26 +39,7 @@ export default function ChamadosTILista({ contexto = "chamado-ti" }: ChamadosTIL
     return subscribeChamadosTI(() => setChamados(getChamadosTIByStatus(status)));
   }, [status]);
 
-  const handleResolver = async (id: string) => {
-    try {
-      await updateChamadoTIStatus(id, "resolvido");
-      toast.success("Chamado resolvido!");
-    } catch { toast.error("Erro ao resolver chamado"); }
-  };
-
-  const handleCancelar = async (id: string) => {
-    try {
-      await updateChamadoTIStatus(id, "cancelado");
-      toast.success("Chamado cancelado!");
-    } catch { toast.error("Erro ao cancelar chamado"); }
-  };
-
-  const handleReabrir = async (id: string) => {
-    try {
-      await updateChamadoTIStatus(id, "pendente");
-      toast.success("Chamado reaberto!");
-    } catch { toast.error("Erro ao reabrir chamado"); }
-  };
+  const basePath = isTI ? "/ti/chamados" : "/chamado-ti";
 
   const Icon = icon;
 
@@ -106,21 +86,9 @@ export default function ChamadosTILista({ contexto = "chamado-ti" }: ChamadosTIL
                       )}
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      {status === "pendente" && (
-                        <>
-                          <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50 gap-1" onClick={() => handleResolver(c.id)}>
-                            <CheckCircle2 className="h-3.5 w-3.5" /> Resolver
-                          </Button>
-                          <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/5 gap-1" onClick={() => handleCancelar(c.id)}>
-                            <XCircle className="h-3.5 w-3.5" /> Cancelar
-                          </Button>
-                        </>
-                      )}
-                      {(status === "resolvido" || status === "cancelado") && (
-                        <Button size="sm" variant="outline" className="gap-1" onClick={() => handleReabrir(c.id)}>
-                          <ArrowLeft className="h-3.5 w-3.5" /> Reabrir
-                        </Button>
-                      )}
+                      <Button size="sm" variant="outline" className="gap-1" onClick={() => navigate(`${basePath}/${filtro}/chamado/${c.id}`)}>
+                        <Eye className="h-3.5 w-3.5" /> Ver
+                      </Button>
                     </div>
                   </div>
                 </Card>
