@@ -24,6 +24,7 @@ import Login from "./pages/Login";
 import Lixeira from "./pages/Lixeira";
 import ChamadoTINovo from "./pages/ChamadoTINovo";
 import ChamadosTILista from "./pages/ChamadosTILista";
+import ChamadoTIDetalhe from "./pages/ChamadoTIDetalhe";
 
 const queryClient = new QueryClient();
 
@@ -62,7 +63,9 @@ const App = () => (
             <Route path="/lixeira" element={<ProtectedRoute><Lixeira /></ProtectedRoute>} />
             <Route path="/chamado-ti/novo" element={<ProtectedRoute><ChamadoTINovo /></ProtectedRoute>} />
             <Route path="/chamado-ti/:filtro" element={<ProtectedRoute><ChamadosTILista contexto="chamado-ti" /></ProtectedRoute>} />
+            <Route path="/chamado-ti/:filtro/chamado/:id" element={<ProtectedRoute><ChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="/ti/chamados/:filtro" element={<ProtectedRoute><ChamadosTILista contexto="ti" /></ProtectedRoute>} />
+            <Route path="/ti/chamados/:filtro/chamado/:id" element={<ProtectedRoute><ChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
