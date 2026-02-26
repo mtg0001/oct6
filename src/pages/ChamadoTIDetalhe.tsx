@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-  Headset, ArrowLeft, CheckCircle2, XCircle, Clock, Paperclip, ExternalLink,
+  ArrowLeft, CheckCircle2, XCircle, Clock, Paperclip, ExternalLink,
+  MessageSquarePlus, Send, Loader2,
 } from "lucide-react";
 import {
   ensureChamadosTILoaded,
@@ -15,6 +17,8 @@ import {
   updateChamadoTIStatus,
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
+import { supabase } from "@/integrations/supabase/client";
+import octarteLogo from "@/assets/octarte-logo.png";
 
 const URGENCIA_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   baixa: { label: "Baixa", color: "text-green-700", bg: "bg-green-500/15 border-green-500/30" },
@@ -32,7 +36,16 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
 export default function ChamadoTIDetalhe() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [nomeUsuario, setNomeUsuario] = useState("Usuário");
   const [chamado, setChamado] = useState<ChamadoTI | null>(null);
+  const [andamentoOpen, setAndamentoOpen] = useState(false);
+  const [andamentoTexto, setAndamentoTexto] = useState("");
+  const [andamentos, setAndamentos] = useState<any[]>([]);
+  const [sendingAndamento, setSendingAndamento] = useState(false);
+
+  // Detect if accessed from /ti/ (Tecnologia da Informação) or /chamado-ti/ (Abrir Chamados)
+  const isTI = location.pathname.startsWith("/ti/");
 
   useEffect(() => {
     ensureChamadosTILoaded().then(() => {
@@ -44,6 +57,54 @@ export default function ChamadoTIDetalhe() {
       setChamado(found || null);
     });
   }, [id]);
+
+  // Load user name
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        supabase.from("usuarios").select("nome").eq("user_id", data.user.id).maybeSingle()
+          .then(({ data: u }) => { if (u?.nome) setNomeUsuario(u.nome); });
+      }
+    });
+  }, []);
+
+  // Load andamentos for this chamado
+  useEffect(() => {
+    if (!id) return;
+    loadAndamentos();
+  }, [id]);
+
+  const loadAndamentos = async () => {
+    const { data } = await supabase
+      .from("andamentos")
+      .select("*")
+      .eq("solicitacao_id", id)
+      .order("created_at", { ascending: true });
+    if (data) setAndamentos(data);
+  };
+
+  const handleAddAndamento = async () => {
+    if (!andamentoTexto.trim() || !id) return;
+    setSendingAndamento(true);
+    try {
+      const nome = nomeUsuario;
+      const texto = `[${nome}] ${andamentoTexto.trim()}`;
+      const { error } = await supabase.from("andamentos").insert({
+        solicitacao_id: id,
+        texto,
+        anexos: [],
+      });
+      if (error) throw error;
+      setAndamentoTexto("");
+      setAndamentoOpen(false);
+      toast.success("Andamento adicionado!");
+      await loadAndamentos();
+    } catch {
+      toast.error("Erro ao adicionar andamento");
+    } finally {
+      setSendingAndamento(false);
+    }
+  };
 
   if (!chamado) {
     return (
@@ -76,8 +137,17 @@ export default function ChamadoTIDetalhe() {
   };
 
   const rows: { label: string; value: string | React.ReactNode }[] = [
+    {
+      label: "Urgência",
+      value: <Badge variant="outline" className={`${urg.bg} ${urg.color}`}>{urg.label}</Badge>,
+    },
+    {
+      label: "Status",
+      value: <Badge variant="outline" className={st.color}>{st.label}</Badge>,
+    },
     { label: "Solicitante", value: chamado.solicitanteNome },
     { label: "Departamento", value: chamado.departamento },
+    { label: "Data de Abertura", value: new Date(chamado.criadoEm).toLocaleString("pt-BR") },
     { label: "Categoria", value: chamado.categoria },
   ];
 
@@ -90,27 +160,15 @@ export default function ChamadoTIDetalhe() {
   if (chamado.novoColaborador) rows.push({ label: "Novo Colaborador", value: chamado.novoColaborador === "sim" ? "Sim" : "Não" });
   if (chamado.anydesk) rows.push({ label: "AnyDesk", value: chamado.anydesk });
 
-  rows.push({
-    label: "Urgência",
-    value: <Badge variant="outline" className={`${urg.bg} ${urg.color}`}>{urg.label}</Badge>,
-  });
-  rows.push({ label: "Data de Abertura", value: new Date(chamado.criadoEm).toLocaleString("pt-BR") });
-  rows.push({
-    label: "Status",
-    value: <Badge variant="outline" className={st.color}>{st.label}</Badge>,
-  });
-
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto py-6 px-4">
-        {/* Header */}
+        {/* Header with logo */}
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center">
-            <Headset className="h-5 w-5 text-destructive" />
-          </div>
+          <img src={octarteLogo} alt="Octarte" className="h-10 w-10 object-contain" />
           <div className="flex-1">
             <h1 className="text-xl font-bold text-foreground">Chamado TI</h1>
             <p className="text-xs text-muted-foreground font-mono">#{chamado.id.slice(0, 8).toUpperCase()}</p>
@@ -118,11 +176,11 @@ export default function ChamadoTIDetalhe() {
         </div>
 
         {/* Data table */}
-        <Card className="mb-6 overflow-hidden">
+        <Card className="mb-6 overflow-hidden border-primary/10">
           <table className="w-full text-sm">
             <tbody>
               {rows.map((row, idx) => (
-                <tr key={idx} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
+                <tr key={idx} className={idx % 2 === 0 ? "bg-primary/[0.03]" : ""}>
                   <td className="px-4 py-3 font-medium text-muted-foreground w-[180px] whitespace-nowrap">{row.label}</td>
                   <td className="px-4 py-3 text-foreground">{row.value}</td>
                 </tr>
@@ -133,7 +191,7 @@ export default function ChamadoTIDetalhe() {
 
         {/* Observações */}
         {chamado.observacoes && (
-          <Card className="p-5 mb-6">
+          <Card className="p-5 mb-6 border-primary/10">
             <h3 className="text-sm font-semibold text-foreground mb-2">Observações</h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">{chamado.observacoes}</p>
           </Card>
@@ -141,7 +199,7 @@ export default function ChamadoTIDetalhe() {
 
         {/* Anexos */}
         {chamado.anexos.length > 0 && (
-          <Card className="p-5 mb-6">
+          <Card className="p-5 mb-6 border-primary/10">
             <h3 className="text-sm font-semibold text-foreground mb-3">Anexos</h3>
             <div className="space-y-2">
               {chamado.anexos.map((url, idx) => (
@@ -161,19 +219,87 @@ export default function ChamadoTIDetalhe() {
           </Card>
         )}
 
+        {/* Andamentos */}
+        {andamentos.length > 0 && (
+          <Card className="p-5 mb-6 border-primary/10">
+            <h3 className="text-sm font-semibold text-foreground mb-4">Andamentos</h3>
+            <div className="space-y-4">
+              {andamentos.map((a) => {
+                const match = a.texto?.match(/^\[(.+?)\]\s?(.*)/s);
+                const nome = match ? match[1] : "?";
+                const msg = match ? match[2] : a.texto;
+                return (
+                  <div key={a.id} className="flex gap-3 items-start">
+                    <div className="h-8 w-8 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                      {nome.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="bg-muted/60 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold text-primary">{nome}</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(a.created_at).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                        <p className="text-sm text-foreground whitespace-pre-wrap">{msg}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
+        {/* Andamento input */}
+        {andamentoOpen && (
+          <Card className="p-5 mb-6 border-primary/10">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Novo Andamento</h3>
+            <Textarea
+              placeholder="Descreva o andamento..."
+              value={andamentoTexto}
+              onChange={(e) => setAndamentoTexto(e.target.value)}
+              className="mb-3 min-h-[80px]"
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => { setAndamentoOpen(false); setAndamentoTexto(""); }}>
+                Cancelar
+              </Button>
+              <Button size="sm" className="gap-1.5" onClick={handleAddAndamento} disabled={sendingAndamento || !andamentoTexto.trim()}>
+                {sendingAndamento ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                Enviar
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Actions */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 flex-wrap">
+          {/* Andamento button always visible */}
+          {chamado.status === "pendente" && (
+            <Button
+              variant="outline"
+              className="gap-1.5 border-primary/30 text-primary hover:bg-primary/5"
+              onClick={() => setAndamentoOpen(!andamentoOpen)}
+            >
+              <MessageSquarePlus className="h-4 w-4" /> Andamento
+            </Button>
+          )}
+
           {chamado.status === "pendente" && (
             <>
-              <Button variant="outline" className="gap-1.5 text-green-600 border-green-300 hover:bg-green-50" onClick={handleResolver}>
-                <CheckCircle2 className="h-4 w-4" /> Resolver
-              </Button>
+              {/* Resolver only visible in TI context */}
+              {isTI && (
+                <Button variant="outline" className="gap-1.5 text-green-600 border-green-300 hover:bg-green-50" onClick={handleResolver}>
+                  <CheckCircle2 className="h-4 w-4" /> Resolver
+                </Button>
+              )}
               <Button variant="outline" className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5" onClick={handleCancelar}>
                 <XCircle className="h-4 w-4" /> Cancelar
               </Button>
             </>
           )}
-          {(chamado.status === "resolvido" || chamado.status === "cancelado") && (
+          {(chamado.status === "resolvido" || chamado.status === "cancelado") && isTI && (
             <Button variant="outline" className="gap-1.5" onClick={handleReabrir}>
               <ArrowLeft className="h-4 w-4" /> Reabrir
             </Button>
