@@ -1,0 +1,276 @@
+import { useState, useRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Paperclip, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { addSolicitacao } from "@/stores/solicitacoesStore";
+import { toast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useUsuarios";
+
+interface EquipamentosTIFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  unidade: string;
+}
+
+interface ItemTI {
+  id: number;
+  quantidade: string;
+  unidadeMedida: string;
+  descricao: string;
+  url: string;
+}
+
+let itemIdCounter = 1;
+
+const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormProps) => {
+  const currentUser = useCurrentUser();
+  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+
+  const [evento, setEvento] = useState("");
+  const [prioridade, setPrioridade] = useState("");
+  const [itens, setItens] = useState<ItemTI[]>([
+    { id: itemIdCounter++, quantidade: "", unidadeMedida: "", descricao: "", url: "" },
+  ]);
+  const [observacoes, setObservacoes] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [anexoNome, setAnexoNome] = useState<string | null>(null);
+
+  const addItem = () => {
+    setItens((prev) => [...prev, { id: itemIdCounter++, quantidade: "", unidadeMedida: "", descricao: "", url: "" }]);
+  };
+
+  const removeItem = (id: number) => {
+    if (itens.length <= 1) {
+      toast({ title: "É necessário ao menos um item", variant: "destructive" });
+      return;
+    }
+    setItens((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateItem = (id: number, field: keyof Omit<ItemTI, "id">, value: string) => {
+    setItens((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
+        return;
+      }
+      setAnexoNome(file.name);
+    }
+  };
+
+  const resetForm = () => {
+    setEvento("");
+    setPrioridade("");
+    setItens([{ id: itemIdCounter++, quantidade: "", unidadeMedida: "", descricao: "", url: "" }]);
+    setObservacoes("");
+    setAnexoNome(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const validate = (): boolean => {
+    if (!evento.trim()) { toast({ title: "Informe o Evento", variant: "destructive" }); return false; }
+    if (!prioridade) { toast({ title: "Selecione a Prioridade", variant: "destructive" }); return false; }
+    for (let i = 0; i < itens.length; i++) {
+      const item = itens[i];
+      if (!item.quantidade.trim()) { toast({ title: `Item ${i + 1}: informe a quantidade`, variant: "destructive" }); return false; }
+      if (!item.unidadeMedida.trim()) { toast({ title: `Item ${i + 1}: informe a unidade de medida`, variant: "destructive" }); return false; }
+      if (!item.descricao.trim()) { toast({ title: `Item ${i + 1}: informe a descrição`, variant: "destructive" }); return false; }
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    try {
+      const itensTexto = itens.map((item, i) => {
+        const urlPart = item.url.trim() ? ` (URL: ${item.url.trim()})` : "";
+        return `${i + 1}) ${item.quantidade} ${item.unidadeMedida} - ${item.descricao}${urlPart}`;
+      }).join("; ");
+      await addSolicitacao({
+        tipo: "Equipamentos de TI",
+        solicitanteId: currentUser?.id || "",
+        unidade,
+        evento,
+        departamento: currentUser?.departamento || "—",
+        solicitante: currentUser?.nome || "—",
+        prioridade,
+        cargo: "",
+        unidadeDestino: "",
+        departamentoDestino: "",
+        diretorArea: "",
+        tipoVaga: "",
+        nomeSubstituido: "",
+        justificativa: [
+          `Itens: ${itensTexto}`,
+          anexoNome ? `Anexo: ${anexoNome}` : "",
+        ].filter(Boolean).join(" | "),
+        formacao: "",
+        experiencia: "",
+        conhecimentos: "",
+        faixaSalarialDe: "",
+        faixaSalarialAte: "",
+        tipoContrato: "",
+        horarioDe: "",
+        horarioAte: "",
+        caracteristicas: { itens: itensTexto },
+        observacoes,
+      });
+      toast({ title: "Solicitação de Equipamentos de TI enviada com sucesso!" });
+      resetForm();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-base font-bold bg-primary text-primary-foreground px-4 py-2 rounded-t-md -mx-6 -mt-6 mb-2">
+            Solicitação de Equipamentos de TI · Unidade: {nomeUnidade}
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* ── Dados do Solicitante ── */}
+          <fieldset className="border border-primary/30 rounded-md p-4">
+            <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
+              Dados do Solicitante
+            </legend>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div>
+                <Label className="text-xs font-bold">Evento *</Label>
+                <Input value={evento} onChange={(e) => setEvento(e.target.value)} className="mt-1" placeholder="Nome do evento" />
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Departamento</Label>
+                <Input value={currentUser?.departamento || "—"} className="mt-1 bg-muted" readOnly />
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Solicitante</Label>
+                <Input value={currentUser?.nome || "—"} className="mt-1 bg-muted" readOnly />
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Prioridade *</Label>
+                <Select value={prioridade} onValueChange={setPrioridade}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="baixa">Baixa</SelectItem>
+                    <SelectItem value="media">Média</SelectItem>
+                    <SelectItem value="alta">Alta</SelectItem>
+                    <SelectItem value="urgente">Urgente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </fieldset>
+
+          {/* ── Itens ── */}
+          <fieldset className="border border-primary/30 rounded-md p-4">
+            <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
+              Itens
+            </legend>
+            <div className="mt-3 space-y-3">
+              {itens.map((item) => (
+                <div key={item.id} className="border border-border rounded-md p-3">
+                  <div className="grid grid-cols-[1fr_1fr_2fr] gap-3">
+                    <div>
+                      <Label className="text-xs font-bold">Quantidade</Label>
+                      <Input value={item.quantidade} onChange={(e) => updateItem(item.id, "quantidade", e.target.value)} className="mt-1" inputMode="numeric" />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-bold">Unidade de medida</Label>
+                      <Input value={item.unidadeMedida} onChange={(e) => updateItem(item.id, "unidadeMedida", e.target.value)} className="mt-1" />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-bold">Descrição do item</Label>
+                      <Input value={item.descricao} onChange={(e) => updateItem(item.id, "descricao", e.target.value)} className="mt-1" />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <Label className="text-xs font-bold">URL (opcional)</Label>
+                    <Input value={item.url} onChange={(e) => updateItem(item.id, "url", e.target.value)} className="mt-1" placeholder="https://site.com/produto" type="url" />
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    <Button type="button" variant="outline" size="sm" onClick={addItem} className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Adicionar
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => removeItem(item.id)} className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
+                      <X className="h-3.5 w-3.5 mr-1" />
+                      Remover
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+
+          {/* ── Anexos e Observações ── */}
+          <fieldset className="border border-primary/30 rounded-md p-4">
+            <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
+              Anexos e Observações
+            </legend>
+            <div className="mt-3 space-y-4">
+              <div>
+                <Label className="text-xs font-bold">Anexar Documento (PDF)</Label>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
+                    anexoNome && "border-primary/50 bg-primary/5"
+                  )}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className={cn("text-sm truncate", anexoNome ? "text-foreground" : "text-muted-foreground")}>
+                    {anexoNome || "Nenhum arquivo escolhido"}
+                  </span>
+                  {anexoNome && (
+                    <button type="button" className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0" onClick={(e) => { e.stopPropagation(); setAnexoNome(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}>
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Observações</Label>
+                <Textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={3} className="mt-1" placeholder="Informações adicionais..." />
+              </div>
+            </div>
+          </fieldset>
+
+          <div className="flex justify-end gap-3 pt-1">
+            <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>Cancelar</Button>
+            <Button type="submit">Enviar Solicitação</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default EquipamentosTIForm;
