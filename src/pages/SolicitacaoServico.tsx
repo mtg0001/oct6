@@ -239,6 +239,20 @@ const SolicitacaoServico = () => {
     return rows;
   };
 
+  // ── Materiais table rows (shared for all material types) ──
+  const getMateriaisRows = () => {
+    const rows: { campo: string; valor: string }[] = [];
+    const itensRaw = (sol.caracteristicas as any)?.itens || parsed["Itens"] || "";
+    if (itensRaw) {
+      const lista = itensRaw.split(";").map((s: string) => s.trim()).filter(Boolean);
+      lista.forEach((item: string, i: number) => {
+        rows.push({ campo: `Item ${i + 1}`, valor: item.replace(/^\d+\)\s*/, "") });
+      });
+    }
+    if (rows.length === 0) rows.push({ campo: "Itens", valor: "—" });
+    return rows;
+  };
+
    // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -257,8 +271,9 @@ const SolicitacaoServico = () => {
   const isPassagens = sol.tipo === "Passagens";
   const isTendas = sol.tipo === "Tendas";
   const isPlataforma = sol.tipo === "Plataforma Elevatória";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : "Dados da Solicitação";
+  const isMateriais = ["Materiais (Expedição)", "Materiais (Compras)", "Materiais de Escritório", "Uniformes e EPI"].includes(sol.tipo);
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : "Dados da Solicitação";
 
   return (
     <AppLayout>
