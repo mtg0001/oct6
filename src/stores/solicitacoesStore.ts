@@ -180,7 +180,7 @@ export function getSolicitacoesExpedicao(status?: string) {
   });
 }
 
-export const RH_SERVICES = ["Novo Colaborador"] as const;
+export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI"] as const;
 
 export function getSolicitacoesRH(status?: string) {
   return solicitacoes.filter((s) => {
