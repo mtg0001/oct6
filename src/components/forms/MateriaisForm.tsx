@@ -26,7 +26,7 @@ interface MateriaisFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   unidade: string;
-  tipo: "Materiais (Compras)" | "Materiais (Expedição)" | "Materiais de Escritório";
+  tipo: "Materiais (Compras)" | "Materiais (Expedição)" | "Materiais de Escritório" | "Uniformes e EPI";
 }
 
 interface ItemMaterial {
@@ -41,7 +41,13 @@ let itemIdCounter = 1;
 const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps) => {
   const currentUser = useCurrentUser();
   const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
-  const tituloForm = tipo === "Materiais (Compras)" ? "Solicitação de Materiais (Compras)" : tipo === "Materiais (Expedição)" ? "Solicitação de Materiais (Expedição)" : "Solicitação de Materiais de Escritório";
+  const tituloMap: Record<string, string> = {
+    "Materiais (Compras)": "Solicitação de Materiais (Compras)",
+    "Materiais (Expedição)": "Solicitação de Materiais (Expedição)",
+    "Materiais de Escritório": "Solicitação de Materiais de Escritório",
+    "Uniformes e EPI": "Solicitação de Uniformes e EPI",
+  };
+  const tituloForm = tituloMap[tipo] || `Solicitação de ${tipo}`;
 
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");
