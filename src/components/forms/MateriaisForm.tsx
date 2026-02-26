@@ -41,7 +41,7 @@ let itemIdCounter = 1;
 const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps) => {
   const currentUser = useCurrentUser();
   const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
-  const tituloForm = tipo === "Materiais (Compras)" ? "Solicitação de Materiais (Compras)" : "Solicitação de Materiais (Expedição)";
+  const tituloForm = tipo === "Materiais (Compras)" ? "Solicitação de Materiais (Compras)" : tipo === "Materiais (Expedição)" ? "Solicitação de Materiais (Expedição)" : "Solicitação de Materiais de Escritório";
 
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");
