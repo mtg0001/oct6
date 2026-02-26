@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -292,15 +293,7 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
               </div>
               <div>
                 <Label className="text-xs font-bold">Prioridade *</Label>
-                <Select value={prioridade} onValueChange={setPrioridade}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="baixa">Baixa</SelectItem>
-                    <SelectItem value="media">Média</SelectItem>
-                    <SelectItem value="alta">Alta</SelectItem>
-                    <SelectItem value="urgente">Urgente</SelectItem>
-                  </SelectContent>
-                </Select>
+                <PrioridadeSelect value={prioridade} onValueChange={setPrioridade} className="mt-1" />
               </div>
             </div>
           </fieldset>
