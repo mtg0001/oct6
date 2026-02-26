@@ -5,6 +5,7 @@ import NovoColaboradorForm from "@/components/forms/NovoColaboradorForm";
 import DiaristaForm from "@/components/forms/DiaristaForm";
 import AluguelBanheiroForm from "@/components/forms/AluguelBanheiroForm";
 import LocacaoVeiculosForm from "@/components/forms/LocacaoVeiculosForm";
+import FreteForm from "@/components/forms/FreteForm";
 import GeradorForm from "@/components/forms/GeradorForm";
 import HospedagemForm from "@/components/forms/HospedagemForm";
 import PassagensForm from "@/components/forms/PassagensForm";
@@ -80,6 +81,7 @@ const NovaSolicitacao = () => {
   const [materiaisEscritorioOpen, setMateriaisEscritorioOpen] = useState(false);
   const [uniformesEPIOpen, setUniformesEPIOpen] = useState(false);
   const [negociacaoOpen, setNegociacaoOpen] = useState(false);
+  const [freteOpen, setFreteOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -92,6 +94,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Serviço de Diarista") setDiaristaOpen(true);
     else if (title === "Solicitação de Aluguel de Banheiro") setAluguelBanheiroOpen(true);
     else if (title === "Solicitação de Locação de Veículos") setLocacaoVeiculosOpen(true);
+    else if (title === "Solicitação de Frete") setFreteOpen(true);
     else if (title === "Solicitação de Gerador") setGeradorOpen(true);
     else if (title === "Solicitação de Hospedagem") setHospedagemOpen(true);
     else if (title === "Solicitação de Passagens") setPassagensOpen(true);
@@ -169,6 +172,7 @@ const NovaSolicitacao = () => {
       <MateriaisForm open={materiaisEscritorioOpen} onOpenChange={setMateriaisEscritorioOpen} unidade={unidade || "goiania"} tipo="Materiais de Escritório" />
       <MateriaisForm open={uniformesEPIOpen} onOpenChange={setUniformesEPIOpen} unidade={unidade || "goiania"} tipo="Uniformes e EPI" />
       <NegociacaoMaoDeObraForm open={negociacaoOpen} onOpenChange={setNegociacaoOpen} unidade={unidade || "goiania"} />
+      <FreteForm open={freteOpen} onOpenChange={setFreteOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
