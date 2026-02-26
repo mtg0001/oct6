@@ -22,6 +22,7 @@ const CATEGORIAS = [
   "Criação de Usuário",
   "Desativar Usuário",
   "Solicitação de Smartphone",
+  "Outros",
 ] as const;
 
 const SUB_WINDOWS = ["Lentidão", "Instalação de programas", "Defeito", "Upgrade", "Outros"];
@@ -42,7 +43,7 @@ export default function ChamadoTINovo() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categoria, setCategoria] = useState("");
-  const [subOpcao, setSubOpcao] = useState("");
+  const [subOpcoes, setSubOpcoes] = useState<string[]>([]);
   const [siteEspecifico, setSiteEspecifico] = useState("");
   const [siteSuspeito, setSiteSuspeito] = useState("");
   const [aprovadoGestor, setAprovadoGestor] = useState<string>("");
@@ -53,7 +54,7 @@ export default function ChamadoTINovo() {
   const [enviando, setEnviando] = useState(false);
 
   const resetSubFields = () => {
-    setSubOpcao("");
+    setSubOpcoes([]);
     setSiteEspecifico("");
     setSiteSuspeito("");
     setAprovadoGestor("");
@@ -99,15 +100,19 @@ export default function ChamadoTINovo() {
   };
 
   const showAnydesk = NEEDS_ANYDESK.includes(categoria);
-  const showSiteField = categoria === "Lentidão na internet" && subOpcao === "Site específico";
-  const showSiteSuspeitoField = categoria === "Lentidão na internet" && subOpcao === "Site Suspeito";
-  const showAprovadoGestor = categoria === "Permissões de equipes Teams (SharePoint)" && subOpcao !== "";
+  const showSiteField = categoria === "Lentidão na internet" && subOpcoes.includes("Site específico");
+  const showSiteSuspeitoField = categoria === "Lentidão na internet" && subOpcoes.includes("Site Suspeito");
+  const showAprovadoGestor = categoria === "Permissões de equipes Teams (SharePoint)" && subOpcoes.length > 0;
   const showNovoColaborador = categoria === "Criação de Usuário";
+
+  const toggleSubOpcao = (opt: string) => {
+    setSubOpcoes(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoria) { toast.error("Selecione uma categoria"); return; }
-    if (getSubOptions().length > 0 && !subOpcao) { toast.error("Selecione uma opção"); return; }
+    if (getSubOptions().length > 0 && subOpcoes.length === 0) { toast.error("Selecione pelo menos uma opção"); return; }
     if (showSiteField && !siteEspecifico.trim()) { toast.error("Digite o site"); return; }
     if (showSiteSuspeitoField && !siteSuspeito.trim()) { toast.error("Digite a URL suspeita"); return; }
     if (showAprovadoGestor && !aprovadoGestor) { toast.error("Informe se foi aprovado pelo gestor"); return; }
@@ -192,7 +197,7 @@ export default function ChamadoTINovo() {
               {showNovoColaborador && (
                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
                   <Label className="text-sm font-medium mb-3 block">É novo colaborador? <span className="text-destructive">*</span></Label>
-                  <RadioGroup value={novoColaborador} onValueChange={(v) => { setNovoColaborador(v); setSubOpcao(""); }} className="flex gap-6">
+                  <RadioGroup value={novoColaborador} onValueChange={(v) => { setNovoColaborador(v); setSubOpcoes([]); }} className="flex gap-6">
                     <div className="flex items-center gap-2">
                       <RadioGroupItem value="sim" id="novo-sim" />
                       <Label htmlFor="novo-sim" className="cursor-pointer">Sim</Label>
@@ -211,12 +216,12 @@ export default function ChamadoTINovo() {
                   <Label className="text-sm font-medium">{subLabel} <span className="text-destructive">*</span></Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                     {subOptions.map(opt => {
-                      const isSelected = subOpcao === opt;
+                      const isSelected = subOpcoes.includes(opt);
                       return (
                         <button
                           key={opt}
                           type="button"
-                          onClick={() => setSubOpcao(opt)}
+                          onClick={() => toggleSubOpcao(opt)}
                           className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 text-left ${
                             isSelected
                               ? "bg-destructive text-destructive-foreground border-destructive shadow-md shadow-destructive/20"
