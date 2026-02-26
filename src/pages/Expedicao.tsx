@@ -1,7 +1,6 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacoesExpedicao } from "@/hooks/useSolicitacoes";
-import { cancelarSolicitacao, concluirSolicitacao } from "@/stores/solicitacoesStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +21,7 @@ const labelMap: Record<string, string> = {
 
 const Expedicao = () => {
   const { filtro } = useParams<{ filtro: string }>();
+  const navigate = useNavigate();
   const storeStatus = statusMap[filtro || "pendentes"];
   const solicitacoes = useSolicitacoesExpedicao(storeStatus);
   const [busca, setBusca] = useState("");
@@ -34,7 +34,6 @@ const Expedicao = () => {
   );
 
   const label = labelMap[filtro || "pendentes"] || "Pendentes";
-  const isPendente = filtro === "pendentes";
 
   return (
     <AppLayout>
@@ -84,18 +83,9 @@ const Expedicao = () => {
                 <span className="font-medium text-xs">{sol.tipo}</span>
               </div>
             </div>
-            <div className="flex gap-2">
-              {isPendente && (
-                <>
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => concluirSolicitacao(sol.id).catch(console.error)}>
-                    Resolver
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id).catch(console.error)}>
-                    Cancelar
-                  </Button>
-                </>
-              )}
-            </div>
+            <Button size="sm" onClick={() => navigate(`/expedicao/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
+              Ver
+            </Button>
           </div>
         ))}
       </div>
