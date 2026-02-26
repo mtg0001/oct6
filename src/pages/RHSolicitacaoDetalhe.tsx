@@ -3,13 +3,13 @@ import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
 import { useCurrentUser } from "@/hooks/useUsuarios";
-import { addAndamento, concluirSolicitacao, cancelarSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Paperclip } from "lucide-react";
+import { Paperclip, Forward } from "lucide-react";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -164,6 +164,18 @@ const RHSolicitacaoDetalhe = () => {
               <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
               <Button variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
             </>
+          )}
+          {/* Forwarded from expedition: can send back */}
+          {sol.setorAtual === 'rh_encaminhado' && isPendente && (
+            <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={async () => {
+              const nome = currentUser?.nome || "RH";
+              await addAndamento(sol.id, `[${nome}] 📦 Encaminhado de volta para Expedição`);
+              await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+              navigate(-1);
+            }}>
+              <Forward className="h-4 w-4 mr-1" />
+              Encaminhar para Expedição
+            </Button>
           )}
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>Voltar</Button>
         </div>
