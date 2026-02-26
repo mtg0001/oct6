@@ -97,3 +97,51 @@
     background: hsl(var(--muted-foreground) / 0.35);
   }
 }
+
+/* ── Print styles ── */
+@media print {
+  /* Hide sidebar, header, scrollbars */
+  aside, nav, header, footer,
+  .print\\:hidden, [data-sidebar] {
+    display: none !important;
+  }
+
+  /* Full width, no margin/padding from layout */
+  body, html {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  main, [role="main"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Compact sizing */
+  .bg-primary {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  table {
+    font-size: 11px !important;
+  }
+
+  td, th {
+    padding: 4px 8px !important;
+  }
+
+  fieldset {
+    page-break-inside: avoid;
+    margin-bottom: 4px !important;
+  }
+
+  /* Force background colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
