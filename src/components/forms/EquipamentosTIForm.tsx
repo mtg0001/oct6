@@ -202,7 +202,23 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
                     </div>
                     <div>
                       <Label className="text-xs font-bold">Unidade de medida</Label>
-                      <Input value={item.unidadeMedida} onChange={(e) => updateItem(item.id, "unidadeMedida", e.target.value)} className="mt-1" />
+                      <Select value={item.unidadeMedida} onValueChange={(v) => updateItem(item.id, "unidadeMedida", v)}>
+                        <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Unidade">Unidade</SelectItem>
+                          <SelectItem value="Metro">Metro</SelectItem>
+                          <SelectItem value="Metro²">Metro²</SelectItem>
+                          <SelectItem value="Metro³">Metro³</SelectItem>
+                          <SelectItem value="Litro">Litro</SelectItem>
+                          <SelectItem value="Kg">Kg</SelectItem>
+                          <SelectItem value="Caixa">Caixa</SelectItem>
+                          <SelectItem value="Pacote">Pacote</SelectItem>
+                          <SelectItem value="Rolo">Rolo</SelectItem>
+                          <SelectItem value="Par">Par</SelectItem>
+                          <SelectItem value="Jogo">Jogo</SelectItem>
+                          <SelectItem value="Peça">Peça</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <Label className="text-xs font-bold">Descrição do item</Label>
