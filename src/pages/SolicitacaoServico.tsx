@@ -110,7 +110,7 @@ const SolicitacaoServico = () => {
     { campo: "Data de Devolução", valor: sol.horarioAte || parsed["Data de Devolução"] || "—" },
     { campo: "CEP Origem", valor: parsed["CEP Origem"] || "—" },
     { campo: "CEP Destino", valor: parsed["CEP Destino"] || "—" },
-    { campo: "KM Estimado", valor: parsed["KM Ida"] ? `Ida: ${parsed["KM Ida"]}` : (sol.faixaSalarialAte ? `Total: ${sol.faixaSalarialAte}` : "—") },
+    { campo: "KM Estimado", valor: sol.faixaSalarialAte ? `Total: ${sol.faixaSalarialAte}` : "—" },
     { campo: "Condutor", valor: sol.nomeSubstituido || parsed["Condutor"] || "—" },
     { campo: "CNH", valor: sol.formacao || parsed["CNH"] || "—" },
     { campo: "CPF", valor: sol.conhecimentos || parsed["CPF"] || "—" },
