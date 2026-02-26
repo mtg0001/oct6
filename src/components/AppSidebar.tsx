@@ -49,6 +49,7 @@ export function AppSidebar() {
 
     const items: MenuItem[] = [
       { title: "Dashboard", icon: LayoutDashboard, path: "/" },
+      { title: "Chat", icon: MessageCircle, path: "/chat" },
     ];
 
     const solUnidades = isAdmin
@@ -125,8 +126,6 @@ export function AppSidebar() {
     if (diretoriaChildren.length > 0) {
       items.push({ title: "Diretoria Aprovação", icon: ShieldCheck, children: diretoriaChildren });
     }
-
-    items.push({ title: "Chat", icon: MessageCircle, path: "/chat" });
 
     if (isAdmin) {
       items.push({ title: "Usuários", icon: UserCog, path: "/usuarios" });
