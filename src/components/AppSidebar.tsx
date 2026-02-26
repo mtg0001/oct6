@@ -93,6 +93,7 @@ export function AppSidebar() {
       icon: Headset,
       variant: 'red',
       children: [
+        { title: "Abrir novo chamado", path: "/chamado-ti/novo" },
         { title: "Pendentes", path: "/chamado-ti/pendentes" },
         { title: "Resolvidos", path: "/chamado-ti/resolvidos" },
         { title: "Cancelados", path: "/chamado-ti/cancelados" },
@@ -203,6 +204,7 @@ export function AppSidebar() {
     items.push({
       title: "Tecnologia da Informação",
       icon: Monitor,
+      variant: 'red',
       children: [
         { title: "Chamados Pendentes", path: "/ti/chamados/pendentes" },
         { title: "Chamados Resolvidos", path: "/ti/chamados/resolvidos" },
