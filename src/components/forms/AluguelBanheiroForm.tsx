@@ -364,52 +364,58 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
             </div>
           </fieldset>
 
-          {/* ── Outros ── */}
+          {/* ── Anexos e Observações ── */}
           <fieldset className="border border-primary/30 rounded-md p-4">
             <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
-              Outros
+              Anexos e Observações
             </legend>
 
             <div className="mt-3 space-y-4">
-              {/* Anexo */}
               <div>
                 <Label className="text-xs font-bold">Anexar Documento (PDF)</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <label className="flex items-center gap-2 cursor-pointer px-3 py-1.5 border border-border rounded text-xs bg-muted hover:bg-accent transition-colors">
-                    <Paperclip className="h-3.5 w-3.5" />
-                    Escolher Arquivo
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                  <span className="text-xs text-muted-foreground flex-1 truncate">
-                    {anexoNome ?? "Nenhum arquivo escolhido"}
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
+                    anexoNome && "border-primary/50 bg-primary/5"
+                  )}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className={cn("text-sm truncate", anexoNome ? "text-foreground" : "text-muted-foreground")}>
+                    {anexoNome || "Nenhum arquivo escolhido"}
                   </span>
                   {anexoNome && (
                     <button
                       type="button"
-                      onClick={() => { setAnexoNome(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      className="ml-auto text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAnexoNome(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Opcional. Anexe um arquivo em PDF, se necessário.</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
               </div>
 
-              {/* Observações */}
               <div>
                 <Label className="text-xs font-bold">Observações</Label>
                 <Textarea
                   value={observacoes}
                   onChange={(e) => setObservacoes(e.target.value)}
-                  placeholder="Detalhes adicionais..."
-                  className="mt-1 min-h-[100px]"
+                  rows={3}
+                  className="mt-1"
+                  placeholder="Informações adicionais..."
                 />
               </div>
             </div>
@@ -420,9 +426,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">
-              Enviar Solicitação
-            </Button>
+            <Button type="submit">Enviar Solicitação</Button>
           </div>
         </form>
       </DialogContent>
