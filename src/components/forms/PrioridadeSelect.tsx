@@ -63,8 +63,8 @@ export function PrioridadeBadge({ value }: { value: string }) {
   const p = prioridades.find((pr) => pr.value === value);
   if (!p) return null;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white ${p.color} animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite] shadow-sm`}>
-      <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
+    <span className={`inline-flex items-center justify-center gap-1.5 w-[140px] shrink-0 px-3 py-1 rounded-full text-xs font-bold text-white ${p.color} animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite] shadow-sm`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-white/60 shrink-0" />
       {p.label}
     </span>
   );
