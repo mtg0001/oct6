@@ -1,7 +1,6 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacoesByUser } from "@/hooks/useSolicitacoes";
-import { cancelarSolicitacao } from "@/stores/solicitacoesStore";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,7 @@ const statusBadge: Record<string, string> = {
 
 const MinhasSolicitacoes = () => {
   const { filtro } = useParams<{ filtro: string }>();
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const storeStatus = statusMap[filtro || "pendentes"];
   const solicitacoes = useSolicitacoesByUser(currentUser?.id || "", storeStatus);
@@ -44,7 +44,6 @@ const MinhasSolicitacoes = () => {
   );
 
   const label = labelMap[filtro || "pendentes"] || "Pendentes";
-  const isPendente = filtro === "pendentes";
 
   return (
     <AppLayout>
@@ -96,13 +95,9 @@ const MinhasSolicitacoes = () => {
                 </span>
               </div>
             </div>
-            <div className="flex gap-2">
-              {isPendente && (
-                <Button size="sm" variant="destructive" onClick={() => cancelarSolicitacao(sol.id).catch(console.error)}>
-                  Cancelar
-                </Button>
-              )}
-            </div>
+            <Button size="sm" onClick={() => navigate(`/minhas-solicitacoes/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
+              Ver
+            </Button>
           </div>
         ))}
       </div>
