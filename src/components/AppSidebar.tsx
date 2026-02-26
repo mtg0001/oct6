@@ -384,24 +384,32 @@ export function AppSidebar() {
                 </button>
                 {!collapsed && isOpen && item.children && (
                   <div className={cn("ml-5 border-l-2 pl-3 mt-1 mb-1 space-y-0.5", isRed ? "border-destructive/40" : "border-[hsl(var(--sidebar-border))]")}>
-                    {item.children.map((child) => (
-                      <NavLink
-                        key={child.path}
-                        to={child.path}
-                        className={({ isActive }) =>
-                          cn(
-                            "block px-3 py-1.5 rounded-md text-[12px] transition-all duration-200",
-                            isActive
-                              ? isRed
-                                ? "bg-destructive text-destructive-foreground font-semibold shadow-sm"
-                                : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
-                              : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
-                          )
-                        }
-                      >
-                        {child.title}
-                      </NavLink>
-                    ))}
+                    {item.children.map((child) => {
+                      const isAlwaysHighlighted = child.title === "Abrir novo chamado";
+                      return (
+                        <NavLink
+                          key={child.path}
+                          to={child.path}
+                          className={({ isActive }) =>
+                            cn(
+                              "block px-3 rounded-md text-[12px] transition-all duration-200",
+                              isAlwaysHighlighted
+                                ? "py-2 bg-destructive text-destructive-foreground font-semibold shadow-md shadow-destructive/30"
+                                : cn(
+                                    "py-1.5",
+                                    isActive
+                                      ? isRed
+                                        ? "bg-destructive text-destructive-foreground font-semibold shadow-sm"
+                                        : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
+                                      : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
+                                  )
+                            )
+                          }
+                        >
+                          {child.title}
+                        </NavLink>
+                      );
+                    })}
                   </div>
                 )}
               </div>
