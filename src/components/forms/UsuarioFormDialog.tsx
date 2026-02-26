@@ -43,9 +43,12 @@ const emptyForm = {
   unidadePadrao: "",
   administrador: false,
   novaSolicitacaoUnidades: [] as string[],
-  resolveExpedicao: false,
-  resolveLogisticaCompras: false,
-  resolveRecursosHumanos: false,
+  resolveExpedicaoGo: false,
+  resolveExpedicaoSp: false,
+  resolveLogisticaComprasGo: false,
+  resolveLogisticaComprasSp: false,
+  resolveRecursosHumanosGo: false,
+  resolveRecursosHumanosSp: false,
   diretoria: [] as string[],
   servicosPermitidos: [] as string[],
   visualizaSolicitacoesUnidades: [] as string[],
@@ -84,9 +87,12 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         unidadePadrao: usuario.unidadePadrao,
         administrador: usuario.administrador,
         novaSolicitacaoUnidades: [...usuario.novaSolicitacaoUnidades],
-        resolveExpedicao: usuario.resolveExpedicao,
-        resolveLogisticaCompras: usuario.resolveLogisticaCompras,
-        resolveRecursosHumanos: usuario.resolveRecursosHumanos,
+        resolveExpedicaoGo: usuario.resolveExpedicaoGo || false,
+        resolveExpedicaoSp: usuario.resolveExpedicaoSp || false,
+        resolveLogisticaComprasGo: usuario.resolveLogisticaComprasGo || false,
+        resolveLogisticaComprasSp: usuario.resolveLogisticaComprasSp || false,
+        resolveRecursosHumanosGo: usuario.resolveRecursosHumanosGo || false,
+        resolveRecursosHumanosSp: usuario.resolveRecursosHumanosSp || false,
         diretoria: [...usuario.diretoria],
         servicosPermitidos: [...usuario.servicosPermitidos],
         visualizaSolicitacoesUnidades: [...(usuario.visualizaSolicitacoesUnidades || [])],
@@ -125,9 +131,12 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           unidadePadrao: form.unidadePadrao,
           administrador: form.administrador,
           novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
-          resolveExpedicao: form.resolveExpedicao,
-          resolveLogisticaCompras: form.resolveLogisticaCompras,
-          resolveRecursosHumanos: form.resolveRecursosHumanos,
+          resolveExpedicaoGo: form.resolveExpedicaoGo,
+          resolveExpedicaoSp: form.resolveExpedicaoSp,
+          resolveLogisticaComprasGo: form.resolveLogisticaComprasGo,
+          resolveLogisticaComprasSp: form.resolveLogisticaComprasSp,
+          resolveRecursosHumanosGo: form.resolveRecursosHumanosGo,
+          resolveRecursosHumanosSp: form.resolveRecursosHumanosSp,
           diretoria: form.diretoria,
           servicosPermitidos: form.servicosPermitidos,
           visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
@@ -136,7 +145,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         };
         await updateUsuario(usuario.id, data);
 
-        // If admin provided a new password, update it
         if (password) {
           if (passwordErrors.length > 0) {
             toast({ title: "Senha não atende aos requisitos", variant: "destructive" });
@@ -163,7 +171,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
 
         toast({ title: "Usuário atualizado com sucesso!" });
       } else {
-        // Creating new user - requires username and password
         if (!username) {
           toast({ title: "Informe o login (nome.sobrenome)", variant: "destructive" });
           setLoading(false);
@@ -180,7 +187,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           return;
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
         const res = await supabase.functions.invoke("create-user", {
           body: {
             username,
@@ -191,9 +197,12 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
             unidadePadrao: form.unidadePadrao,
             administrador: form.administrador,
             novaSolicitacaoUnidades: form.novaSolicitacaoUnidades,
-            resolveExpedicao: form.resolveExpedicao,
-            resolveLogisticaCompras: form.resolveLogisticaCompras,
-            resolveRecursosHumanos: form.resolveRecursosHumanos,
+            resolveExpedicaoGo: form.resolveExpedicaoGo,
+            resolveExpedicaoSp: form.resolveExpedicaoSp,
+            resolveLogisticaComprasGo: form.resolveLogisticaComprasGo,
+            resolveLogisticaComprasSp: form.resolveLogisticaComprasSp,
+            resolveRecursosHumanosGo: form.resolveRecursosHumanosGo,
+            resolveRecursosHumanosSp: form.resolveRecursosHumanosSp,
             diretoria: form.diretoria,
             servicosPermitidos: form.servicosPermitidos,
             visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
@@ -216,6 +225,18 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
       setLoading(false);
     }
   };
+
+  const RadioRow = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) => (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="min-w-[300px]">{label}</span>
+      <label className="flex items-center gap-1">
+        <input type="radio" checked={checked} onChange={() => onChange(true)} /> <span>Sim</span>
+      </label>
+      <label className="flex items-center gap-1">
+        <input type="radio" checked={!checked} onChange={() => onChange(false)} /> <span>Não</span>
+      </label>
+    </div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -344,15 +365,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
               <h3 className="font-semibold text-foreground">Permissões</h3>
 
               {/* Admin */}
-              <div className="flex items-center gap-4">
-                <Label className="min-w-[140px]">Administrador?</Label>
-                <label className="flex items-center gap-1 text-sm">
-                  <input type="radio" checked={form.administrador} onChange={() => setForm({ ...form, administrador: true })} /> Sim
-                </label>
-                <label className="flex items-center gap-1 text-sm">
-                  <input type="radio" checked={!form.administrador} onChange={() => setForm({ ...form, administrador: false })} /> Não
-                </label>
-              </div>
+              <RadioRow label="Administrador?" checked={form.administrador} onChange={(v) => setForm({ ...form, administrador: v })} />
 
               {/* Nova Solicitação */}
               <div>
@@ -370,31 +383,22 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 </div>
               </div>
 
-              {/* Resolve */}
+              {/* Resolve - per unit */}
               <div className="grid grid-cols-1 gap-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[280px]">Resolve Solicitações Expedição:</span>
-                  <input type="radio" checked={form.resolveExpedicao} onChange={() => setForm({ ...form, resolveExpedicao: true })} /> <span>Sim</span>
-                  <input type="radio" checked={!form.resolveExpedicao} onChange={() => setForm({ ...form, resolveExpedicao: false })} /> <span>Não</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[280px]">Resolve Solicitações Logística e Compras:</span>
-                  <input type="radio" checked={form.resolveLogisticaCompras} onChange={() => setForm({ ...form, resolveLogisticaCompras: true })} /> <span>Sim</span>
-                  <input type="radio" checked={!form.resolveLogisticaCompras} onChange={() => setForm({ ...form, resolveLogisticaCompras: false })} /> <span>Não</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[280px]">Resolve Solicitações Recursos Humanos:</span>
-                  <input type="radio" checked={form.resolveRecursosHumanos} onChange={() => setForm({ ...form, resolveRecursosHumanos: true })} /> <span>Sim</span>
-                  <input type="radio" checked={!form.resolveRecursosHumanos} onChange={() => setForm({ ...form, resolveRecursosHumanos: false })} /> <span>Não</span>
-                </label>
+                <RadioRow label="Resolve Solicitações Expedição GO:" checked={form.resolveExpedicaoGo} onChange={(v) => setForm({ ...form, resolveExpedicaoGo: v })} />
+                <RadioRow label="Resolve Solicitações Expedição SP:" checked={form.resolveExpedicaoSp} onChange={(v) => setForm({ ...form, resolveExpedicaoSp: v })} />
+                <RadioRow label="Resolve Solicitações Logística e Compras GO:" checked={form.resolveLogisticaComprasGo} onChange={(v) => setForm({ ...form, resolveLogisticaComprasGo: v })} />
+                <RadioRow label="Resolve Solicitações Logística e Compras SP:" checked={form.resolveLogisticaComprasSp} onChange={(v) => setForm({ ...form, resolveLogisticaComprasSp: v })} />
+                <RadioRow label="Resolve Solicitações Recursos Humanos GO:" checked={form.resolveRecursosHumanosGo} onChange={(v) => setForm({ ...form, resolveRecursosHumanosGo: v })} />
+                <RadioRow label="Resolve Solicitações Recursos Humanos SP:" checked={form.resolveRecursosHumanosSp} onChange={(v) => setForm({ ...form, resolveRecursosHumanosSp: v })} />
               </div>
 
               {/* Visualiza Todas Solicitações */}
-              <label className="flex items-center gap-2 text-sm">
-                <span className="min-w-[280px]">Visualiza Todas Solicitações:</span>
-                <input type="radio" checked={form.visualizaSolicitacoesUnidades.length > 0} onChange={() => setForm({ ...form, visualizaSolicitacoesUnidades: ["GOIÂNIA"] })} /> <span>Sim</span>
-                <input type="radio" checked={form.visualizaSolicitacoesUnidades.length === 0} onChange={() => setForm({ ...form, visualizaSolicitacoesUnidades: [] })} /> <span>Não</span>
-              </label>
+              <RadioRow
+                label="Visualiza Todas Solicitações:"
+                checked={form.visualizaSolicitacoesUnidades.length > 0}
+                onChange={(v) => setForm({ ...form, visualizaSolicitacoesUnidades: v ? ["GOIÂNIA"] : [] })}
+              />
               {form.visualizaSolicitacoesUnidades.length > 0 && (
                 <div className="flex items-center gap-4 ml-4">
                   {UNIDADES.map((u) => (
@@ -408,8 +412,6 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                   ))}
                 </div>
               )}
-
-              {/* Visualiza Solicitações Unidades - checkboxes are above this */}
 
               {/* Diretoria */}
               <div>
@@ -429,16 +431,16 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
 
               {/* Lixeira permissions */}
               <div className="grid grid-cols-1 gap-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[280px]">Pode excluir chamado?</span>
-                  <input type="radio" checked={form.podeExcluirChamado} onChange={() => setForm({ ...form, podeExcluirChamado: true, podeVerLixeira: true })} /> <span>Sim</span>
-                  <input type="radio" checked={!form.podeExcluirChamado} onChange={() => setForm({ ...form, podeExcluirChamado: false })} /> <span>Não</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <span className="min-w-[280px]">Pode ver a lixeira de chamados?</span>
-                  <input type="radio" checked={form.podeVerLixeira} onChange={() => setForm({ ...form, podeVerLixeira: true })} /> <span>Sim</span>
-                  <input type="radio" checked={!form.podeVerLixeira} onChange={() => setForm({ ...form, podeVerLixeira: false, podeExcluirChamado: false })} /> <span>Não</span>
-                </label>
+                <RadioRow
+                  label="Pode excluir chamado?"
+                  checked={form.podeExcluirChamado}
+                  onChange={(v) => setForm({ ...form, podeExcluirChamado: v, ...(v ? { podeVerLixeira: true } : {}) })}
+                />
+                <RadioRow
+                  label="Pode ver a lixeira de chamados?"
+                  checked={form.podeVerLixeira}
+                  onChange={(v) => setForm({ ...form, podeVerLixeira: v, ...(!v ? { podeExcluirChamado: false } : {}) })}
+                />
               </div>
 
               {/* Serviços */}

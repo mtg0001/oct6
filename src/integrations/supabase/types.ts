@@ -308,9 +308,12 @@ export type Database = {
           nova_solicitacao_unidades: string[]
           pode_excluir_chamado: boolean
           pode_ver_lixeira: boolean
-          resolve_expedicao: boolean
-          resolve_logistica_compras: boolean
-          resolve_recursos_humanos: boolean
+          resolve_expedicao_go: boolean
+          resolve_expedicao_sp: boolean
+          resolve_logistica_compras_go: boolean
+          resolve_logistica_compras_sp: boolean
+          resolve_recursos_humanos_go: boolean
+          resolve_recursos_humanos_sp: boolean
           servicos_permitidos: string[]
           unidade_padrao: string
           updated_at: string
@@ -331,9 +334,12 @@ export type Database = {
           nova_solicitacao_unidades?: string[]
           pode_excluir_chamado?: boolean
           pode_ver_lixeira?: boolean
-          resolve_expedicao?: boolean
-          resolve_logistica_compras?: boolean
-          resolve_recursos_humanos?: boolean
+          resolve_expedicao_go?: boolean
+          resolve_expedicao_sp?: boolean
+          resolve_logistica_compras_go?: boolean
+          resolve_logistica_compras_sp?: boolean
+          resolve_recursos_humanos_go?: boolean
+          resolve_recursos_humanos_sp?: boolean
           servicos_permitidos?: string[]
           unidade_padrao?: string
           updated_at?: string
@@ -354,9 +360,12 @@ export type Database = {
           nova_solicitacao_unidades?: string[]
           pode_excluir_chamado?: boolean
           pode_ver_lixeira?: boolean
-          resolve_expedicao?: boolean
-          resolve_logistica_compras?: boolean
-          resolve_recursos_humanos?: boolean
+          resolve_expedicao_go?: boolean
+          resolve_expedicao_sp?: boolean
+          resolve_logistica_compras_go?: boolean
+          resolve_logistica_compras_sp?: boolean
+          resolve_recursos_humanos_go?: boolean
+          resolve_recursos_humanos_sp?: boolean
           servicos_permitidos?: string[]
           unidade_padrao?: string
           updated_at?: string

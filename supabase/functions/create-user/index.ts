@@ -14,7 +14,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify caller is admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Não autorizado" }), {
@@ -34,7 +33,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check admin
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: isAdmin } = await adminClient.rpc("is_admin", { _auth_uid: caller.id });
     if (!isAdmin) {
@@ -44,7 +42,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { username, password, nome, email, departamento, unidadePadrao, administrador, novaSolicitacaoUnidades, resolveExpedicao, resolveLogisticaCompras, resolveRecursosHumanos, diretoria, servicosPermitidos, visualizaSolicitacoesUnidades, podeExcluirChamado, podeVerLixeira } = await req.json();
+    const {
+      username, password, nome, email, departamento, unidadePadrao, administrador,
+      novaSolicitacaoUnidades,
+      resolveExpedicaoGo, resolveExpedicaoSp,
+      resolveLogisticaComprasGo, resolveLogisticaComprasSp,
+      resolveRecursosHumanosGo, resolveRecursosHumanosSp,
+      diretoria, servicosPermitidos, visualizaSolicitacoesUnidades,
+      podeExcluirChamado, podeVerLixeira,
+    } = await req.json();
 
     if (!username || !password) {
       return new Response(JSON.stringify({ error: "Usuário e senha são obrigatórios" }), {
@@ -53,7 +59,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Validate password
     if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
       return new Response(JSON.stringify({ error: "Senha não atende aos requisitos de complexidade" }), {
         status: 400,
@@ -63,7 +68,6 @@ Deno.serve(async (req) => {
 
     const authEmail = `${username}@octarte.com.br`;
 
-    // Create auth user
     const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
       email: authEmail,
       password,
@@ -78,7 +82,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Update the auto-created usuario record with the full data
     const { error: updateErr } = await adminClient
       .from("usuarios")
       .update({
@@ -88,9 +91,12 @@ Deno.serve(async (req) => {
         unidade_padrao: unidadePadrao,
         administrador: administrador || false,
         nova_solicitacao_unidades: novaSolicitacaoUnidades || [],
-        resolve_expedicao: resolveExpedicao || false,
-        resolve_logistica_compras: resolveLogisticaCompras || false,
-        resolve_recursos_humanos: resolveRecursosHumanos || false,
+        resolve_expedicao_go: resolveExpedicaoGo || false,
+        resolve_expedicao_sp: resolveExpedicaoSp || false,
+        resolve_logistica_compras_go: resolveLogisticaComprasGo || false,
+        resolve_logistica_compras_sp: resolveLogisticaComprasSp || false,
+        resolve_recursos_humanos_go: resolveRecursosHumanosGo || false,
+        resolve_recursos_humanos_sp: resolveRecursosHumanosSp || false,
         diretoria: diretoria || [],
         servicos_permitidos: servicosPermitidos || [],
         visualiza_solicitacoes_unidades: visualizaSolicitacoesUnidades || [],
@@ -134,7 +140,6 @@ Deno.serve(async (req) => {
       }
     } catch (spError) {
       console.error("SharePoint integration error:", spError);
-      // Don't fail user creation if SharePoint fails
     }
 
     return new Response(JSON.stringify({ success: true, userId: newUser.user!.id }), {
