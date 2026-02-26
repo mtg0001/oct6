@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
-import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao, aprovarSolicitacao, reprovarSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
 import { DIRETORES } from "@/stores/usuariosStore";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Button } from "@/components/ui/button";
@@ -619,8 +619,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
-                  await aprovarSolicitacao(sol.id);
-                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado');
+                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado', undefined, 'aprovado');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
@@ -629,8 +628,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e devolvido para Expedição`);
-                  await aprovarSolicitacao(sol.id);
-                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido', undefined, 'pendente');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
@@ -639,8 +637,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" variant="destructive" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e devolvido para Expedição`);
-                  await reprovarSolicitacao(sol.id);
-                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido', undefined, 'pendente');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
