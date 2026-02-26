@@ -146,6 +146,9 @@ export type Database = {
           departamento_destino: string
           diretor_area: string
           evento: string
+          excluido: boolean
+          excluido_em: string | null
+          excluido_por: string
           experiencia: string
           faixa_salarial_ate: string
           faixa_salarial_de: string
@@ -176,6 +179,9 @@ export type Database = {
           departamento_destino?: string
           diretor_area?: string
           evento?: string
+          excluido?: boolean
+          excluido_em?: string | null
+          excluido_por?: string
           experiencia?: string
           faixa_salarial_ate?: string
           faixa_salarial_de?: string
@@ -206,6 +212,9 @@ export type Database = {
           departamento_destino?: string
           diretor_area?: string
           evento?: string
+          excluido?: boolean
+          excluido_em?: string | null
+          excluido_por?: string
           experiencia?: string
           faixa_salarial_ate?: string
           faixa_salarial_de?: string
@@ -297,6 +306,8 @@ export type Database = {
           must_change_password: boolean
           nome: string
           nova_solicitacao_unidades: string[]
+          pode_excluir_chamado: boolean
+          pode_ver_lixeira: boolean
           resolve_expedicao: boolean
           resolve_logistica_compras: boolean
           resolve_recursos_humanos: boolean
@@ -318,6 +329,8 @@ export type Database = {
           must_change_password?: boolean
           nome: string
           nova_solicitacao_unidades?: string[]
+          pode_excluir_chamado?: boolean
+          pode_ver_lixeira?: boolean
           resolve_expedicao?: boolean
           resolve_logistica_compras?: boolean
           resolve_recursos_humanos?: boolean
@@ -339,6 +352,8 @@ export type Database = {
           must_change_password?: boolean
           nome?: string
           nova_solicitacao_unidades?: string[]
+          pode_excluir_chamado?: boolean
+          pode_ver_lixeira?: boolean
           resolve_expedicao?: boolean
           resolve_logistica_compras?: boolean
           resolve_recursos_humanos?: boolean

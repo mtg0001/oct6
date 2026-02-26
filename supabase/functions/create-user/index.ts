@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { username, password, nome, email, departamento, unidadePadrao, administrador, novaSolicitacaoUnidades, resolveExpedicao, resolveLogisticaCompras, resolveRecursosHumanos, diretoria, servicosPermitidos, visualizaSolicitacoesUnidades } = await req.json();
+    const { username, password, nome, email, departamento, unidadePadrao, administrador, novaSolicitacaoUnidades, resolveExpedicao, resolveLogisticaCompras, resolveRecursosHumanos, diretoria, servicosPermitidos, visualizaSolicitacoesUnidades, podeExcluirChamado, podeVerLixeira } = await req.json();
 
     if (!username || !password) {
       return new Response(JSON.stringify({ error: "Usuário e senha são obrigatórios" }), {
@@ -94,6 +94,8 @@ Deno.serve(async (req) => {
         diretoria: diretoria || [],
         servicos_permitidos: servicosPermitidos || [],
         visualiza_solicitacoes_unidades: visualizaSolicitacoesUnidades || [],
+        pode_excluir_chamado: podeExcluirChamado || false,
+        pode_ver_lixeira: podeVerLixeira || false,
         must_change_password: true,
       })
       .eq("user_id", newUser.user!.id);

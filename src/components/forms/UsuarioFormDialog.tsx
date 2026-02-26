@@ -49,6 +49,8 @@ const emptyForm = {
   diretoria: [] as string[],
   servicosPermitidos: [] as string[],
   visualizaSolicitacoesUnidades: [] as string[],
+  podeExcluirChamado: false,
+  podeVerLixeira: false,
 };
 
 function validatePassword(pw: string) {
@@ -88,6 +90,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         diretoria: [...usuario.diretoria],
         servicosPermitidos: [...usuario.servicosPermitidos],
         visualizaSolicitacoesUnidades: [...(usuario.visualizaSolicitacoesUnidades || [])],
+        podeExcluirChamado: usuario.podeExcluirChamado || false,
+        podeVerLixeira: usuario.podeVerLixeira || false,
       });
       setUsername("");
       setPassword("");
@@ -127,6 +131,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           diretoria: form.diretoria,
           servicosPermitidos: form.servicosPermitidos,
           visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+          podeExcluirChamado: form.podeExcluirChamado,
+          podeVerLixeira: form.podeVerLixeira,
         };
         await updateUsuario(usuario.id, data);
 
@@ -191,6 +197,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
             diretoria: form.diretoria,
             servicosPermitidos: form.servicosPermitidos,
             visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
+            podeExcluirChamado: form.podeExcluirChamado,
+            podeVerLixeira: form.podeVerLixeira,
           },
         });
 
@@ -401,6 +409,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 </div>
               )}
 
+              {/* Visualiza Solicitações Unidades - checkboxes are above this */}
+
               {/* Diretoria */}
               <div>
                 <Label>Diretoria (submenus visíveis):</Label>
@@ -415,6 +425,20 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Lixeira permissions */}
+              <div className="grid grid-cols-1 gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="min-w-[280px]">Pode excluir chamado?</span>
+                  <input type="radio" checked={form.podeExcluirChamado} onChange={() => setForm({ ...form, podeExcluirChamado: true, podeVerLixeira: true })} /> <span>Sim</span>
+                  <input type="radio" checked={!form.podeExcluirChamado} onChange={() => setForm({ ...form, podeExcluirChamado: false })} /> <span>Não</span>
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <span className="min-w-[280px]">Pode ver a lixeira de chamados?</span>
+                  <input type="radio" checked={form.podeVerLixeira} onChange={() => setForm({ ...form, podeVerLixeira: true })} /> <span>Sim</span>
+                  <input type="radio" checked={!form.podeVerLixeira} onChange={() => setForm({ ...form, podeVerLixeira: false, podeExcluirChamado: false })} /> <span>Não</span>
+                </label>
               </div>
 
               {/* Serviços */}

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
+import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
 
 const statusMap: Record<string, string> = {
   pendentes: "pendente",
@@ -87,6 +88,7 @@ const LogisticaCompras = () => {
                   <span className="font-medium text-xs">{sol.tipo}</span>
                 </div>
               </div>
+              <ExcluirChamadoButton solicitacaoId={sol.id} />
               <Button size="sm" onClick={() => navigate(`/logistica/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
                 Ver
               </Button>

@@ -10,8 +10,10 @@ import {
   getSolicitacoesHoje,
   getTotaisPorStatus,
   getTotaisPorUnidadeEStatus,
+  getSolicitacoesExcluidas,
   subscribe,
   ensureSolicitacoesLoaded,
+  ensureTrashLoaded,
   type SolicitacaoColaborador,
 } from "@/stores/solicitacoesStore";
 
@@ -35,3 +37,12 @@ export function useSolicitacoesByUser(userId: string, status?: string) { return 
 export function useSolicitacoesHoje() { return useSubscribe(() => getSolicitacoesHoje()); }
 export function useTotaisPorStatus() { return useSubscribe(() => getTotaisPorStatus()); }
 export function useTotaisPorUnidade(unidade: string) { return useSubscribe(() => getTotaisPorUnidadeEStatus(unidade), [unidade]); }
+
+export function useSolicitacoesExcluidas() {
+  const [data, setData] = useState<SolicitacaoColaborador[]>([]);
+  useEffect(() => {
+    ensureTrashLoaded().then(() => setData(getSolicitacoesExcluidas()));
+    return subscribe(() => setData(getSolicitacoesExcluidas()));
+  }, []);
+  return data;
+}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
+import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
 
 const statusConfig: Record<string, { storeStatus: string; label: string }> = {
   pendentes: { storeStatus: "aprovado", label: "Pendentes" },
@@ -79,6 +80,7 @@ const RecursosHumanos = () => {
                   <span className="font-medium text-xs">{sol.tipo}</span>
                 </div>
               </div>
+              <ExcluirChamadoButton solicitacaoId={sol.id} />
               <Button size="sm" onClick={() => navigate(`/rh/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
                 Ver
               </Button>

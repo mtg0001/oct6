@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
+import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
 
 const DiretoriaAprovacao = () => {
   const { diretor } = useParams<{ diretor: string }>();
@@ -97,6 +98,7 @@ const DiretoriaAprovacao = () => {
                   <span className="font-medium text-xs">{sol.tipo}</span>
                 </div>
               </div>
+              <ExcluirChamadoButton solicitacaoId={sol.id} />
               <Button size="sm" onClick={() => navigate(`/diretoria/${diretor}/solicitacao/${sol.id}`)}>
                 Ver
               </Button>
