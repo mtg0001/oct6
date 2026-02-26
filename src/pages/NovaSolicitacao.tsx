@@ -43,7 +43,7 @@ interface SolicitacaoCard {
 }
 
 const allSolicitacoes: SolicitacaoCard[] = [
-  { title: "Serviço de Diarista", serviceKey: "Serviço de Diarista", description: "Solicitar diarista para a unidade.", icon: Sparkles, available: true },
+  { title: "Solicitação de Serviço de Diarista", serviceKey: "Serviço de Diarista", description: "Solicitar diarista para a unidade.", icon: Sparkles, available: true },
   { title: "Solicitação de Aluguel de Banheiro", serviceKey: "Aluguel de Banheiro", description: "Abrir formulário para enviar.", icon: ShowerHead, available: true },
   { title: "Solicitação de Locação de Veículos", serviceKey: "Locação de Veículos", description: "Abrir formulário para enviar.", icon: Car, available: true },
   { title: "Solicitação de Frete", serviceKey: "Frete", description: "Abrir formulário para enviar.", icon: Truck, available: true },
@@ -89,7 +89,7 @@ const NovaSolicitacao = () => {
 
   const handleSelecionar = (title: string) => {
     if (title === "Solicitação de Novo Colaborador") setColaboradorOpen(true);
-    else if (title === "Serviço de Diarista") setDiaristaOpen(true);
+    else if (title === "Solicitação de Serviço de Diarista") setDiaristaOpen(true);
     else if (title === "Solicitação de Aluguel de Banheiro") setAluguelBanheiroOpen(true);
     else if (title === "Solicitação de Locação de Veículos") setLocacaoVeiculosOpen(true);
     else if (title === "Solicitação de Gerador") setGeradorOpen(true);
