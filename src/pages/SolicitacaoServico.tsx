@@ -149,12 +149,23 @@ const SolicitacaoServico = () => {
   ];
 
   // ── Hospedagem table rows ──
-  const getHospedagemRows = () => [
-    { campo: "Local", valor: parsed["Local"] || sol.unidadeDestino || "—" },
-    { campo: "Data de Entrada", valor: sol.horarioDe || parsed["Entrada"] || "—" },
-    { campo: "Data de Saída", valor: sol.horarioAte || parsed["Saída"] || "—" },
-    { campo: "Hóspedes", valor: parsed["Hóspedes"] || "—" },
-  ];
+  const getHospedagemRows = () => {
+    const rows = [
+      { campo: "Local", valor: parsed["Local"] || sol.unidadeDestino || "—" },
+      { campo: "Data de Entrada", valor: sol.horarioDe || parsed["Entrada"] || "—" },
+      { campo: "Data de Saída", valor: sol.horarioAte || parsed["Saída"] || "—" },
+    ];
+    const hospedesRaw = parsed["Hóspedes"] || "";
+    if (hospedesRaw) {
+      const lista = hospedesRaw.split(";").map((h) => h.trim()).filter(Boolean);
+      lista.forEach((h, i) => {
+        rows.push({ campo: lista.length === 1 ? "Hóspede" : `Hóspede ${i + 1}`, valor: h });
+      });
+    } else {
+      rows.push({ campo: "Hóspedes", valor: "—" });
+    }
+    return rows;
+  };
 
   // ── Generic table rows ──
   const getGenericRows = () => {
