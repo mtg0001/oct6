@@ -228,6 +228,12 @@ const Chat = () => {
   // ─── Nudge ───
   const triggerNudge = () => {
     setNudging(true);
+    // Play MSN nudge sound
+    try {
+      const audio = new Audio("/sounds/nudge.mp3");
+      audio.volume = 0.7;
+      audio.play().catch(() => {});
+    } catch {}
     setTimeout(() => setNudging(false), 500);
   };
   const sendNudge = () => sendMessage("nudge", "🔔 Chamou sua atenção!");
@@ -455,55 +461,57 @@ const Chat = () => {
               )}
 
               {/* Input area */}
-              <div className="p-2 border-t border-border bg-card/80">
-                <div className="flex items-center gap-1.5">
-                  {/* Emoji button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    onClick={() => setShowEmojis(!showEmojis)}
-                    title="Emojis"
-                  >
-                    <Smile className="h-4 w-4 text-amber-500" />
-                  </Button>
+              <div className="p-3 border-t border-border bg-card/80">
+                {/* Textarea for message */}
+                <textarea
+                  placeholder="Digite sua mensagem..."
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                  className="w-full min-h-[80px] max-h-[160px] resize-none rounded-lg border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 mb-2"
+                  rows={3}
+                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {/* Emoji button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => setShowEmojis(!showEmojis)}
+                      title="Emojis"
+                    >
+                      <Smile className="h-4 w-4 text-amber-500" />
+                    </Button>
 
-                  {/* Nudge button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    onClick={sendNudge}
-                    title="Chamar atenção"
-                  >
-                    <Zap className="h-4 w-4 text-orange-500" />
-                  </Button>
+                    {/* Nudge button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={sendNudge}
+                      title="Chamar atenção"
+                    >
+                      <Zap className="h-4 w-4 text-orange-500" />
+                    </Button>
 
-                  {/* File upload */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Enviar arquivo"
-                  >
-                    <Paperclip className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
-
-                  {/* Message input */}
-                  <Input
-                    placeholder="Digite sua mensagem..."
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                    className="h-8 text-xs flex-1"
-                  />
+                    {/* File upload */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0"
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Enviar arquivo"
+                    >
+                      <Paperclip className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </div>
 
                   {/* Send button */}
                   <Button
