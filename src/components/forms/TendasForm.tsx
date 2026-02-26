@@ -315,13 +315,14 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
           {/* ── Anexos e Observações ── */}
           <fieldset className="border border-primary/30 rounded-md p-4">
             <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
-              Anexar Documento (PDF)
+              Anexos e Observações
             </legend>
             <div className="mt-3 space-y-4">
               <div>
+                <Label className="text-xs font-bold">Anexar Documento (PDF)</Label>
                 <div
                   className={cn(
-                    "flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
+                    "mt-1 flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
                     anexoNome && "border-primary/50 bg-primary/5"
                   )}
                   onClick={() => fileInputRef.current?.click()}
@@ -345,23 +346,19 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
                   )}
                 </div>
                 <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
-                <p className="text-xs text-muted-foreground mt-1">Opcional. Máximo 5 MB.</p>
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
               </div>
-            </div>
-          </fieldset>
 
-          {/* ── Observações ── */}
-          <fieldset className="border border-primary/30 rounded-md p-4">
-            <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
-              Observações
-            </legend>
-            <div className="mt-3">
-              <Textarea
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                rows={3}
-                placeholder="Informações adicionais..."
-              />
+              <div>
+                <Label className="text-xs font-bold">Observações</Label>
+                <Textarea
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  rows={3}
+                  className="mt-1"
+                  placeholder="Informações adicionais..."
+                />
+              </div>
             </div>
           </fieldset>
 
