@@ -540,11 +540,25 @@ const SolicitacaoServico = () => {
             >
               Em andamento
             </Button>
-            {/* Expedition: if returned, only show Em andamento + Cancelar */}
+            {/* Expedition: if returned from diretoria, show Concluir + Cancelar + Encaminhar Logística */}
             {isExpedicao && isPendente && isDevolvido && (
-              <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
-                Cancelar
-              </Button>
+              <>
+                <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
+                  Cancelar
+                </Button>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>
+                  Concluir
+                </Button>
+                <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={async () => {
+                  const nome = currentUser?.nome || "Expedição";
+                  await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Logística & Compras`);
+                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Encaminhar para Logística
+                </Button>
+              </>
             )}
             {/* Normal Concluir/Cancelar (not for returned expedition items) */}
             {showConcluirCancelar && !(isExpedicao && isDevolvido) && (
