@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
-import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao, aprovarSolicitacao, reprovarSolicitacao } from "@/stores/solicitacoesStore";
 import { DIRETORES } from "@/stores/usuariosStore";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ const statusLabel: Record<string, string> = {
 };
 
 const SolicitacaoServico = () => {
-  const { filtro, id } = useParams<{ filtro: string; id: string }>();
+  const { filtro, id, diretor } = useParams<{ filtro: string; id: string; diretor: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const sol = useSolicitacao(id || "");
@@ -49,6 +49,7 @@ const SolicitacaoServico = () => {
   const isMinhasSolicitacoes = location.pathname.includes("/minhas-solicitacoes/");
   const isExpedicao = location.pathname.includes("/expedicao/");
   const isLogistica = location.pathname.includes("/logistica/");
+  const isDiretoria = location.pathname.includes("/diretoria/");
   const isAdmin = currentUser?.administrador === true;
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
@@ -64,12 +65,14 @@ const SolicitacaoServico = () => {
   }
 
   const siglaUnidade = sol.unidade === "goiania" ? "GO" : "SP";
-  const isPendente = filtro === "pendentes";
-  const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin);
+  const isPendente = filtro === "pendentes" || isDiretoria;
+  const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria;
   // Expedition forwarding logic
   const isDevolvido = sol.setorAtual === 'expedicao_devolvido';
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
+  const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
+  const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const hasAnexo = !!parsed["Anexo"];
 
@@ -609,6 +612,41 @@ const SolicitacaoServico = () => {
                 <Forward className="h-4 w-4 mr-1" />
                 Encaminhar para Expedição
               </Button>
+            )}
+            {/* Diretoria: forwarded expedition item */}
+            {showDiretoriaButtons && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
+                  await aprovarSolicitacao(sol.id);
+                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e encaminhar para Logística
+                </Button>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e devolvido para Expedição`);
+                  await aprovarSolicitacao(sol.id);
+                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e devolver para Expedição
+                </Button>
+                <Button size="sm" variant="destructive" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e devolvido para Expedição`);
+                  await reprovarSolicitacao(sol.id);
+                  await encaminharSolicitacao(sol.id, 'expedicao_devolvido');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Reprovar e devolver para Expedição
+                </Button>
+              </>
             )}
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="h-4 w-4 mr-1" />

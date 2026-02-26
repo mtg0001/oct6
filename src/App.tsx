@@ -9,7 +9,7 @@ import CursorFollower from "@/components/CursorFollower";
 import Index from "./pages/Index";
 import NovaSolicitacao from "./pages/NovaSolicitacao";
 import DiretoriaAprovacao from "./pages/DiretoriaAprovacao";
-import SolicitacaoDetalhe from "./pages/SolicitacaoDetalhe";
+import DiretoriaSolicitacaoWrapper from "./pages/DiretoriaSolicitacaoWrapper";
 import RecursosHumanos from "./pages/RecursosHumanos";
 import RHSolicitacaoDetalhe from "./pages/RHSolicitacaoDetalhe";
 import LogisticaCompras from "./pages/LogisticaCompras";
@@ -41,7 +41,7 @@ const App = () => (
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/nova-solicitacao/:unidade" element={<ProtectedRoute><NovaSolicitacao /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor" element={<ProtectedRoute><DiretoriaAprovacao /></ProtectedRoute>} />
-            <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><SolicitacaoDetalhe /></ProtectedRoute>} />
+            <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><DiretoriaSolicitacaoWrapper /></ProtectedRoute>} />
             <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
             <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoDetalhe /></ProtectedRoute>} />
             <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />
