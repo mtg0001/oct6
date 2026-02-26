@@ -135,6 +135,19 @@ const SolicitacaoServico = () => {
     { campo: "Ponto Octarte", valor: parsed["Ponto Octarte"] || "—" },
   ];
 
+  // ── Gerador table rows ──
+  const getGeradorRows = () => [
+    { campo: "Data de", valor: sol.horarioDe || parsed["Data de"] || "—" },
+    { campo: "Data até", valor: sol.horarioAte || parsed["Data até"] || "—" },
+    { campo: "Dias", valor: parsed["Dias"] || "—" },
+    { campo: "Data de Retirada", valor: parsed["Data de retirada"] || "—" },
+    { campo: "Horas por Dia", valor: parsed["Horas/dia"] || "—" },
+    { campo: "Total de Horas", valor: parsed["Total de horas"] || "—" },
+    { campo: "Quantidade KVA", valor: parsed["KVA"] || "—" },
+    { campo: "Modo de Uso", valor: parsed["Modo de uso"] || "—" },
+    { campo: "Tensão Trifásica", valor: parsed["Tensão trifásica"] || "—" },
+  ];
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -148,8 +161,9 @@ const SolicitacaoServico = () => {
   const isAluguelBanheiro = sol.tipo === "Aluguel de Banheiro";
   const isLocacaoVeiculos = sol.tipo === "Locação de Veículos";
   const isFrete = sol.tipo === "Frete";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : "Dados da Solicitação";
+  const isGerador = sol.tipo === "Gerador";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : "Dados da Solicitação";
 
   return (
     <AppLayout>
