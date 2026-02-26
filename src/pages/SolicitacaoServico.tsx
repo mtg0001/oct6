@@ -189,6 +189,31 @@ const SolicitacaoServico = () => {
     return rows;
   };
 
+  // ── Tendas table rows ──
+  const getTendasRows = () => {
+    const rows: { campo: string; valor: string }[] = [];
+    // Parse tendas from caracteristicas or justificativa
+    const caracTendas = (sol.caracteristicas as any)?.tendas;
+    if (caracTendas && Array.isArray(caracTendas)) {
+      caracTendas.forEach((t: any, i: number) => {
+        rows.push({ campo: `Tenda ${i + 1}`, valor: `${t.tipo} × ${t.quantidade}` });
+        if (t.itens && Array.isArray(t.itens)) {
+          t.itens.forEach((item: any, j: number) => {
+            const label = t.quantidade > 1 ? `  ${t.tipo} ${j + 1}` : `  Detalhes`;
+            rows.push({ campo: label, valor: `Pé: ${item.alturaPe || "—"}m, Medida: ${item.largura || "—"}×${item.comprimento || "—"}m, Laterais: ${item.lateraisFechadas || "0"}` });
+          });
+        }
+      });
+    } else {
+      // fallback from justificativa
+      const tendasRaw = sol.justificativa.split(" | ").filter(s => s.startsWith("Tenda "));
+      tendasRaw.forEach((t) => rows.push({ campo: "Tenda", valor: t }));
+    }
+    rows.push({ campo: "Data de Entrega", valor: sol.horarioDe || parsed["Entrega"] || "—" });
+    rows.push({ campo: "Data de Retirada", valor: sol.horarioAte || parsed["Retirada"] || "—" });
+    return rows;
+  };
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -205,8 +230,9 @@ const SolicitacaoServico = () => {
   const isGerador = sol.tipo === "Gerador";
   const isHospedagem = sol.tipo === "Hospedagem";
   const isPassagens = sol.tipo === "Passagens";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : "Dados da Solicitação";
+  const isTendas = sol.tipo === "Tendas";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : "Dados da Solicitação";
 
   return (
     <AppLayout>
