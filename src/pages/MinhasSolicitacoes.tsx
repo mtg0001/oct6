@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { FileText } from "lucide-react";
+import { getIconForTipo } from "@/lib/solicitacaoIcons";
 
 const statusMap: Record<string, string> = {
   pendentes: "pendente",
@@ -73,7 +73,7 @@ const MinhasSolicitacoes = () => {
             className="bg-card border border-border rounded-lg p-4 flex flex-wrap items-center gap-4 shadow-sm"
           >
             <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <FileText className="h-5 w-5" />
+              {(() => { const Icon = getIconForTipo(sol.tipo); return <Icon className="h-5 w-5" />; })()}
             </div>
             <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
               <div>
