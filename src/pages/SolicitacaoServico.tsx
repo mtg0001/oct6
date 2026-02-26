@@ -148,6 +148,14 @@ const SolicitacaoServico = () => {
     { campo: "Tensão Trifásica", valor: parsed["Tensão trifásica"] || "—" },
   ];
 
+  // ── Hospedagem table rows ──
+  const getHospedagemRows = () => [
+    { campo: "Local", valor: parsed["Local"] || sol.unidadeDestino || "—" },
+    { campo: "Data de Entrada", valor: sol.horarioDe || parsed["Entrada"] || "—" },
+    { campo: "Data de Saída", valor: sol.horarioAte || parsed["Saída"] || "—" },
+    { campo: "Hóspedes", valor: parsed["Hóspedes"] || "—" },
+  ];
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -162,8 +170,9 @@ const SolicitacaoServico = () => {
   const isLocacaoVeiculos = sol.tipo === "Locação de Veículos";
   const isFrete = sol.tipo === "Frete";
   const isGerador = sol.tipo === "Gerador";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : "Dados da Solicitação";
+  const isHospedagem = sol.tipo === "Hospedagem";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : "Dados da Solicitação";
 
   return (
     <AppLayout>
