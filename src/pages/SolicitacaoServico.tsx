@@ -102,6 +102,21 @@ const SolicitacaoServico = () => {
     { campo: "Data de Retirada", valor: sol.horarioAte || parsed["Data de Retirada"] || "—" },
   ];
 
+  // ── Locação de Veículos table rows ──
+  const getLocacaoVeiculosRows = () => [
+    { campo: "Tipo de Veículo", valor: sol.cargo || parsed["Tipo de Veículo"] || "—" },
+    { campo: "Quantidade", valor: sol.tipoVaga || parsed["Quantidade"] || "—" },
+    { campo: "Data de Retirada", valor: sol.horarioDe || parsed["Data de Retirada"] || "—" },
+    { campo: "Data de Devolução", valor: sol.horarioAte || parsed["Data de Devolução"] || "—" },
+    { campo: "CEP Origem", valor: parsed["CEP Origem"] || "—" },
+    { campo: "CEP Destino", valor: parsed["CEP Destino"] || "—" },
+    { campo: "KM Estimado", valor: parsed["KM Ida"] ? `Ida: ${parsed["KM Ida"]}` : (sol.faixaSalarialAte ? `Total: ${sol.faixaSalarialAte}` : "—") },
+    { campo: "Condutor", valor: sol.nomeSubstituido || parsed["Condutor"] || "—" },
+    { campo: "CNH", valor: sol.formacao || parsed["CNH"] || "—" },
+    { campo: "CPF", valor: sol.conhecimentos || parsed["CPF"] || "—" },
+    { campo: "RG", valor: sol.experiencia || parsed["RG"] || "—" },
+  ];
+
   // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -113,8 +128,9 @@ const SolicitacaoServico = () => {
 
   const isDiarista = sol.tipo === "Serviço de Diarista";
   const isAluguelBanheiro = sol.tipo === "Aluguel de Banheiro";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : "Dados da Solicitação";
+  const isLocacaoVeiculos = sol.tipo === "Locação de Veículos";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : "Dados da Solicitação";
 
   return (
     <AppLayout>
