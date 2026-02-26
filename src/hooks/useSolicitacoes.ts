@@ -6,6 +6,7 @@ import {
   getSolicitacoesByStatus,
   getSolicitacoesLogistica,
   getSolicitacoesExpedicao,
+  getSolicitacoesRH,
   getSolicitacoesByUser,
   getSolicitacoesHoje,
   getTotaisPorStatus,
@@ -33,6 +34,7 @@ export function useSolicitacao(id: string) { return useSubscribe(() => getSolici
 export function useSolicitacoesByStatus(status: string) { return useSubscribe(() => getSolicitacoesByStatus(status), [status]); }
 export function useSolicitacoesLogistica(status?: string) { return useSubscribe(() => getSolicitacoesLogistica(status), [status]); }
 export function useSolicitacoesExpedicao(status?: string) { return useSubscribe(() => getSolicitacoesExpedicao(status), [status]); }
+export function useSolicitacoesRH(status?: string) { return useSubscribe(() => getSolicitacoesRH(status), [status]); }
 export function useSolicitacoesByUser(userId: string, status?: string) { return useSubscribe(() => getSolicitacoesByUser(userId, status), [userId, status]); }
 export function useSolicitacoesHoje() { return useSubscribe(() => getSolicitacoesHoje()); }
 export function useTotaisPorStatus() { return useSubscribe(() => getTotaisPorStatus()); }
