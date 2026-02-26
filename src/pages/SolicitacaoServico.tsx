@@ -253,6 +253,59 @@ const SolicitacaoServico = () => {
     return rows;
   };
 
+  // ── Equipamentos de TI table rows (same item pattern + URL) ──
+  const getEquipamentosTIRows = () => {
+    const rows: { campo: string; valor: string }[] = [];
+    const itensRaw = (sol.caracteristicas as any)?.itens || parsed["Itens"] || "";
+    if (itensRaw) {
+      const lista = itensRaw.split(";").map((s: string) => s.trim()).filter(Boolean);
+      lista.forEach((item: string, i: number) => {
+        rows.push({ campo: `Item ${i + 1}`, valor: item.replace(/^\d+\)\s*/, "") });
+      });
+    }
+    if (rows.length === 0) rows.push({ campo: "Itens", valor: "—" });
+    return rows;
+  };
+
+  // ── Negociação de Mão de Obra table rows ──
+  const getNegociacaoRows = () => {
+    const carac = sol.caracteristicas as any;
+    const rows: { campo: string; valor: string }[] = [
+      { campo: "Empreiteiro", valor: sol.cargo || parsed["Empreiteiro"] || "—" },
+      { campo: "Celular", valor: carac?.celular || parsed["Celular"] || "—" },
+      { campo: "Seguimento", valor: carac?.seguimento || sol.tipoContrato || parsed["Seguimento"] || "—" },
+      { campo: "É Montagem?", valor: carac?.montagem === "sim" ? "Sim" : carac?.montagem === "nao" ? "Não" : parsed["Montagem"] || "—" },
+    ];
+    if (carac?.montagem === "sim") {
+      rows.push({ campo: "Montagem (de — até)", valor: `${carac.montagemDe || "—"} a ${carac.montagemAte || "—"}` });
+      rows.push({ campo: "Realização (de — até)", valor: `${carac.realizacaoDe || "—"} a ${carac.realizacaoAte || "—"}` });
+      rows.push({ campo: "Desmontagem (de — até)", valor: `${carac.desmontagemDe || "—"} a ${carac.desmontagemAte || "—"}` });
+    }
+    return rows;
+  };
+
+  // ── Manutenção Predial table rows ──
+  const getManutencaoRows = () => {
+    const rows: { campo: string; valor: string }[] = [];
+    const lines = sol.justificativa.split("\n").filter(Boolean);
+    if (lines.length > 0 && lines[0].startsWith("Serviço ")) {
+      lines.forEach((line) => {
+        const match = line.match(/^Serviço (\d+): (.+?) \| Melhor data: (.+)$/);
+        if (match) {
+          rows.push({ campo: `Serviço ${match[1]}`, valor: match[2] });
+          rows.push({ campo: `  Data de Execução`, valor: match[3] });
+        } else {
+          rows.push({ campo: "Serviço", valor: line });
+        }
+      });
+    } else {
+      const entries = Object.entries(parsed);
+      entries.forEach(([k, v]) => rows.push({ campo: k, valor: v }));
+    }
+    if (rows.length === 0) rows.push({ campo: "Detalhes", valor: sol.justificativa || "—" });
+    return rows;
+  };
+
    // ── Generic table rows ──
   const getGenericRows = () => {
     const entries = Object.entries(parsed);
@@ -272,8 +325,11 @@ const SolicitacaoServico = () => {
   const isTendas = sol.tipo === "Tendas";
   const isPlataforma = sol.tipo === "Plataforma Elevatória";
   const isMateriais = ["Materiais (Expedição)", "Materiais (Compras)", "Materiais de Escritório", "Uniformes e EPI"].includes(sol.tipo);
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : "Dados da Solicitação";
+  const isEquipTI = sol.tipo === "Equipamentos de TI";
+  const isNegociacao = sol.tipo === "Negociação de Mão de Obra";
+  const isManutencao = sol.tipo === "Manutenção Predial";
+  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : isEquipTI ? getEquipamentosTIRows() : isNegociacao ? getNegociacaoRows() : isManutencao ? getManutencaoRows() : getGenericRows();
+  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : isEquipTI ? "Itens — Equipamentos de TI" : isNegociacao ? "Dados da Negociação" : isManutencao ? "Serviços de Manutenção" : "Dados da Solicitação";
 
   return (
     <AppLayout>
