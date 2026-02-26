@@ -100,39 +100,49 @@
 
 /* ── Print styles ── */
 @media print {
-  /* Hide sidebar, header, scrollbars */
+  /* Hide everything except main content */
   aside, nav, header, footer,
-  .print\\:hidden, [data-sidebar] {
+  .print\:hidden, [data-sidebar] {
     display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
   }
 
-  /* Full width, no margin/padding from layout */
+  /* Reset all layout wrappers to full width */
+  body, html, #root, #root > *, #root > * > *,
+  main, [role="main"], div {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
   body, html {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  main, [role="main"] {
-    margin: 0 !important;
-    padding: 0 !important;
-    max-width: 100% !important;
     width: 100% !important;
   }
 
-  /* Compact sizing */
-  .bg-primary {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  #root {
+    display: block !important;
+    width: 100% !important;
   }
 
-  table {
-    font-size: 11px !important;
+  /* Force main content area full width */
+  main, [role="main"] {
+    margin: 0 !important;
+    padding: 8px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: auto !important;
   }
 
-  td, th {
-    padding: 4px 8px !important;
-  }
+  /* Compact table */
+  table { font-size: 11px !important; }
+  td, th { padding: 4px 8px !important; }
 
   fieldset {
     page-break-inside: avoid;
