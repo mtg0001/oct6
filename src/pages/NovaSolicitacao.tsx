@@ -12,6 +12,7 @@ import TendasForm from "@/components/forms/TendasForm";
 import PlataformaElevatoriaForm from "@/components/forms/PlataformaElevatoriaForm";
 import MateriaisForm from "@/components/forms/MateriaisForm";
 import EquipamentosTIForm from "@/components/forms/EquipamentosTIForm";
+import NegociacaoMaoDeObraForm from "@/components/forms/NegociacaoMaoDeObraForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -78,6 +79,7 @@ const NovaSolicitacao = () => {
   const [equipamentosTIOpen, setEquipamentosTIOpen] = useState(false);
   const [materiaisEscritorioOpen, setMateriaisEscritorioOpen] = useState(false);
   const [uniformesEPIOpen, setUniformesEPIOpen] = useState(false);
+  const [negociacaoOpen, setNegociacaoOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -100,6 +102,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Equipamentos de TI") setEquipamentosTIOpen(true);
     else if (title === "Solicitação de Materiais de Escritório") setMateriaisEscritorioOpen(true);
     else if (title === "Solicitação de Uniformes e EPI") setUniformesEPIOpen(true);
+    else if (title === "Negociação de Mão de Obra") setNegociacaoOpen(true);
   };
 
   return (
@@ -165,6 +168,7 @@ const NovaSolicitacao = () => {
       <EquipamentosTIForm open={equipamentosTIOpen} onOpenChange={setEquipamentosTIOpen} unidade={unidade || "goiania"} />
       <MateriaisForm open={materiaisEscritorioOpen} onOpenChange={setMateriaisEscritorioOpen} unidade={unidade || "goiania"} tipo="Materiais de Escritório" />
       <MateriaisForm open={uniformesEPIOpen} onOpenChange={setUniformesEPIOpen} unidade={unidade || "goiania"} tipo="Uniformes e EPI" />
+      <NegociacaoMaoDeObraForm open={negociacaoOpen} onOpenChange={setNegociacaoOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
