@@ -46,6 +46,74 @@ export type Database = {
           },
         ]
       }
+      chamados_ti: {
+        Row: {
+          anexos: string[] | null
+          anydesk: string | null
+          aprovado_gestor: string | null
+          categoria: string
+          created_at: string
+          departamento: string
+          id: string
+          novo_colaborador: string | null
+          observacoes: string | null
+          site_especifico: string | null
+          site_suspeito: string | null
+          solicitante_id: string | null
+          solicitante_nome: string
+          status: string
+          sub_opcoes: string[]
+          updated_at: string
+          urgencia: string
+        }
+        Insert: {
+          anexos?: string[] | null
+          anydesk?: string | null
+          aprovado_gestor?: string | null
+          categoria: string
+          created_at?: string
+          departamento?: string
+          id?: string
+          novo_colaborador?: string | null
+          observacoes?: string | null
+          site_especifico?: string | null
+          site_suspeito?: string | null
+          solicitante_id?: string | null
+          solicitante_nome: string
+          status?: string
+          sub_opcoes?: string[]
+          updated_at?: string
+          urgencia?: string
+        }
+        Update: {
+          anexos?: string[] | null
+          anydesk?: string | null
+          aprovado_gestor?: string | null
+          categoria?: string
+          created_at?: string
+          departamento?: string
+          id?: string
+          novo_colaborador?: string | null
+          observacoes?: string | null
+          site_especifico?: string | null
+          site_suspeito?: string | null
+          solicitante_id?: string | null
+          solicitante_nome?: string
+          status?: string
+          sub_opcoes?: string[]
+          updated_at?: string
+          urgencia?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chamados_ti_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string

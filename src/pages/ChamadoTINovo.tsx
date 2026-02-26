@@ -8,10 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Headset, Paperclip, X, Send } from "lucide-react";
+import { addChamadoTI } from "@/stores/chamadosTIStore";
+import { supabase } from "@/integrations/supabase/client";
+
+const URGENCIAS = [
+  { value: "baixa", label: "Baixa", color: "bg-green-500 border-green-600" },
+  { value: "media", label: "Média", color: "bg-orange-400 border-orange-500" },
+  { value: "alta", label: "Alta", color: "bg-red-400 border-red-500" },
+  { value: "extrema", label: "Extremamente Alta", color: "bg-red-700 border-red-800" },
+] as const;
 
 const CATEGORIAS = [
   "Problema com Windows",
@@ -44,6 +52,7 @@ export default function ChamadoTINovo() {
 
   const [categoria, setCategoria] = useState("");
   const [subOpcoes, setSubOpcoes] = useState<string[]>([]);
+  const [urgencia, setUrgencia] = useState("baixa");
   const [siteEspecifico, setSiteEspecifico] = useState("");
   const [siteSuspeito, setSiteSuspeito] = useState("");
   const [aprovadoGestor, setAprovadoGestor] = useState<string>("");
@@ -120,7 +129,32 @@ export default function ChamadoTINovo() {
 
     setEnviando(true);
     try {
-      // For now, just show success - backend integration will come later
+      // Upload files
+      const uploadedUrls: string[] = [];
+      for (const file of arquivos) {
+        const path = `chamados-ti/${Date.now()}_${file.name}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, file);
+        if (!upErr) {
+          const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+          uploadedUrls.push(urlData.publicUrl);
+        }
+      }
+
+      await addChamadoTI({
+        solicitanteId: currentUser?.id || null,
+        solicitanteNome: currentUser?.nome || "Desconhecido",
+        departamento: currentUser?.departamento || "",
+        categoria,
+        subOpcoes,
+        siteEspecifico,
+        siteSuspeito,
+        aprovadoGestor,
+        novoColaborador,
+        anydesk,
+        urgencia,
+        observacoes,
+        anexos: uploadedUrls,
+      });
       toast.success("Chamado aberto com sucesso!");
       navigate("/chamado-ti/pendentes");
     } catch {
@@ -193,7 +227,30 @@ export default function ChamadoTINovo() {
                 </Select>
               </div>
 
-              {/* Novo Colaborador toggle (Criação de Usuário) */}
+              {/* Urgência */}
+              <div>
+                <Label className="text-sm font-medium">Urgência <span className="text-destructive">*</span></Label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                  {URGENCIAS.map(u => {
+                    const isSelected = urgencia === u.value;
+                    return (
+                      <button
+                        key={u.value}
+                        type="button"
+                        onClick={() => setUrgencia(u.value)}
+                        className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 text-center ${
+                          isSelected
+                            ? `${u.color} text-white shadow-md`
+                            : "bg-card border-border text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {u.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {showNovoColaborador && (
                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
                   <Label className="text-sm font-medium mb-3 block">É novo colaborador? <span className="text-destructive">*</span></Label>
