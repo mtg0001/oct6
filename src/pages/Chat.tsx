@@ -326,9 +326,13 @@ const Chat = () => {
                   )}
                 >
                   <div className="relative shrink-0">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/60 to-primary/20 flex items-center justify-center text-primary-foreground text-xs font-bold border-2 border-card shadow-sm">
-                      {u.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
-                    </div>
+                    {u.avatarUrl ? (
+                      <img src={u.avatarUrl} alt={u.nome} className="h-9 w-9 rounded-full object-cover border-2 border-card shadow-sm" />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/60 to-primary/20 flex items-center justify-center text-primary-foreground text-xs font-bold border-2 border-card shadow-sm">
+                        {u.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
+                      </div>
+                    )}
                     <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getPresenceStatus(u.id)))} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -355,9 +359,13 @@ const Chat = () => {
                   )}
                 >
                   <div className="relative shrink-0">
-                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-xs font-bold border-2 border-card">
-                      {u.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
-                    </div>
+                    {u.avatarUrl ? (
+                      <img src={u.avatarUrl} alt={u.nome} className="h-9 w-9 rounded-full object-cover border-2 border-card" />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground text-xs font-bold border-2 border-card">
+                        {u.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
+                      </div>
+                    )}
                     <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor("offline"))} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -378,9 +386,13 @@ const Chat = () => {
               <div className="p-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="relative">
-                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/60 to-primary/20 flex items-center justify-center text-primary-foreground text-xs font-bold">
-                      {partnerUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
-                    </div>
+                    {partnerUser.avatarUrl ? (
+                      <img src={partnerUser.avatarUrl} alt={partnerUser.nome} className="h-9 w-9 rounded-full object-cover" />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary/60 to-primary/20 flex items-center justify-center text-primary-foreground text-xs font-bold">
+                        {partnerUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
+                      </div>
+                    )}
                     <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getPresenceStatus(partnerUser.id)))} />
                   </div>
                   <div>

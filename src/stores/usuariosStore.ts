@@ -56,6 +56,7 @@ export interface Usuario {
   diretoria: string[];
   servicosPermitidos: string[];
   visualizaSolicitacoesUnidades: string[];
+  avatarUrl: string | null;
 }
 
 // Map DB row (snake_case) → app model (camelCase)
@@ -76,6 +77,7 @@ function mapRow(row: any): Usuario {
     diretoria: row.diretoria || [],
     servicosPermitidos: row.servicos_permitidos || [],
     visualizaSolicitacoesUnidades: row.visualiza_solicitacoes_unidades || [],
+    avatarUrl: row.avatar_url || null,
   };
 }
 
