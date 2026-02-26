@@ -144,9 +144,19 @@
   table { font-size: 11px !important; }
   td, th { padding: 4px 8px !important; }
 
+  /* Compact spacing in print */
   fieldset {
     page-break-inside: avoid;
-    margin-bottom: 4px !important;
+    margin-bottom: 2px !important;
+    margin-top: 0 !important;
+  }
+
+  .space-y-5 > * + * {
+    margin-top: 8px !important;
+  }
+
+  .p-5 {
+    padding: 8px !important;
   }
 
   /* Force background colors to print */
