@@ -487,9 +487,8 @@ const SolicitacaoServico = () => {
                 onClick={async () => {
                   setDownloadingAnexo(true);
                   try {
-                    const unidadeMap: Record<string, string> = { goiania: "GOIÂNIA", "sao-paulo": "SÃO PAULO" };
                     const link = await getSharePointDownloadLink({
-                      unidade: unidadeMap[sol.unidade] || sol.unidade,
+                      unidade: sol.unidade,
                       servico: sol.tipo,
                       userName: sol.solicitante,
                       fileName: parsed["Anexo"],
