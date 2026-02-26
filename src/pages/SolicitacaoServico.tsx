@@ -176,16 +176,16 @@ const SolicitacaoServico = () => {
             </legend>
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/30">
-                  <TableHead className="w-[200px] text-xs font-bold uppercase">Campo</TableHead>
-                  <TableHead className="text-xs font-bold uppercase">Valor</TableHead>
+                <TableRow className="bg-primary/10">
+                  <TableHead className="w-[220px] text-xs font-bold uppercase py-3">Campo</TableHead>
+                  <TableHead className="text-xs font-bold uppercase py-3">Valor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {tableRows.map((row) => (
                   <TableRow key={row.campo}>
-                    <TableCell className="font-semibold text-sm">{row.campo}</TableCell>
-                    <TableCell className="text-sm">{row.valor}</TableCell>
+                    <TableCell className="font-semibold text-sm py-3.5 bg-primary/[0.04]">{row.campo}</TableCell>
+                    <TableCell className="text-sm py-3.5">{row.valor}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
