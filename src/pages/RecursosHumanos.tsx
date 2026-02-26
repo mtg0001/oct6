@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
-import { useSolicitacoesByStatus } from "@/hooks/useSolicitacoes";
+import { useSolicitacoesRH } from "@/hooks/useSolicitacoes";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -19,7 +19,7 @@ const RecursosHumanos = () => {
   const { filtro } = useParams<{ filtro: string }>();
   const navigate = useNavigate();
   const config = statusConfig[filtro || "pendentes"] || statusConfig.pendentes;
-  const solicitacoes = useSolicitacoesByStatus(config.storeStatus);
+  const solicitacoes = useSolicitacoesRH(config.storeStatus);
   const [busca, setBusca] = useState("");
 
   const filtered = solicitacoes.filter((s) =>

@@ -180,6 +180,15 @@ export function getSolicitacoesExpedicao(status?: string) {
   });
 }
 
+export const RH_SERVICES = ["Novo Colaborador"] as const;
+
+export function getSolicitacoesRH(status?: string) {
+  return solicitacoes.filter((s) => {
+    const isRH = (RH_SERVICES as readonly string[]).includes(s.tipo);
+    return status ? isRH && s.status === status : isRH;
+  });
+}
+
 export function getSolicitacoesByUser(userId: string, status?: string) {
   return solicitacoes.filter((s) => {
     const isUser = s.solicitanteId === userId;
