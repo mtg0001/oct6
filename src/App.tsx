@@ -17,6 +17,7 @@ import Expedicao from "./pages/Expedicao";
 import MinhasSolicitacoes from "./pages/MinhasSolicitacoes";
 import NotFound from "./pages/NotFound";
 import Usuarios from "./pages/Usuarios";
+import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/minhas-solicitacoes/:filtro" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
+            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
