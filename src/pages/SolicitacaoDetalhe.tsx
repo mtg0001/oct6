@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
 import { addAndamento, aprovarSolicitacao, reprovarSolicitacao } from "@/stores/solicitacoesStore";
@@ -110,7 +111,7 @@ const SolicitacaoDetalhe = () => {
             <p><span className="text-muted-foreground text-xs">UNIDADE</span></p>
             <p className="font-bold border border-border inline-block px-3 py-1 rounded">{siglaUnidade}</p>
             <p className="mt-2"><span className="text-muted-foreground text-xs">PRIORIDADE</span></p>
-            <p className="font-bold capitalize">{sol.prioridade || "—"}</p>
+            <p className="font-bold capitalize">{getPrioridadeLabel(sol.prioridade)}</p>
             <p className="mt-2"><span className="text-muted-foreground text-xs">EVENTO</span></p>
             <p>{sol.evento || "—"}</p>
           </div>

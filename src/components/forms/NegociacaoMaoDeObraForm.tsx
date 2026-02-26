@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -267,15 +268,7 @@ const NegociacaoMaoDeObraForm = ({ open, onOpenChange, unidade }: NegociacaoMaoD
               </div>
               <div>
                 <Label className="text-xs font-bold">Prioridade *</Label>
-                <Select value={prioridade} onValueChange={setPrioridade}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="baixa">Baixa</SelectItem>
-                    <SelectItem value="media">Média</SelectItem>
-                    <SelectItem value="alta">Alta</SelectItem>
-                    <SelectItem value="urgente">Urgente</SelectItem>
-                  </SelectContent>
-                </Select>
+                <PrioridadeSelect value={prioridade} onValueChange={setPrioridade} className="mt-1" />
               </div>
             </div>
           </fieldset>

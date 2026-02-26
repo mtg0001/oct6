@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
@@ -174,15 +175,7 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
               </div>
               <div>
                 <Label className="text-xs font-bold">Prioridade *</Label>
-                <Select value={prioridade} onValueChange={setPrioridade}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="baixa">Baixa</SelectItem>
-                    <SelectItem value="media">Média</SelectItem>
-                    <SelectItem value="alta">Alta</SelectItem>
-                    <SelectItem value="urgente">Urgente</SelectItem>
-                  </SelectContent>
-                </Select>
+                <PrioridadeSelect value={prioridade} onValueChange={setPrioridade} className="mt-1" />
               </div>
             </div>
           </fieldset>
