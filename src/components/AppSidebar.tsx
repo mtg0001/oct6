@@ -191,17 +191,20 @@ export function AppSidebar() {
     setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
-  // Auto-open menu when navigating to a child route
+  // Close mobile on route change
   React.useEffect(() => {
     setMobileOpen(false);
-    const newOpenMenus: Record<string, boolean> = {};
+  }, [location.pathname]);
+
+  // Auto-open the parent menu that contains the active route (only on mount/route change)
+  React.useEffect(() => {
     menuItems.forEach((item) => {
       if (item.children?.some((child) => location.pathname === child.path)) {
-        newOpenMenus[item.title] = true;
+        setOpenMenus((prev) => ({ ...prev, [item.title]: true }));
       }
     });
-    setOpenMenus((prev) => ({ ...prev, ...newOpenMenus }));
-  }, [location.pathname, menuItems]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   const initials = currentUser?.nome
     ? currentUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()
@@ -354,7 +357,7 @@ export function AppSidebar() {
                           cn(
                             "block px-3 py-1.5 rounded-md text-[12px] transition-all duration-200",
                             isActive
-                              ? "text-[hsl(var(--sidebar-primary))] font-semibold bg-[hsl(var(--sidebar-accent))]"
+                              ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
                               : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
                           )
                         }
