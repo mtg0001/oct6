@@ -227,30 +227,7 @@ export default function ChamadoTINovo() {
                 </Select>
               </div>
 
-              {/* Urgência */}
-              <div>
-                <Label className="text-sm font-medium">Urgência <span className="text-destructive">*</span></Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                  {URGENCIAS.map(u => {
-                    const isSelected = urgencia === u.value;
-                    return (
-                      <button
-                        key={u.value}
-                        type="button"
-                        onClick={() => setUrgencia(u.value)}
-                        className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 text-center ${
-                          isSelected
-                            ? `${u.color} text-white shadow-md`
-                            : "bg-card border-border text-foreground hover:bg-muted/50"
-                        }`}
-                      >
-                        {u.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
+              {/* Novo Colaborador toggle (Criação de Usuário) */}
               {showNovoColaborador && (
                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
                   <Label className="text-sm font-medium mb-3 block">É novo colaborador? <span className="text-destructive">*</span></Label>
@@ -337,6 +314,30 @@ export default function ChamadoTINovo() {
                   </RadioGroup>
                 </div>
               )}
+
+              {/* Urgência */}
+              <div>
+                <Label className="text-sm font-medium">Urgência <span className="text-destructive">*</span></Label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                  {URGENCIAS.map(u => {
+                    const isSelected = urgencia === u.value;
+                    return (
+                      <button
+                        key={u.value}
+                        type="button"
+                        onClick={() => setUrgencia(u.value)}
+                        className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 text-center ${
+                          isSelected
+                            ? `${u.color} text-white shadow-md`
+                            : "bg-card border-border text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        {u.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* AnyDesk */}
               {showAnydesk && (
