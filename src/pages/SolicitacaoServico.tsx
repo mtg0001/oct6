@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
 import { addAndamento, concluirSolicitacao, cancelarSolicitacao } from "@/stores/solicitacoesStore";
@@ -37,8 +37,11 @@ const statusLabel: Record<string, string> = {
 const SolicitacaoServico = () => {
   const { filtro, id } = useParams<{ filtro: string; id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const sol = useSolicitacao(id || "");
   const currentUser = useCurrentUser();
+  const isMinhasSolicitacoes = location.pathname.includes("/minhas-solicitacoes/");
+  const isAdmin = currentUser?.administrador === true;
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
@@ -54,6 +57,7 @@ const SolicitacaoServico = () => {
 
   const siglaUnidade = sol.unidade === "goiania" ? "GO" : "SP";
   const isPendente = filtro === "pendentes";
+  const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin);
   const parsed = parseJustificativa(sol.justificativa);
   const hasAnexo = !!parsed["Anexo"];
 
@@ -304,7 +308,7 @@ const SolicitacaoServico = () => {
             >
               Em andamento
             </Button>
-            {isPendente && (
+            {showConcluirCancelar && (
               <>
                 <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
                   Cancelar
