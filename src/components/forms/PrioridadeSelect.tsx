@@ -52,3 +52,20 @@ export function PrioridadeSelect({ value, onValueChange, className }: Prioridade
 export function getPrioridadeLabel(value: string): string {
   return prioridades.find((p) => p.value === value)?.label || value || "—";
 }
+
+/** Get color class for a priority value */
+export function getPrioridadeColor(value: string): string {
+  return prioridades.find((p) => p.value === value)?.color || "bg-muted";
+}
+
+/** Badge component showing priority with pulse animation */
+export function PrioridadeBadge({ value }: { value: string }) {
+  const p = prioridades.find((pr) => pr.value === value);
+  if (!p) return null;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white ${p.color} animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite] shadow-sm`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-white/60" />
+      {p.label}
+    </span>
+  );
+}

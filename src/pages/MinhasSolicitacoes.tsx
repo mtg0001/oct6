@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
+import { PrioridadeBadge } from "@/components/forms/PrioridadeSelect";
 
 const statusMap: Record<string, string> = {
   pendentes: "pendente",
@@ -75,6 +76,7 @@ const MinhasSolicitacoes = () => {
             <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
               {(() => { const Icon = getIconForTipo(sol.tipo); return <Icon className="h-5 w-5" />; })()}
             </div>
+            <PrioridadeBadge value={sol.prioridade} />
             <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
               <div>
                 <span className="text-muted-foreground text-xs block">Data</span>
