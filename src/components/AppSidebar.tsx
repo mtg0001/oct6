@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -16,11 +16,14 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import octarteLogo from "@/assets/octarte-logo.png";
 
 interface MenuItem {
@@ -39,6 +42,31 @@ export function AppSidebar() {
   const currentUser = useCurrentUser();
   const { user, signOut } = useAuth();
   const unreadCount = useUnreadMessages();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  // Load avatar
+  React.useEffect(() => {
+    if (currentUser?.id) {
+      // Try to read avatar_url from the raw user data
+      supabase.from("usuarios").select("avatar_url").eq("id", currentUser.id).single().then(({ data }) => {
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+      });
+    }
+  }, [currentUser?.id]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser?.id) return;
+    const path = `${currentUser.id}/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) { toast.error("Erro ao enviar foto"); return; }
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    await supabase.from("usuarios").update({ avatar_url: urlData.publicUrl }).eq("id", currentUser.id);
+    setAvatarUrl(urlData.publicUrl);
+    toast.success("Foto atualizada!");
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -216,10 +244,34 @@ export function AppSidebar() {
 
         {/* User section */}
         {!collapsed && (
-          <div className="px-4 py-3 border-b border-[hsl(var(--sidebar-border))]">
+          <div className="px-4 py-4 border-b border-[hsl(var(--sidebar-border))]">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[hsl(var(--sidebar-primary))] to-[hsl(80,30%,25%)] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] text-xs font-bold shrink-0">
-                {initials}
+              <div className="relative shrink-0 group">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="h-12 w-12 rounded-full object-cover border-2 border-[hsl(var(--sidebar-primary))]"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[hsl(var(--sidebar-primary))] to-[hsl(80,30%,25%)] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] text-sm font-bold border-2 border-[hsl(var(--sidebar-primary))]">
+                    {initials}
+                  </div>
+                )}
+                <button
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-[hsl(var(--sidebar-primary))] flex items-center justify-center text-[hsl(var(--sidebar-primary-foreground))] shadow-md hover:scale-110 transition-transform cursor-pointer"
+                  title="Alterar foto"
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-[hsl(var(--sidebar-accent-foreground))] truncate">
