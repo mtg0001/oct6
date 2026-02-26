@@ -57,7 +57,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Solicitação de Novo Colaborador", serviceKey: "Novo Colaborador", description: "Abrir formulário para enviar.", icon: UserPlus, available: true },
   { title: "Solicitação de Equipamentos de TI", serviceKey: "Equipamentos de TI", description: "Notebooks, tablets e periféricos.", icon: Monitor, available: true },
   { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: false },
-  { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: false },
+  { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: true },
   { title: "Solicitação de Materiais de Escritório", serviceKey: "Materiais de Escritório", description: "Materiais de escritório em geral.", icon: PenTool, available: true },
 ];
 
@@ -77,6 +77,7 @@ const NovaSolicitacao = () => {
   const [materiaisExpedicaoOpen, setMateriaisExpedicaoOpen] = useState(false);
   const [equipamentosTIOpen, setEquipamentosTIOpen] = useState(false);
   const [materiaisEscritorioOpen, setMateriaisEscritorioOpen] = useState(false);
+  const [uniformesEPIOpen, setUniformesEPIOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -98,6 +99,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Materiais (Expedição)") setMateriaisExpedicaoOpen(true);
     else if (title === "Solicitação de Equipamentos de TI") setEquipamentosTIOpen(true);
     else if (title === "Solicitação de Materiais de Escritório") setMateriaisEscritorioOpen(true);
+    else if (title === "Solicitação de Uniformes e EPI") setUniformesEPIOpen(true);
   };
 
   return (
@@ -162,6 +164,7 @@ const NovaSolicitacao = () => {
       <MateriaisForm open={materiaisExpedicaoOpen} onOpenChange={setMateriaisExpedicaoOpen} unidade={unidade || "goiania"} tipo="Materiais (Expedição)" />
       <EquipamentosTIForm open={equipamentosTIOpen} onOpenChange={setEquipamentosTIOpen} unidade={unidade || "goiania"} />
       <MateriaisForm open={materiaisEscritorioOpen} onOpenChange={setMateriaisEscritorioOpen} unidade={unidade || "goiania"} tipo="Materiais de Escritório" />
+      <MateriaisForm open={uniformesEPIOpen} onOpenChange={setUniformesEPIOpen} unidade={unidade || "goiania"} tipo="Uniformes e EPI" />
     </AppLayout>
   );
 };
