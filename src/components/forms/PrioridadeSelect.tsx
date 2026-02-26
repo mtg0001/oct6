@@ -53,6 +53,18 @@ export function getPrioridadeLabel(value: string): string {
   return prioridades.find((p) => p.value === value)?.label || value || "—";
 }
 
+const prioridadeOrdem: Record<string, number> = {
+  extremamente_alta: 0,
+  alta: 1,
+  media: 2,
+  baixa: 3,
+};
+
+/** Sort comparator: highest priority first */
+export function sortByPrioridade<T extends { prioridade: string }>(a: T, b: T): number {
+  return (prioridadeOrdem[a.prioridade] ?? 9) - (prioridadeOrdem[b.prioridade] ?? 9);
+}
+
 /** Get color class for a priority value */
 export function getPrioridadeColor(value: string): string {
   return prioridades.find((p) => p.value === value)?.color || "bg-muted";

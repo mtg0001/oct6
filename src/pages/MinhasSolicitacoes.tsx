@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
-import { PrioridadeBadge } from "@/components/forms/PrioridadeSelect";
+import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
 
 const statusMap: Record<string, string> = {
   pendentes: "pendente",
@@ -42,7 +42,7 @@ const MinhasSolicitacoes = () => {
     !busca ||
     s.tipo.toLowerCase().includes(busca.toLowerCase()) ||
     s.unidade.toLowerCase().includes(busca.toLowerCase())
-  );
+  ).sort(sortByPrioridade);
 
   const label = labelMap[filtro || "pendentes"] || "Pendentes";
 
