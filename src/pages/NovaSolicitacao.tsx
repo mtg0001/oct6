@@ -11,6 +11,7 @@ import PassagensForm from "@/components/forms/PassagensForm";
 import TendasForm from "@/components/forms/TendasForm";
 import PlataformaElevatoriaForm from "@/components/forms/PlataformaElevatoriaForm";
 import MateriaisForm from "@/components/forms/MateriaisForm";
+import EquipamentosTIForm from "@/components/forms/EquipamentosTIForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -54,7 +55,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Solicitação de Materiais (Compras)", serviceKey: "Materiais (Compras)", description: "Abrir formulário para enviar.", icon: ShoppingCart, available: true },
   { title: "Negociação de Mão de Obra", serviceKey: "Negociação de Mão de Obra", description: "Abrir formulário para enviar.", icon: Handshake, available: true },
   { title: "Solicitação de Novo Colaborador", serviceKey: "Novo Colaborador", description: "Abrir formulário para enviar.", icon: UserPlus, available: true },
-  { title: "Solicitação de Equipamentos de TI", serviceKey: "Equipamentos de TI", description: "Notebooks, tablets e periféricos.", icon: Monitor, available: false },
+  { title: "Solicitação de Equipamentos de TI", serviceKey: "Equipamentos de TI", description: "Notebooks, tablets e periféricos.", icon: Monitor, available: true },
   { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: false },
   { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: false },
   { title: "Solicitação de Materiais de Escritório", serviceKey: "Materiais de Escritório", description: "Materiais de escritório em geral.", icon: PenTool, available: false },
@@ -74,6 +75,7 @@ const NovaSolicitacao = () => {
   const [plataformaOpen, setPlataformaOpen] = useState(false);
   const [materiaisComprasOpen, setMateriaisComprasOpen] = useState(false);
   const [materiaisExpedicaoOpen, setMateriaisExpedicaoOpen] = useState(false);
+  const [equipamentosTIOpen, setEquipamentosTIOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -93,6 +95,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Plataforma Elevatória") setPlataformaOpen(true);
     else if (title === "Solicitação de Materiais (Compras)") setMateriaisComprasOpen(true);
     else if (title === "Solicitação de Materiais (Expedição)") setMateriaisExpedicaoOpen(true);
+    else if (title === "Solicitação de Equipamentos de TI") setEquipamentosTIOpen(true);
   };
 
   return (
@@ -155,6 +158,7 @@ const NovaSolicitacao = () => {
       <PlataformaElevatoriaForm open={plataformaOpen} onOpenChange={setPlataformaOpen} unidade={unidade || "goiania"} />
       <MateriaisForm open={materiaisComprasOpen} onOpenChange={setMateriaisComprasOpen} unidade={unidade || "goiania"} tipo="Materiais (Compras)" />
       <MateriaisForm open={materiaisExpedicaoOpen} onOpenChange={setMateriaisExpedicaoOpen} unidade={unidade || "goiania"} tipo="Materiais (Expedição)" />
+      <EquipamentosTIForm open={equipamentosTIOpen} onOpenChange={setEquipamentosTIOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
