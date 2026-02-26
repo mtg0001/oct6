@@ -191,9 +191,17 @@ export function AppSidebar() {
     setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
+  // Auto-open menu when navigating to a child route
   React.useEffect(() => {
     setMobileOpen(false);
-  }, [location.pathname]);
+    const newOpenMenus: Record<string, boolean> = {};
+    menuItems.forEach((item) => {
+      if (item.children?.some((child) => location.pathname === child.path)) {
+        newOpenMenus[item.title] = true;
+      }
+    });
+    setOpenMenus((prev) => ({ ...prev, ...newOpenMenus }));
+  }, [location.pathname, menuItems]);
 
   const initials = currentUser?.nome
     ? currentUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()
@@ -314,13 +322,16 @@ export function AppSidebar() {
             }
 
             const isOpen = openMenus[item.title];
+            const hasActiveChild = item.children?.some((child) => location.pathname === child.path) ?? false;
             return (
               <div key={item.title}>
                 <button
                   onClick={() => toggleMenu(item.title)}
                   className={cn(
                     "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
-                    "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
+                    hasActiveChild && !isOpen
+                      ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]"
+                      : "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
                   )}
                 >
                   {item.icon && <item.icon className="h-[18px] w-[18px] shrink-0" />}
