@@ -2,18 +2,20 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const DEPARTAMENTOS = [
-  "ADMINISTRATIVO",
   "COMERCIAL",
-  "DIRETORIA",
-  "FINANCEIRO",
-  "LICITAÇÕES",
-  "LOGÍSTICA & COMPRAS",
-  "OPERACIONAL",
+  "MARKETING",
   "PROJETOS",
+  "LICITAÇÕES",
   "RECURSOS HUMANOS",
-  "DEPARTAMENTO PESSOAL",
+  "LOGÍSTICA E COMPRAS",
+  "FINANCEIRO",
   "SERVIÇOS GERAIS",
+  "OPERACIONAL",
   "TECNOLOGIA DA INFORMAÇÃO",
+  "CS",
+  "PRÉ PRODUÇÃO",
+  "PRODUÇÃO",
+  "COMUNICAÇÃO VISUAL",
 ] as const;
 
 export const UNIDADES = ["GOIÂNIA", "MAIRIPORÃ", "PINHEIROS"] as const;
