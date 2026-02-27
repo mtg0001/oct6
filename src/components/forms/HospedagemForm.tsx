@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { DEPARTAMENTOS } from "@/stores/usuariosStore";
 import {
   Dialog,
   DialogContent,
@@ -73,11 +74,7 @@ const ESTADOS = [
   { uf: "SP", nome: "São Paulo" }, { uf: "SE", nome: "Sergipe" }, { uf: "TO", nome: "Tocantins" },
 ];
 
-const DEPARTAMENTOS = [
-  "Administrativo", "Comercial", "Diretoria", "Financeiro", "Licitações",
-  "Logística e Compras", "Operacional", "Projetos", "Recursos Humanos",
-  "Serviços Gerais", "Tecnologia da Informação",
-];
+
 
 interface Hospede {
   id: number;
