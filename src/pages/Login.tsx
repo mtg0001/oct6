@@ -31,10 +31,11 @@ function validatePassword(pw: string): string | null {
 }
 
 export default function Login() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(() => localStorage.getItem("rememberedUser") || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("rememberMe") === "true");
 
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -67,6 +68,13 @@ export default function Login() {
     blockRedirectRef.current = true;
     try {
       const email = username.includes("@") ? username : username + EMAIL_DOMAIN;
+      if (rememberMe) {
+        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem("rememberedUser", username);
+      } else {
+        localStorage.removeItem("rememberMe");
+        localStorage.removeItem("rememberedUser");
+      }
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         blockRedirectRef.current = false;
@@ -198,6 +206,17 @@ export default function Login() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <button type="button" onClick={() => setRememberMe(!rememberMe)}
+                className="w-4 h-4 rounded border flex items-center justify-center transition-all"
+                style={{
+                  borderColor: rememberMe ? brandGreen : "rgba(255,255,255,0.15)",
+                  background: rememberMe ? brandGreen : "rgba(255,255,255,0.04)",
+                }}>
+                {rememberMe && <span className="text-white text-[10px] leading-none">✓</span>}
+              </button>
+              <span className="text-xs text-white/40 select-none cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>Lembrar usuário</span>
             </div>
             <Button type="submit" className="w-full h-11 rounded-xl font-medium text-sm mt-2" disabled={loading}
               style={{
