@@ -63,15 +63,6 @@
     @apply border-border;
   }
 
-  input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
-  textarea {
-    text-transform: uppercase;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    text-transform: none;
-  }
 
   body {
     @apply bg-background text-foreground antialiased;
