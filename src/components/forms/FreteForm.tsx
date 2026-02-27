@@ -29,7 +29,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -130,7 +130,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(buildStoredFileName(file.name));
+    if (file) setAnexoNome(file.name);
   };
 
   const resetForm = () => {
@@ -176,6 +176,13 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
       : "Não";
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Frete", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Frete",
         solicitanteId: currentUser?.id || "",
@@ -201,7 +208,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
           `Data Carga: ${dataCarga}`,
           `Data Descarga: ${dataDescarga}`,
           `Ponto Octarte: ${octarteInfo}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -225,9 +232,8 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
         },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Frete", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Frete", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Frete enviada com sucesso!" });
       resetForm();

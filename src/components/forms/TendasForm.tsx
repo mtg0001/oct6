@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -160,7 +160,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -204,6 +204,13 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
     const tendasInfo = buildTendasInfo();
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Tendas", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Tendas",
         solicitanteId: currentUser?.id || "",
@@ -222,7 +229,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
           tendasInfo,
           `Entrega: ${dataEntrega}`,
           `Retirada: ${dataRetirada}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -235,9 +242,8 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         caracteristicas: { tendas: tendas.filter(t => t.tipo).map(t => ({ tipo: t.tipo, quantidade: t.quantidade, itens: t.itens })) } as any,
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Tendas", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Tendas", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Tenda enviada com sucesso!" });
       resetForm();

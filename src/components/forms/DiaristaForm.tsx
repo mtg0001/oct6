@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -201,7 +201,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
   // ── anexo ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(buildStoredFileName(file.name));
+    if (file) setAnexoNome(file.name);
   };
 
   // ── reset ──
@@ -233,6 +233,13 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Serviço de Diarista", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Serviço de Diarista",
         solicitanteId: currentUser?.id || "",
@@ -256,7 +263,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
           `Total: R$ ${totalFormatado}`,
           `Data Pgto: ${dataPagamento}`,
           `Chave PIX (${tipoChavePix}): ${chavePix}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -269,9 +276,8 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Serviço de Diarista", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Serviço de Diarista", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Diarista enviada com sucesso!" });
       resetForm();

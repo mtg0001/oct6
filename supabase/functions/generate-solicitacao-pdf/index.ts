@@ -57,21 +57,6 @@ async function getDriveId(token: string, siteId: string): Promise<string> {
   return drive.id;
 }
 
-async function ensureFolderPath(token: string, driveId: string, fullPath: string): Promise<void> {
-  const parts = fullPath.split("/").filter(Boolean);
-  let currentPath = "";
-
-  for (const part of parts) {
-    if (currentPath === "") {
-      currentPath = part;
-      await createFolderAtLocation(token, driveId, null, part);
-    } else {
-      await createFolderAtLocation(token, driveId, currentPath, part);
-      currentPath = `${currentPath}/${part}`;
-    }
-  }
-}
-
 async function createFolderAtLocation(
   token: string, driveId: string, parentPath: string | null, folderName: string
 ): Promise<void> {
@@ -91,6 +76,36 @@ async function createFolderAtLocation(
     throw new Error(`Failed to create folder "${folderName}": ${err}`);
   }
   await res.json();
+}
+
+async function listFolderChildren(
+  token: string, driveId: string, folderPath: string
+): Promise<any[]> {
+  const encodedPath = encodeURIComponent(folderPath).replace(/%2F/g, "/");
+  const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}:/children?$filter=folder ne null&$select=name,folder`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.value || [];
+}
+
+function getNextSequentialName(existingFolders: any[]): string {
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yyyy = now.getFullYear();
+  const today = `${dd}${mm}${yyyy}`;
+  const pattern = new RegExp(`^(\\d{4})-${today}$`);
+
+  let maxSeq = 0;
+  for (const folder of existingFolders) {
+    const match = folder.name?.match(pattern);
+    if (match) {
+      const seq = parseInt(match[1], 10);
+      if (seq > maxSeq) maxSeq = seq;
+    }
+  }
+  return `${String(maxSeq + 1).padStart(4, "0")}-${today}`;
 }
 
 async function uploadFileToSharePoint(
@@ -433,21 +448,20 @@ Deno.serve(async (req) => {
     const driveId = await getDriveId(token, siteId);
     const rootFolder = Deno.env.get("SHAREPOINT_ROOT_FOLDER")!;
 
-    const userFolderPath = `${rootFolder}/${sol.unidade}/${sol.tipo}/${sol.solicitante}`;
-    await ensureFolderPath(token, driveId, userFolderPath);
+    // Create user folder (parent path is fixed/pre-existing)
+    const parentPath = `${rootFolder}/${sol.unidade}/${sol.tipo}`;
+    await createFolderAtLocation(token, driveId, parentPath, sol.solicitante);
+    const userFolderPath = `${parentPath}/${sol.solicitante}`;
 
-    const idShort = sol.id.substring(0, 8).toUpperCase();
-    const now = new Date();
-    const dd = String(now.getDate()).padStart(2, "0");
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const yyyy = now.getFullYear();
-    const dateFolder = `${dd}${mm}${yyyy}`;
-    const dataStr = now.toISOString().slice(0, 10).replace(/-/g, "");
-    const fileName = `SOL-${idShort}_${dataStr}.pdf`;
-
-    // Create date subfolder inside user folder
+    // Get next sequential folder name
+    const children = await listFolderChildren(token, driveId, userFolderPath);
+    const dateFolder = getNextSequentialName(children);
     await createFolderAtLocation(token, driveId, userFolderPath, dateFolder);
     const folderPath = `${userFolderPath}/${dateFolder}`;
+
+    const idShort = sol.id.substring(0, 8).toUpperCase();
+    const dataStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const fileName = `SOL-${idShort}_${dataStr}.pdf`;
 
     const uploadResult = await uploadFileToSharePoint(
       token, driveId, folderPath, fileName, pdfBytes, "application/pdf"

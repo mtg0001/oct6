@@ -20,7 +20,7 @@ import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -76,7 +76,7 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -105,6 +105,13 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Equipamentos de TI", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       const itensTexto = itens.map((item, i) => {
         const urlPart = item.url.trim() ? ` (URL: ${item.url.trim()})` : "";
         return `${i + 1}) ${item.quantidade} ${item.unidadeMedida} - ${item.descricao}${urlPart}`;
@@ -125,7 +132,7 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
         nomeSubstituido: "",
         justificativa: [
           `Itens: ${itensTexto}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -138,9 +145,8 @@ const EquipamentosTIForm = ({ open, onOpenChange, unidade }: EquipamentosTIFormP
         caracteristicas: { itens: itensTexto },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Equipamentos de TI", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Equipamentos de TI", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Equipamentos de TI enviada com sucesso!" });
       resetForm();

@@ -29,7 +29,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -170,7 +170,7 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
         toast({ title: "Arquivo muito grande", description: "Máximo 5MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -225,6 +225,13 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Novo Colaborador", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Novo Colaborador",
         solicitanteId: currentUser?.id || "",
@@ -252,13 +259,12 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
           ...caracteristicas,
           prazoContratacao,
           ...(tipoContrato === "temporario" ? { tempDe, tempAte } : {}),
-          ...(anexoNome ? { anexo: anexoNome } : {}),
+          ...(storedAnexo ? { anexo: storedAnexo } : {}),
         },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Novo Colaborador", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Novo Colaborador", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();

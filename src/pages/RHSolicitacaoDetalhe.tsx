@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip, Forward } from "lucide-react";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -56,17 +56,22 @@ const RHSolicitacaoDetalhe = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "RH";
     const textoComNome = `[${nome}] ${textoAndamento}`;
-    for (const file of anexoFiles) {
-      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome });
+    let dateFolder: string | undefined;
+    if (anexoFiles.length > 0) {
+      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, nome);
     }
-    await addAndamento(sol.id, textoComNome, anexoNomes);
+    const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
+    for (const file of anexoFiles) {
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome, datePasta: dateFolder });
+    }
+    await addAndamento(sol.id, textoComNome, storedNomes);
     setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };

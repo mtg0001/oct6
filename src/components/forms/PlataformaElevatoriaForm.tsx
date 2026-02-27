@@ -29,7 +29,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -126,7 +126,7 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -161,9 +161,17 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
       const prefix = itens.length > 1 ? `Plataforma ${i + 1}: ` : "";
       return `${prefix}Tipos: ${it.tiposSelecionados.join(", ")} | Entrega: ${it.dataEntrega} | Retirada: ${it.dataRetirada}`;
     });
-    if (anexoNome) justParts.push(`Anexo: ${anexoNome}`);
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Plataforma Elevatória", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
+      if (storedAnexo) justParts.push(`Anexo: ${storedAnexo}`);
+
       await addSolicitacao({
         tipo: "Plataforma Elevatória",
         solicitanteId: currentUser?.id || "",
@@ -196,9 +204,8 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
         },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Plataforma Elevatória", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Plataforma Elevatória", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Plataforma Elevatória enviada com sucesso!" });
       resetForm();

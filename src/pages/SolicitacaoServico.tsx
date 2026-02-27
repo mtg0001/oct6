@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
-import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName } from "@/lib/sharepointAttachments";
+import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -83,18 +83,22 @@ const SolicitacaoServico = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "Usuário";
     const textoComNome = `[${nome}] ${textoAndamento}`;
-    // Upload files to SharePoint
-    for (const file of anexoFiles) {
-      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome });
+    let dateFolder: string | undefined;
+    if (anexoFiles.length > 0) {
+      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, nome);
     }
-    await addAndamento(sol.id, textoComNome, anexoNomes);
+    const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
+    for (const file of anexoFiles) {
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome, datePasta: dateFolder });
+    }
+    await addAndamento(sol.id, textoComNome, storedNomes);
     setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };

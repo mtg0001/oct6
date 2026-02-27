@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -281,7 +281,7 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
   // ── file ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(buildStoredFileName(file.name));
+    if (file) setAnexoNome(file.name);
   };
 
   // ── reset ──
@@ -319,6 +319,13 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Locação de Veículos", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Locação de Veículos",
         solicitanteId: currentUser?.id || "",
@@ -345,7 +352,7 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
           `CNH: ${cnh}`,
           `CPF: ${cpf}`,
           `RG: ${rg}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: cnh,
         experiencia: rg,
@@ -358,9 +365,8 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Locação de Veículos", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Locação de Veículos", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Locação de Veículos enviada com sucesso!" });
       resetForm();

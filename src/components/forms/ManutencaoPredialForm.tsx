@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -101,7 +101,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
       toast({ title: "Arquivo excede 5 MB", variant: "destructive" });
       return;
     }
-    setAnexoNome(buildStoredFileName(file.name));
+    setAnexoNome(file.name);
   };
 
   const resetForm = () => {
@@ -133,6 +133,13 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
       .join("\n");
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Manutenção Predial", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Manutenção Predial",
         unidade,
@@ -159,9 +166,8 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
         horarioAte: "",
         caracteristicas: {},
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Manutenção Predial", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Manutenção Predial", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();
