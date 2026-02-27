@@ -45,7 +45,8 @@ const SolicitacoesUnidade = ({ unidadeFilter, title }: Props) => {
   ).sort(sortByPrioridade);
 
   const label = labelMap[filtro || "pendentes"] || "Pendentes";
-  const routePrefix = unidadeFilter === "goiania" ? "solicitacoes-go" : "solicitacoes-sp";
+  const routePrefixMap: Record<string, string> = { goiania: "solicitacoes-go", mairipora: "solicitacoes-mairipora", pinheiros: "solicitacoes-pinheiros" };
+  const routePrefix = routePrefixMap[unidadeFilter] || "solicitacoes-go";
 
   return (
     <AppLayout>

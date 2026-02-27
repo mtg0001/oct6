@@ -16,7 +16,7 @@ export const DEPARTAMENTOS = [
   "TECNOLOGIA DA INFORMAÇÃO",
 ] as const;
 
-export const UNIDADES = ["SÃO PAULO", "GOIÂNIA"] as const;
+export const UNIDADES = ["GOIÂNIA", "MAIRIPORÃ", "PINHEIROS"] as const;
 
 export const SERVICOS_SOLICITACAO = [
   "Serviço de Diarista",
@@ -38,7 +38,7 @@ export const SERVICOS_SOLICITACAO = [
   "Novo Colaborador",
 ] as const;
 
-export const DIRETORES = ["Osorio", "Jessica", "Soraya", "Danielle"] as const;
+export const DIRETORES = ["Jessica", "Soraya", "Danielle"] as const;
 
 export interface Usuario {
   id: string;

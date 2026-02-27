@@ -103,11 +103,13 @@ export function AppSidebar() {
     const solUnidades = isAdmin
       ? [
           { title: "Goiânia", path: "/nova-solicitacao/goiania" },
-          { title: "São Paulo", path: "/nova-solicitacao/sao-paulo" },
+          { title: "Mairiporã", path: "/nova-solicitacao/mairipora" },
+          { title: "Pinheiros", path: "/nova-solicitacao/pinheiros" },
         ]
       : [
           ...(u?.novaSolicitacaoUnidades.includes("GOIÂNIA") ? [{ title: "Goiânia", path: "/nova-solicitacao/goiania" }] : []),
-          ...(u?.novaSolicitacaoUnidades.includes("SÃO PAULO") ? [{ title: "São Paulo", path: "/nova-solicitacao/sao-paulo" }] : []),
+          ...(u?.novaSolicitacaoUnidades.includes("MAIRIPORÃ") ? [{ title: "Mairiporã", path: "/nova-solicitacao/mairipora" }] : []),
+          ...(u?.novaSolicitacaoUnidades.includes("PINHEIROS") ? [{ title: "Pinheiros", path: "/nova-solicitacao/pinheiros" }] : []),
         ];
     if (solUnidades.length > 0) {
       items.push({ title: "Nova Solicitação", icon: FilePlus, children: solUnidades });
@@ -162,7 +164,6 @@ export function AppSidebar() {
 
     const diretoriaChildren = isAdmin
       ? [
-          { title: "Osorio", path: "/diretoria/osorio" },
           { title: "Jessica", path: "/diretoria/jessica" },
           { title: "Soraya", path: "/diretoria/soraya" },
           { title: "Danielle", path: "/diretoria/danielle" },
@@ -190,12 +191,21 @@ export function AppSidebar() {
         ],
       });
       items.push({
-        title: "Solicitações SP",
+        title: "Solicitações Mairiporã",
         icon: FileSearch,
         children: [
-          { title: "Pendentes", path: "/solicitacoes-sp/pendentes" },
-          { title: "Resolvidos", path: "/solicitacoes-sp/resolvidos" },
-          { title: "Cancelados", path: "/solicitacoes-sp/cancelados" },
+          { title: "Pendentes", path: "/solicitacoes-mairipora/pendentes" },
+          { title: "Resolvidos", path: "/solicitacoes-mairipora/resolvidos" },
+          { title: "Cancelados", path: "/solicitacoes-mairipora/cancelados" },
+        ],
+      });
+      items.push({
+        title: "Solicitações Pinheiros",
+        icon: FileSearch,
+        children: [
+          { title: "Pendentes", path: "/solicitacoes-pinheiros/pendentes" },
+          { title: "Resolvidos", path: "/solicitacoes-pinheiros/resolvidos" },
+          { title: "Cancelados", path: "/solicitacoes-pinheiros/cancelados" },
         ],
       });
     }

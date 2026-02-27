@@ -39,7 +39,7 @@ interface NovoColaboradorFormProps {
   unidade: string;
 }
 
-const diretores = ["Osorio", "Jessica", "Soraya", "Danielle"];
+const diretores = ["Jessica", "Soraya", "Danielle"];
 
 const caracteristicaOptions = ["Aplica", "Não se aplica"];
 
@@ -109,7 +109,8 @@ function DateField({ label, value, onChange, calOpen, setCalOpen, calDate, onCal
 
 const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Dados do Solicitante
   const [evento, setEvento] = useState("");
@@ -325,7 +326,8 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="goiania">Goiânia</SelectItem>
-                    <SelectItem value="saopaulo">São Paulo</SelectItem>
+                    <SelectItem value="mairipora">Mairiporã</SelectItem>
+                    <SelectItem value="pinheiros">Pinheiros</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

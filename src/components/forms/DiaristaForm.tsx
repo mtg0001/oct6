@@ -90,7 +90,8 @@ function parseCurrency(formatted: string): number {
 // ── component ─────────────────────────────────────────────────
 const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Dados do solicitante
   const [evento, setEvento] = useState("");

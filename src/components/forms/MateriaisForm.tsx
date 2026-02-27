@@ -42,7 +42,8 @@ let itemIdCounter = 1;
 
 const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
   const tituloMap: Record<string, string> = {
     "Materiais (Compras)": "Solicitação de Materiais (Compras)",
     "Materiais (Expedição)": "Solicitação de Materiais (Expedição)",

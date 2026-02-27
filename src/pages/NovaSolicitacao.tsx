@@ -66,7 +66,8 @@ const allSolicitacoes: SolicitacaoCard[] = [
 
 const NovaSolicitacao = () => {
   const { unidade } = useParams<{ unidade: string }>();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade || ""] || unidade || "Goiânia";
   const [colaboradorOpen, setColaboradorOpen] = useState(false);
   const [diaristaOpen, setDiaristaOpen] = useState(false);
   const [aluguelBanheiroOpen, setAluguelBanheiroOpen] = useState(false);

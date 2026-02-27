@@ -20,14 +20,16 @@ const Index = () => {
   const todas = useSolicitacoes();
   const totaisGeral = useTotaisPorStatus();
   const totaisGO = useTotaisPorUnidade("goiania");
-  const totaisSP = useTotaisPorUnidade("sao-paulo");
+  const totaisMairipora = useTotaisPorUnidade("mairipora");
+  const totaisPinheiros = useTotaisPorUnidade("pinheiros");
 
   const entradasHoje = hoje.length;
   const saidasHoje = hoje.filter((s) => s.status === "resolvido" || s.status === "cancelado").length;
   const total = totaisGeral.pendente + totaisGeral.resolvido + totaisGeral.cancelado;
 
   const showGO = currentUser?.administrador || currentUser?.novaSolicitacaoUnidades?.includes("GOIÂNIA");
-  const showSP = currentUser?.administrador || currentUser?.novaSolicitacaoUnidades?.includes("SÃO PAULO");
+  const showMairipora = currentUser?.administrador || currentUser?.novaSolicitacaoUnidades?.includes("MAIRIPORÃ");
+  const showPinheiros = currentUser?.administrador || currentUser?.novaSolicitacaoUnidades?.includes("PINHEIROS");
 
   return (
     <AppLayout>
@@ -57,8 +59,11 @@ const Index = () => {
             {showGO && (
               <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">GO</Link>
             )}
-            {showSP && (
-              <Link to="/nova-solicitacao/sao-paulo" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">SP</Link>
+            {showMairipora && (
+              <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">Mairiporã</Link>
+            )}
+            {showPinheiros && (
+              <Link to="/nova-solicitacao/pinheiros" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">Pinheiros</Link>
             )}
           </div>
         </div>
@@ -116,12 +121,20 @@ const Index = () => {
             cancelado={totaisGO.cancelado}
           />
         )}
-        {showSP && (
+        {showMairipora && (
           <DonutChart
-            title="São Paulo"
-            pendente={totaisSP.pendente}
-            resolvido={totaisSP.resolvido}
-            cancelado={totaisSP.cancelado}
+            title="Mairiporã"
+            pendente={totaisMairipora.pendente}
+            resolvido={totaisMairipora.resolvido}
+            cancelado={totaisMairipora.cancelado}
+          />
+        )}
+        {showPinheiros && (
+          <DonutChart
+            title="Pinheiros"
+            pendente={totaisPinheiros.pendente}
+            resolvido={totaisPinheiros.resolvido}
+            cancelado={totaisPinheiros.cancelado}
           />
         )}
       </div>
