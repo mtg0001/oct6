@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { DEPARTAMENTOS } from "@/stores/usuariosStore";
 import {
   Dialog,
   DialogContent,
@@ -336,12 +337,9 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
                 <Select value={departamentoDestino} onValueChange={setDepartamentoDestino}>
                   <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ti">Tecnologia da Informação</SelectItem>
-                    <SelectItem value="rh">Recursos Humanos</SelectItem>
-                    <SelectItem value="financeiro">Financeiro</SelectItem>
-                    <SelectItem value="operacional">Operacional</SelectItem>
-                    <SelectItem value="comercial">Comercial</SelectItem>
-                    <SelectItem value="logistica">Logística</SelectItem>
+                    {DEPARTAMENTOS.map((dep) => (
+                      <SelectItem key={dep} value={dep.toLowerCase()}>{dep}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
