@@ -29,6 +29,7 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import octarteLogo from "@/assets/octarte-logo.png";
+import octarteSidebarLogo from "@/assets/octarte-sidebar-logo.png";
 
 interface MenuItem {
   title: string;
@@ -282,11 +283,11 @@ export function AppSidebar() {
         <div className="flex items-center justify-between px-5 h-16 border-b border-[hsl(var(--sidebar-border))]">
           {!collapsed && (
             <div className="flex items-center gap-2.5">
-              <img src={octarteLogo} alt="Octarte" className="h-9 object-contain" />
+              <img src={octarteSidebarLogo} alt="Octarte" className="h-10 object-contain" />
             </div>
           )}
           {collapsed && (
-            <img src={octarteLogo} alt="Octarte" className="h-8 object-contain mx-auto" />
+            <img src={octarteSidebarLogo} alt="Octarte" className="h-9 object-contain mx-auto" />
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
