@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -99,7 +99,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(buildStoredFileName(file.name));
+    if (file) setAnexoNome(file.name);
   };
 
   const resetForm = () => {
@@ -126,6 +126,13 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Aluguel de Banheiro", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Aluguel de Banheiro",
         solicitanteId: currentUser?.id || "",
@@ -147,7 +154,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
           `Stand: ${stand}`,
           `Data de Entrega: ${dataEntrega}`,
           `Data de Retirada: ${dataRetirada}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -160,9 +167,8 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Aluguel de Banheiro", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Aluguel de Banheiro", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Aluguel de Banheiro enviada com sucesso!" });
       resetForm();

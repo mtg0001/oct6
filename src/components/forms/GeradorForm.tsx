@@ -28,7 +28,7 @@ import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -125,7 +125,7 @@ const GeradorForm = ({ open, onOpenChange, unidade }: GeradorFormProps) => {
   // ── anexo ──
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAnexoNome(buildStoredFileName(file.name));
+    if (file) setAnexoNome(file.name);
   };
 
   // ── reset ──
@@ -155,6 +155,13 @@ const GeradorForm = ({ open, onOpenChange, unidade }: GeradorFormProps) => {
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Gerador", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Gerador",
         solicitanteId: currentUser?.id || "",
@@ -179,7 +186,7 @@ const GeradorForm = ({ open, onOpenChange, unidade }: GeradorFormProps) => {
           `KVA: ${quantidadeKVA}`,
           `Modo de uso: ${modoUso === "continuo" ? "Uso contínuo" : "Standby"}`,
           `Tensão trifásica: ${tensao}V`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -192,9 +199,8 @@ const GeradorForm = ({ open, onOpenChange, unidade }: GeradorFormProps) => {
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Gerador", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Gerador", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Gerador enviada com sucesso!" });
       resetForm();

@@ -28,7 +28,7 @@ import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -190,7 +190,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
         toast({ title: "Arquivo muito grande. Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -232,6 +232,13 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
       .join("; ");
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Passagens", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Passagens",
         solicitanteId: currentUser?.id || "",
@@ -254,7 +261,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
           `Origem: ${origemCidade}/${origemUF}`,
           `Destino: ${destinoCidade}/${destinoUF}`,
           `Passageiros: ${passageirosStr}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -267,9 +274,8 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Passagens", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Passagens", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Passagens enviada com sucesso!" });
       resetForm();

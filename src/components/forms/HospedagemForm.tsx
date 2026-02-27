@@ -28,7 +28,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -193,7 +193,7 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
         toast({ title: "Arquivo muito grande. Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -233,6 +233,13 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
       .join("; ");
 
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Hospedagem", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       await addSolicitacao({
         tipo: "Hospedagem",
         solicitanteId: currentUser?.id || "",
@@ -252,7 +259,7 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
           `Entrada: ${dataEntradaStr}`,
           `Saída: ${dataSaidaStr}`,
           `Hóspedes: ${hospedesStr}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -265,9 +272,8 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
         caracteristicas: {},
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Hospedagem", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Hospedagem", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Solicitação de Hospedagem enviada com sucesso!" });
       resetForm();

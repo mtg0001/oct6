@@ -20,7 +20,7 @@ import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Trash2, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -85,7 +85,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -114,6 +114,13 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, tipo, currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       const itensTexto = itens.map((item, i) => `${i + 1}) ${item.quantidade} ${item.unidadeMedida} - ${item.descricao}`).join("; ");
       await addSolicitacao({
         tipo,
@@ -131,7 +138,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         nomeSubstituido: "",
         justificativa: [
           `Itens: ${itensTexto}`,
-          anexoNome ? `Anexo: ${anexoNome}` : "",
+          storedAnexo ? `Anexo: ${storedAnexo}` : "",
         ].filter(Boolean).join(" | "),
         formacao: "",
         experiencia: "",
@@ -144,9 +151,8 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         caracteristicas: { itens: itensTexto },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: `${tituloForm} enviada com sucesso!` });
       resetForm();

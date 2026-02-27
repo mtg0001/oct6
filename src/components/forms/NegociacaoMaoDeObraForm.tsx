@@ -29,7 +29,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { addSolicitacao } from "@/stores/solicitacoesStore";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { toast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -114,7 +114,7 @@ const NegociacaoMaoDeObraForm = ({ open, onOpenChange, unidade }: NegociacaoMaoD
         toast({ title: "Arquivo muito grande", description: "Máximo 5 MB.", variant: "destructive" });
         return;
       }
-      setAnexoNome(buildStoredFileName(file.name));
+      setAnexoNome(file.name);
     }
   };
 
@@ -151,6 +151,13 @@ const NegociacaoMaoDeObraForm = ({ open, onOpenChange, unidade }: NegociacaoMaoD
     e.preventDefault();
     if (!validate()) return;
     try {
+      const file = fileInputRef.current?.files?.[0];
+      let storedAnexo = anexoNome;
+      let dateFolder: string | undefined;
+      if (file && anexoNome) {
+        dateFolder = await getNextSequentialFolder(unidade, "Negociação de Mão de Obra", currentUser?.nome || "Desconhecido");
+        storedAnexo = buildStoredFileName(anexoNome, dateFolder);
+      }
       const justParts = [
         `Empreiteiro: ${empreiteiro}`,
         `Celular: ${celular}`,
@@ -162,7 +169,7 @@ const NegociacaoMaoDeObraForm = ({ open, onOpenChange, unidade }: NegociacaoMaoD
         justParts.push(`Realização: ${realizacaoDe} a ${realizacaoAte}`);
         justParts.push(`Desmontagem: ${desmontagemDe} a ${desmontagemAte}`);
       }
-      if (anexoNome) justParts.push(`Anexo: ${anexoNome}`);
+      if (storedAnexo) justParts.push(`Anexo: ${storedAnexo}`);
 
       await addSolicitacao({
         tipo: "Negociação de Mão de Obra",
@@ -199,9 +206,8 @@ const NegociacaoMaoDeObraForm = ({ open, onOpenChange, unidade }: NegociacaoMaoD
         },
         observacoes,
       });
-      const file = fileInputRef.current?.files?.[0];
-      if (file && anexoNome) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Negociação de Mão de Obra", userName: currentUser?.nome || "Desconhecido" });
+      if (file && storedAnexo && dateFolder) {
+        await uploadAttachmentToSharePoint({ file, unidade, servico: "Negociação de Mão de Obra", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
       toast({ title: "Negociação de Mão de Obra enviada com sucesso!" });
       resetForm();

@@ -37,18 +37,15 @@ async function getAccessToken(): Promise<string> {
 
 // ── SharePoint helpers ──────────────────────────────────────────
 function getSiteUrl(): string {
-  // Expected format: octarteltda.sharepoint.com/sites/operacional2
   return Deno.env.get("SHAREPOINT_SITE_URL")!;
 }
 
 function getRootFolder(): string {
-  // Expected format: General/DIRETORIA OPERACIONAL/ANEXOS ARMAZENADOS DO SISTEMA
   return Deno.env.get("SHAREPOINT_ROOT_FOLDER")!;
 }
 
 async function getSiteId(token: string): Promise<string> {
   const siteUrl = getSiteUrl();
-  // Parse hostname and path from the site URL
   const parts = siteUrl.replace(/^https?:\/\//, "").split("/");
   const hostname = parts[0];
   const sitePath = parts.slice(1).join("/");
@@ -79,7 +76,6 @@ async function getDriveId(token: string, siteId: string): Promise<string> {
   }
 
   const data = await res.json();
-  // Use the first drive (Documents library)
   const drive = data.value.find((d: any) => d.name === "Documents") || data.value[0];
   return drive.id;
 }
@@ -107,7 +103,6 @@ async function createFolder(
   });
 
   if (res.status === 409) {
-    // Folder already exists — that's fine
     return { alreadyExists: true, name: folderName };
   }
 
@@ -119,52 +114,50 @@ async function createFolder(
   return await res.json();
 }
 
-async function ensureFolderPath(
+async function listFolderChildren(
   token: string,
   driveId: string,
-  fullPath: string
-): Promise<void> {
-  const parts = fullPath.split("/").filter(Boolean);
-  let currentPath = "";
-
-  for (const part of parts) {
-    if (currentPath === "") {
-      currentPath = part;
-      // Try to create at root
-      await createFolderAtRoot(token, driveId, part);
-    } else {
-      await createFolder(token, driveId, currentPath, part);
-      currentPath = `${currentPath}/${part}`;
-    }
-  }
-}
-
-async function createFolderAtRoot(
-  token: string,
-  driveId: string,
-  folderName: string
-): Promise<any> {
-  const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root/children`;
+  folderPath: string
+): Promise<any[]> {
+  const encodedPath = encodeURIComponent(folderPath).replace(/%2F/g, "/");
+  const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}:/children?$filter=folder ne null&$select=name,folder`;
 
   const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: folderName,
-      folder: {},
-      "@microsoft.graph.conflictBehavior": "fail",
-    }),
+    headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (res.status === 409) return { alreadyExists: true };
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Failed to create root folder "${folderName}": ${err}`);
+    // Folder might not exist yet — return empty
+    return [];
   }
-  return await res.json();
+
+  const data = await res.json();
+  return data.value || [];
+}
+
+function getTodayDateString(): string {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}${mm}${yyyy}`;
+}
+
+function getNextSequentialName(existingFolders: any[]): string {
+  const today = getTodayDateString();
+  const pattern = new RegExp(`^(\\d{4})-${today}$`);
+
+  let maxSeq = 0;
+  for (const folder of existingFolders) {
+    const match = folder.name?.match(pattern);
+    if (match) {
+      const seq = parseInt(match[1], 10);
+      if (seq > maxSeq) maxSeq = seq;
+    }
+  }
+
+  const nextSeq = String(maxSeq + 1).padStart(4, "0");
+  return `${nextSeq}-${today}`;
 }
 
 async function uploadFile(
@@ -232,8 +225,30 @@ Deno.serve(async (req) => {
     const driveId = await getDriveId(token, siteId);
     const rootFolder = getRootFolder();
 
+    if (action === "get-next-date-folder") {
+      const { unidade, servico, userName } = body;
+
+      if (!unidade || !servico || !userName) {
+        return new Response(
+          JSON.stringify({ error: "unidade, servico e userName são obrigatórios" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Ensure user folder exists
+      const parentPath = `${rootFolder}/${unidade}/${servico}`;
+      await createFolder(token, driveId, parentPath, userName);
+
+      const userPath = `${parentPath}/${userName}`;
+      const children = await listFolderChildren(token, driveId, userPath);
+      const folderName = getNextSequentialName(children);
+
+      return new Response(JSON.stringify({ success: true, folderName }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "create-user-folders") {
-      // Create folders for a user based on their permissions
       const { userName, unidades, servicos } = body;
 
       if (!userName || !unidades || !servicos) {
@@ -248,7 +263,6 @@ Deno.serve(async (req) => {
       for (const unidade of unidades) {
         for (const servico of servicos) {
           const parentPath = `${rootFolder}/${unidade}/${servico}`;
-          // Only create the user folder — unidade and servico folders are fixed/pre-existing
           const result = await createFolder(token, driveId, parentPath, userName);
           results.push({ unidade, servico, userName, result });
         }
@@ -270,12 +284,12 @@ Deno.serve(async (req) => {
       }
 
       const parentPath = `${rootFolder}/${unidade}/${servico}`;
-      // Create user folder inside the fixed service folder
+      // Create user folder (parent path is fixed/pre-existing)
       await createFolder(token, driveId, parentPath, userName);
 
       // Create date subfolder inside user folder
       const userPath = `${parentPath}/${userName}`;
-      const dateFolder = datePasta || new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const dateFolder = datePasta || `0001-${getTodayDateString()}`;
       await createFolder(token, driveId, userPath, dateFolder);
 
       const folderPath = `${userPath}/${dateFolder}`;

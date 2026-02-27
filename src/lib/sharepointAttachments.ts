@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Returns today's date as ddMMyyyy string for use as SharePoint subfolder.
+ * Returns today's date as ddMMyyyy string.
  */
 export function getDateFolder(): string {
   const d = new Date();
@@ -12,15 +12,46 @@ export function getDateFolder(): string {
 }
 
 /**
- * Build the stored file name with date prefix: "ddMMyyyy/filename.pdf"
+ * Fetch the next sequential folder name from SharePoint.
+ * Returns e.g. "0001-27022026", "0002-27022026" etc.
  */
-export function buildStoredFileName(fileName: string): string {
-  return `${getDateFolder()}/${fileName}`;
+export async function getNextSequentialFolder(
+  unidade: string,
+  servico: string,
+  userName: string
+): Promise<string> {
+  try {
+    const { data, error } = await supabase.functions.invoke("sharepoint-manager", {
+      body: {
+        action: "get-next-date-folder",
+        unidade,
+        servico,
+        userName,
+      },
+    });
+    if (error || !data?.folderName) {
+      // Fallback: use 0001-ddMMyyyy
+      return `0001-${getDateFolder()}`;
+    }
+    return data.folderName;
+  } catch {
+    return `0001-${getDateFolder()}`;
+  }
+}
+
+/**
+ * Build the stored file name with sequential date prefix: "0001-ddMMyyyy/filename.pdf"
+ * If no dateFolder provided, uses a simple date fallback.
+ */
+export function buildStoredFileName(fileName: string, dateFolder?: string): string {
+  const folder = dateFolder || `0001-${getDateFolder()}`;
+  return `${folder}/${fileName}`;
 }
 
 /**
  * Extract just the display name from a stored filename.
- * "26072025/file.pdf" → "file.pdf"
+ * "0001-26072025/file.pdf" → "file.pdf"
+ * "26072025/file.pdf" → "file.pdf" (backward compat)
  * "file.pdf" → "file.pdf" (backward compat)
  */
 export function getDisplayFileName(storedName: string): string {
@@ -64,7 +95,7 @@ export async function uploadAttachmentToSharePoint({
         fileName: file.name,
         fileBase64,
         contentType: file.type || "application/pdf",
-        datePasta: datePasta || getDateFolder(),
+        datePasta: datePasta || `0001-${getDateFolder()}`,
       },
     });
 
@@ -79,7 +110,7 @@ export async function uploadAttachmentToSharePoint({
 
 /**
  * Get a download link for a file stored in SharePoint.
- * fileName can be "ddMMyyyy/filename.pdf" (new) or "filename.pdf" (legacy).
+ * fileName can be "0001-ddMMyyyy/filename.pdf" (new) or "ddMMyyyy/filename.pdf" (legacy) or "filename.pdf" (oldest).
  */
 export async function getSharePointDownloadLink({
   unidade,

@@ -19,7 +19,7 @@ import {
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAttachmentToSharePoint, buildStoredFileName } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import octarteLogo from "@/assets/octarte-logo.png";
 
@@ -94,19 +94,24 @@ export default function ChamadoTIDetalhe() {
     try {
       const nome = nomeUsuario;
       const texto = `[${nome}] ${andamentoTexto.trim()}`;
-      // Upload files to SharePoint
+      let dateFolder: string | undefined;
+      if (anexoFiles.length > 0) {
+        dateFolder = await getNextSequentialFolder(chamado.departamento || "ti", "Chamados TI", nome);
+      }
+      const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
       for (const file of anexoFiles) {
         await uploadAttachmentToSharePoint({
           file,
           unidade: chamado.departamento || "ti",
           servico: "Chamados TI",
           userName: nome,
+          datePasta: dateFolder,
         });
       }
       const { error } = await supabase.from("andamentos_ti" as any).insert({
         chamado_id: id,
         texto,
-        anexos: anexoNomes,
+        anexos: storedNomes,
       });
       if (error) throw error;
       setAndamentoTexto("");
@@ -125,7 +130,7 @@ export default function ChamadoTIDetalhe() {
   const handleAndamentoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setAnexoNomes((prev) => [...prev, ...files.map((f) => buildStoredFileName(f.name))]);
+      setAnexoNomes((prev) => [...prev, ...files.map((f) => f.name)]);
       setAnexoFiles((prev) => [...prev, ...files]);
     }
   };
