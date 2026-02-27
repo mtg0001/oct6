@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { DEPARTAMENTOS } from "@/stores/usuariosStore";
 import {
   Dialog,
   DialogContent,
@@ -85,11 +86,7 @@ function useCidadesIBGE(uf: string) {
   return cidades;
 }
 
-const DEPARTAMENTOS = [
-  "Administrativo", "Comercial", "Diretoria", "Financeiro", "Licitações",
-  "Logística e Compras", "Operacional", "Projetos", "Recursos Humanos",
-  "Serviços Gerais", "Tecnologia da Informação",
-];
+
 
 const TIPOS_TRANSPORTE = ["Avião", "Ônibus", "Carro", "Van", "Trem", "Barco"];
 
