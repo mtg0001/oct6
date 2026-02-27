@@ -159,7 +159,8 @@ function DateField({ label, value, onChange, calOpen, setCalOpen, calDate, onCal
 // ── component ─────────────────────────────────────────────────
 const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Dados do Solicitante
   const [evento, setEvento] = useState("");

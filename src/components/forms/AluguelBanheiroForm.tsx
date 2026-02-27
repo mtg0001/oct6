@@ -47,7 +47,8 @@ function maskDate(value: string) {
 
 const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Dados do Solicitante
   const [evento, setEvento] = useState("");

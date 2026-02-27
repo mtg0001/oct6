@@ -56,8 +56,10 @@ const App = () => (
             <Route path="/minhas-solicitacoes" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
             <Route path="/solicitacoes-go/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="goiania" title="Solicitações GO" /></ProtectedRoute>} />
             <Route path="/solicitacoes-go/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
-            <Route path="/solicitacoes-sp/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="saopaulo" title="Solicitações SP" /></ProtectedRoute>} />
-            <Route path="/solicitacoes-sp/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
+            <Route path="/solicitacoes-mairipora/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="mairipora" title="Solicitações Mairiporã" /></ProtectedRoute>} />
+            <Route path="/solicitacoes-mairipora/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
+            <Route path="/solicitacoes-pinheiros/:filtro" element={<ProtectedRoute><SolicitacoesUnidade unidadeFilter="pinheiros" title="Solicitações Pinheiros" /></ProtectedRoute>} />
+            <Route path="/solicitacoes-pinheiros/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
             <Route path="/lixeira" element={<ProtectedRoute><Lixeira /></ProtectedRoute>} />

@@ -89,7 +89,8 @@ interface Hospede {
 
 const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Solicitante
   const [evento, setEvento] = useState("");

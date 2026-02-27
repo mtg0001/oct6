@@ -55,7 +55,8 @@ let nextId = 1;
 
 const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredialFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");

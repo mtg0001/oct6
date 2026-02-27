@@ -42,6 +42,8 @@ const labelMap: Record<string, string> = {
 
 const unidadeLabel: Record<string, string> = {
   goiania: "Goiânia",
+  mairipora: "Mairiporã",
+  pinheiros: "Pinheiros",
   saopaulo: "São Paulo",
   "sao-paulo": "São Paulo",
 };

@@ -73,7 +73,8 @@ function useCidadesIBGE(uf: string) {
 
 const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
   const currentUser = useCurrentUser();
-  const nomeUnidade = unidade === "goiania" ? "Goiânia" : "São Paulo";
+  const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
+  const nomeUnidade = nomeUnidadeMap[unidade] || unidade;
 
   // Solicitante
   const [evento, setEvento] = useState("");
@@ -483,14 +484,18 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
                         <Label htmlFor="octColeta" className="text-xs font-bold cursor-pointer">Coleta</Label>
                       </div>
                       {octarteColeta && (
-                        <div className="flex items-center gap-4 ml-6">
+                        <div className="flex items-center gap-4 ml-6 flex-wrap">
                           <div className="flex items-center gap-2">
                             <Checkbox id="coletaGyn" checked={octarteColetaUnidade === "Octarte Goiânia"} onCheckedChange={() => setOctarteColetaUnidade("Octarte Goiânia")} />
                             <Label htmlFor="coletaGyn" className="text-xs cursor-pointer">Octarte Goiânia</Label>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Checkbox id="coletaSP" checked={octarteColetaUnidade === "Octarte São Paulo"} onCheckedChange={() => setOctarteColetaUnidade("Octarte São Paulo")} />
-                            <Label htmlFor="coletaSP" className="text-xs cursor-pointer">Octarte São Paulo</Label>
+                            <Checkbox id="coletaMairipora" checked={octarteColetaUnidade === "Octarte Mairiporã"} onCheckedChange={() => setOctarteColetaUnidade("Octarte Mairiporã")} />
+                            <Label htmlFor="coletaMairipora" className="text-xs cursor-pointer">Octarte Mairiporã</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="coletaPinheiros" checked={octarteColetaUnidade === "Octarte Pinheiros"} onCheckedChange={() => setOctarteColetaUnidade("Octarte Pinheiros")} />
+                            <Label htmlFor="coletaPinheiros" className="text-xs cursor-pointer">Octarte Pinheiros</Label>
                           </div>
                         </div>
                       )}
@@ -502,14 +507,18 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
                         <Label htmlFor="octEntrega" className="text-xs font-bold cursor-pointer">Entrega</Label>
                       </div>
                       {octarteEntrega && (
-                        <div className="flex items-center gap-4 ml-6">
+                        <div className="flex items-center gap-4 ml-6 flex-wrap">
                           <div className="flex items-center gap-2">
                             <Checkbox id="entregaGyn" checked={octarteEntregaUnidade === "Octarte Goiânia"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte Goiânia")} />
                             <Label htmlFor="entregaGyn" className="text-xs cursor-pointer">Octarte Goiânia</Label>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Checkbox id="entregaSP" checked={octarteEntregaUnidade === "Octarte São Paulo"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte São Paulo")} />
-                            <Label htmlFor="entregaSP" className="text-xs cursor-pointer">Octarte São Paulo</Label>
+                            <Checkbox id="entregaMairipora" checked={octarteEntregaUnidade === "Octarte Mairiporã"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte Mairiporã")} />
+                            <Label htmlFor="entregaMairipora" className="text-xs cursor-pointer">Octarte Mairiporã</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox id="entregaPinheiros" checked={octarteEntregaUnidade === "Octarte Pinheiros"} onCheckedChange={() => setOctarteEntregaUnidade("Octarte Pinheiros")} />
+                            <Label htmlFor="entregaPinheiros" className="text-xs cursor-pointer">Octarte Pinheiros</Label>
                           </div>
                         </div>
                       )}
