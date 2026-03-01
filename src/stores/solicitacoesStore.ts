@@ -196,6 +196,19 @@ export function getSolicitacoesRH(status?: string) {
   });
 }
 
+export function getSolicitacoesCS(status?: string) {
+  return solicitacoes.filter((s) => {
+    const inCSQueue = s.setorAtual === 'cs';
+    return status ? inCSQueue && s.status === status : inCSQueue;
+  });
+}
+
+export function getSolicitacoesCAD(status?: string) {
+  return solicitacoes.filter((s) => {
+    const inCADQueue = s.setorAtual === 'cad';
+    return status ? inCADQueue && s.status === status : inCADQueue;
+  });
+}
 export function getSolicitacoesByUser(userId: string, status?: string) {
   return solicitacoes.filter((s) => {
     const isUser = s.solicitanteId === userId;

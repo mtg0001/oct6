@@ -55,6 +55,9 @@
     --chart-resolved: 35 80% 55%;
     --chart-pending: 142 45% 42%;
     --chart-cancelled: 0 65% 55%;
+
+    --pink: 330 70% 55%;
+    --pink-foreground: 0 0% 100%;
   }
 }
 
