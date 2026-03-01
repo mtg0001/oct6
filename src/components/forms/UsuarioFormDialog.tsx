@@ -54,6 +54,8 @@ const emptyForm = {
   visualizaSolicitacoesUnidades: [] as string[],
   podeExcluirChamado: false,
   podeVerLixeira: false,
+  resolveCs: false,
+  podeVerCad: false,
 };
 
 function validatePassword(pw: string) {
@@ -98,6 +100,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         visualizaSolicitacoesUnidades: [...(usuario.visualizaSolicitacoesUnidades || [])],
         podeExcluirChamado: usuario.podeExcluirChamado || false,
         podeVerLixeira: usuario.podeVerLixeira || false,
+        resolveCs: usuario.resolveCs || false,
+        podeVerCad: usuario.podeVerCad || false,
       });
       setUsername("");
       setPassword("");
@@ -142,6 +146,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
           podeExcluirChamado: form.podeExcluirChamado,
           podeVerLixeira: form.podeVerLixeira,
+          resolveCs: form.resolveCs,
+          podeVerCad: form.podeVerCad,
         };
         await updateUsuario(usuario.id, data);
 
@@ -208,6 +214,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
             visualizaSolicitacoesUnidades: form.visualizaSolicitacoesUnidades,
             podeExcluirChamado: form.podeExcluirChamado,
             podeVerLixeira: form.podeVerLixeira,
+            resolveCs: form.resolveCs,
+            podeVerCad: form.podeVerCad,
           },
         });
 
@@ -391,6 +399,8 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 <RadioRow label="Resolve Solicitações Logística e Compras SP:" checked={form.resolveLogisticaComprasSp} onChange={(v) => setForm({ ...form, resolveLogisticaComprasSp: v })} />
                 <RadioRow label="Resolve Solicitações Recursos Humanos GO:" checked={form.resolveRecursosHumanosGo} onChange={(v) => setForm({ ...form, resolveRecursosHumanosGo: v })} />
                 <RadioRow label="Resolve Solicitações Recursos Humanos SP:" checked={form.resolveRecursosHumanosSp} onChange={(v) => setForm({ ...form, resolveRecursosHumanosSp: v })} />
+                <RadioRow label="Resolve Solicitações CS:" checked={form.resolveCs} onChange={(v) => setForm({ ...form, resolveCs: v })} />
+                <RadioRow label="Pode ver CAD:" checked={form.podeVerCad} onChange={(v) => setForm({ ...form, podeVerCad: v })} />
               </div>
 
               {/* Visualiza Todas Solicitações */}

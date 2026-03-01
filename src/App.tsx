@@ -14,6 +14,8 @@ import RecursosHumanos from "./pages/RecursosHumanos";
 import RHSolicitacaoDetalhe from "./pages/RHSolicitacaoDetalhe";
 import LogisticaCompras from "./pages/LogisticaCompras";
 import Expedicao from "./pages/Expedicao";
+import CustomerSuccess from "./pages/CustomerSuccess";
+import CAD from "./pages/CAD";
 import MinhasSolicitacoes from "./pages/MinhasSolicitacoes";
 import SolicitacaoServico from "./pages/SolicitacaoServico";
 import SolicitacoesUnidade from "./pages/SolicitacoesUnidade";
@@ -51,6 +53,10 @@ const App = () => (
             <Route path="/logistica/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/expedicao/:filtro" element={<ProtectedRoute><Expedicao /></ProtectedRoute>} />
             <Route path="/expedicao/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
+            <Route path="/cs/:filtro" element={<ProtectedRoute><CustomerSuccess /></ProtectedRoute>} />
+            <Route path="/cs/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
+            <Route path="/cad/:filtro" element={<ProtectedRoute><CAD /></ProtectedRoute>} />
+            <Route path="/cad/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes/:filtro" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/minhas-solicitacoes" element={<ProtectedRoute><MinhasSolicitacoes /></ProtectedRoute>} />

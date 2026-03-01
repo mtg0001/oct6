@@ -21,6 +21,8 @@ import {
   Monitor,
   Headset,
   ExternalLink,
+  Heart,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -36,7 +38,7 @@ interface MenuItem {
   icon?: React.ElementType;
   path?: string;
   children?: { title: string; path: string }[];
-  variant?: 'red';
+  variant?: 'red' | 'pink';
 }
 
 export function AppSidebar() {
@@ -146,6 +148,31 @@ export function AppSidebar() {
           { title: "Pendentes", path: "/expedicao/pendentes" },
           { title: "Resolvidos", path: "/expedicao/resolvidos" },
           { title: "Cancelados", path: "/expedicao/cancelados" },
+        ],
+      });
+    }
+
+    if (isAdmin || u?.resolveCs) {
+      items.push({
+        title: "CS",
+        icon: Sparkles,
+        children: [
+          { title: "Pendentes", path: "/cs/pendentes" },
+          { title: "Resolvidos", path: "/cs/resolvidos" },
+          { title: "Cancelados", path: "/cs/cancelados" },
+        ],
+      });
+    }
+
+    if (isAdmin || u?.podeVerCad) {
+      items.push({
+        title: "CAD",
+        icon: Heart,
+        variant: 'pink',
+        children: [
+          { title: "Pendentes", path: "/cad/pendentes" },
+          { title: "Resolvidos", path: "/cad/resolvidos" },
+          { title: "Cancelados", path: "/cad/cancelados" },
         ],
       });
     }
@@ -372,7 +399,12 @@ export function AppSidebar() {
             const isOpen = openMenus[item.title];
             const hasActiveChild = item.children?.some((child) => location.pathname === child.path) ?? false;
             const isRed = item.variant === 'red';
-            const activeBg = isRed ? "bg-destructive text-destructive-foreground shadow-md shadow-destructive/30" : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]";
+            const isPink = item.variant === 'pink';
+            const activeBg = isRed
+              ? "bg-destructive text-destructive-foreground shadow-md shadow-destructive/30"
+              : isPink
+                ? "bg-[hsl(330,70%,55%)] text-white shadow-md shadow-[hsl(330,70%,55%)/0.3]"
+                : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]";
             return (
               <div key={item.title}>
                 <button
@@ -395,7 +427,7 @@ export function AppSidebar() {
                   )}
                 </button>
                 {!collapsed && isOpen && item.children && (
-                  <div className={cn("ml-5 border-l-2 pl-3 mt-1 mb-1 space-y-0.5", isRed ? "border-destructive/40" : "border-[hsl(var(--sidebar-border))]")}>
+                  <div className={cn("ml-5 border-l-2 pl-3 mt-1 mb-1 space-y-0.5", isRed ? "border-destructive/40" : isPink ? "border-[hsl(330,70%,75%)]/40" : "border-[hsl(var(--sidebar-border))]")}>
                     {item.children.map((child) => {
                       const isAlwaysHighlighted = child.title === "Abrir novo chamado";
                       return (
@@ -412,7 +444,9 @@ export function AppSidebar() {
                                     isActive
                                       ? isRed
                                         ? "bg-destructive text-destructive-foreground font-semibold shadow-sm"
-                                        : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
+                                        : isPink
+                                          ? "bg-[hsl(330,70%,55%)] text-white font-semibold shadow-sm"
+                                          : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
                                       : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
                                   )
                             )
