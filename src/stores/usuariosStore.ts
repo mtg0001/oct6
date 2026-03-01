@@ -40,7 +40,7 @@ export const SERVICOS_SOLICITACAO = [
   "Novo Colaborador",
 ] as const;
 
-export const DIRETORES = ["Jessica", "Soraya", "Danielle"] as const;
+export const DIRETORES = ["Jessica", "Soraya", "Danielle", "Osorio"] as const;
 
 export interface Usuario {
   id: string;
