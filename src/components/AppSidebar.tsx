@@ -168,6 +168,7 @@ export function AppSidebar() {
           { title: "Jessica", path: "/diretoria/jessica" },
           { title: "Soraya", path: "/diretoria/soraya" },
           { title: "Danielle", path: "/diretoria/danielle" },
+          { title: "Osorio", path: "/diretoria/osorio" },
         ]
       : (u?.diretoria || []).map((d) => ({
           title: d,
