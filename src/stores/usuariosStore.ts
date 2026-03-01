@@ -38,6 +38,7 @@ export const SERVICOS_SOLICITACAO = [
   "Materiais (Compras)",
   "Negociação de Mão de Obra",
   "Novo Colaborador",
+  "CAD",
 ] as const;
 
 export const DIRETORES = ["Jessica", "Soraya", "Danielle", "Osorio"] as const;

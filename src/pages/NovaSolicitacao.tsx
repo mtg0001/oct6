@@ -34,6 +34,7 @@ import {
   Shirt,
   Truck,
   PenTool,
+  Heart,
 } from "lucide-react";
 
 interface SolicitacaoCard {
@@ -42,6 +43,7 @@ interface SolicitacaoCard {
   description: string;
   icon: React.ElementType;
   available: boolean;
+  variant?: 'pink';
 }
 
 const allSolicitacoes: SolicitacaoCard[] = [
@@ -62,6 +64,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: true },
   { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: true },
   { title: "Solicitação de Materiais de Escritório", serviceKey: "Materiais de Escritório", description: "Materiais de escritório em geral.", icon: PenTool, available: true },
+  { title: "Solicitação CAD", serviceKey: "CAD", description: "Central de Atendimento ao Cliente.", icon: Heart, available: true, variant: 'pink' },
 ];
 
 const NovaSolicitacao = () => {
@@ -85,6 +88,7 @@ const NovaSolicitacao = () => {
   const [negociacaoOpen, setNegociacaoOpen] = useState(false);
   const [freteOpen, setFreteOpen] = useState(false);
   const [manutencaoOpen, setManutencaoOpen] = useState(false);
+  const [cadOpen, setCadOpen] = useState(false);
   const currentUser = useCurrentUser();
 
   const solicitacoes = allSolicitacoes.filter((item) => {
@@ -110,6 +114,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Uniformes e EPI") setUniformesEPIOpen(true);
     else if (title === "Negociação de Mão de Obra") setNegociacaoOpen(true);
     else if (title === "Solicitação de Manutenção Predial") setManutencaoOpen(true);
+    else if (title === "Solicitação CAD") setCadOpen(true);
   };
 
   return (
@@ -130,35 +135,48 @@ const NovaSolicitacao = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
-        {solicitacoes.map((item) => (
-          <button
-            key={item.title}
-            disabled={!item.available}
-            onClick={() => handleSelecionar(item.title)}
-            className={`bg-card rounded-xl p-3 shadow-sm border border-border text-left flex flex-col gap-2 group transition-all duration-200 ${
-              item.available
-                ? "hover:shadow-md hover:border-primary/30 active:scale-[0.98]"
-                : "opacity-60 cursor-not-allowed"
-            }`}
-          >
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors shrink-0">
-              <item.icon className="h-4 w-4 text-primary" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-semibold text-foreground text-[11px] sm:text-[12px] leading-tight line-clamp-2">{item.title}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">{item.description}</p>
-            </div>
-            <span
-              className={`hidden sm:block w-full text-center py-1.5 rounded-md text-[11px] font-semibold mt-auto whitespace-nowrap overflow-hidden text-ellipsis ${
-                item.available
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
+        {solicitacoes.map((item) => {
+          const isPink = item.variant === 'pink';
+          return (
+            <button
+              key={item.title}
+              disabled={!item.available}
+              onClick={() => handleSelecionar(item.title)}
+              className={`bg-card rounded-xl p-3 shadow-sm border text-left flex flex-col gap-2 group transition-all duration-200 ${
+                isPink
+                  ? "border-[hsl(330,70%,80%)] hover:shadow-md hover:border-[hsl(330,70%,60%)] active:scale-[0.98]"
+                  : item.available
+                    ? "border-border hover:shadow-md hover:border-primary/30 active:scale-[0.98]"
+                    : "border-border opacity-60 cursor-not-allowed"
               }`}
             >
-              {item.available ? "Selecionar" : "Em breve"}
-            </span>
-          </button>
-        ))}
+              <div
+                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
+                  isPink
+                    ? "bg-[hsl(330,70%,93%)] group-hover:bg-[hsl(330,70%,88%)]"
+                    : "bg-primary/10 group-hover:bg-primary/20"
+                }`}
+              >
+                <item.icon className={`h-4 w-4 ${isPink ? "text-[hsl(330,70%,50%)]" : "text-primary"}`} />
+              </div>
+              <div className="min-w-0">
+                <p className={`font-semibold text-[11px] sm:text-[12px] leading-tight line-clamp-2 ${isPink ? "text-[hsl(330,70%,40%)]" : "text-foreground"}`}>{item.title}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">{item.description}</p>
+              </div>
+              <span
+                className={`hidden sm:block w-full text-center py-1.5 rounded-md text-[11px] font-semibold mt-auto whitespace-nowrap overflow-hidden text-ellipsis ${
+                  isPink
+                    ? "bg-[hsl(330,70%,55%)] text-white"
+                    : item.available
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {item.available ? "Selecionar" : "Em breve"}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <NovoColaboradorForm open={colaboradorOpen} onOpenChange={setColaboradorOpen} unidade={unidade || "goiania"} />
@@ -178,6 +196,7 @@ const NovaSolicitacao = () => {
       <NegociacaoMaoDeObraForm open={negociacaoOpen} onOpenChange={setNegociacaoOpen} unidade={unidade || "goiania"} />
       <FreteForm open={freteOpen} onOpenChange={setFreteOpen} unidade={unidade || "goiania"} />
       <ManutencaoPredialForm open={manutencaoOpen} onOpenChange={setManutencaoOpen} unidade={unidade || "goiania"} />
+      <MateriaisForm open={cadOpen} onOpenChange={setCadOpen} unidade={unidade || "goiania"} tipo="CAD" />
     </AppLayout>
   );
 };
