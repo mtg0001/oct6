@@ -205,8 +205,8 @@ export function getSolicitacoesCS(status?: string) {
 
 export function getSolicitacoesCAD(status?: string) {
   return solicitacoes.filter((s) => {
-    const inCADQueue = s.setorAtual === 'cad';
-    return status ? inCADQueue && s.status === status : inCADQueue;
+    const isCAD = s.tipo === 'CAD';
+    return status ? isCAD && s.status === status : isCAD;
   });
 }
 export function getSolicitacoesByUser(userId: string, status?: string) {

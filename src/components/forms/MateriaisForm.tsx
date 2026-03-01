@@ -28,7 +28,7 @@ interface MateriaisFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   unidade: string;
-  tipo: "Materiais (Compras)" | "Materiais (Expedição)" | "Materiais de Escritório" | "Uniformes e EPI";
+  tipo: "Materiais (Compras)" | "Materiais (Expedição)" | "Materiais de Escritório" | "Uniformes e EPI" | "CAD";
 }
 
 interface ItemMaterial {
