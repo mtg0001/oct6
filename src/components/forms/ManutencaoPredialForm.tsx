@@ -95,10 +95,6 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.type !== "application/pdf") {
-      toast({ title: "Apenas PDF é permitido", variant: "destructive" });
-      return;
-    }
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "Arquivo excede 5 MB", variant: "destructive" });
       return;
@@ -291,7 +287,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
             </legend>
             <div className="mt-3 space-y-4">
               <div>
-                <Label className="text-xs font-bold">Anexo (PDF)</Label>
+                <Label className="text-xs font-bold">Anexar Documento</Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Button
                     type="button"
@@ -313,11 +309,11 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar"
                   className="hidden"
                   onChange={handleFileChange}
                 />
-                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo.</p>
               </div>
 
               <div>
