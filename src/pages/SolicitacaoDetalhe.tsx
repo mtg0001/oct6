@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Paperclip, Forward } from "lucide-react";
-import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
   Table,
@@ -84,13 +84,18 @@ const SolicitacaoDetalhe = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "Diretoria";
     const textoComNome = `[${nome}] ${textoAndamento}`;
-    let dateFolder: string | undefined;
-    if (anexoFiles.length > 0) {
-      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, nome);
+    const storageUserName = sol.solicitante || nome;
+    let dateFolder = resolveExistingDateFolder([
+      sol.justificativa,
+      sol.caracteristicas,
+      ...sol.andamentos.flatMap((a) => a.anexos || []),
+    ]);
+    if (!dateFolder && anexoFiles.length > 0) {
+      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, storageUserName);
     }
     const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
     for (const file of anexoFiles) {
-      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome, datePasta: dateFolder });
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: storageUserName, datePasta: dateFolder });
     }
     await addAndamento(sol.id, textoComNome, storedNomes);
     setTextoAndamento("");
