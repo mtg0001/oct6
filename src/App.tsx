@@ -27,6 +27,7 @@ import Lixeira from "./pages/Lixeira";
 import ChamadoTINovo from "./pages/ChamadoTINovo";
 import ChamadosTILista from "./pages/ChamadosTILista";
 import ChamadoTIDetalhe from "./pages/ChamadoTIDetalhe";
+import DiretoriaChamadoTIDetalhe from "./pages/DiretoriaChamadoTIDetalhe";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/nova-solicitacao/:unidade" element={<ProtectedRoute><NovaSolicitacao /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor" element={<ProtectedRoute><DiretoriaAprovacao /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><DiretoriaSolicitacaoWrapper /></ProtectedRoute>} />
+            <Route path="/diretoria/:diretor/chamado-ti/:id" element={<ProtectedRoute><DiretoriaChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
             <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoDetalhe /></ProtectedRoute>} />
             <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />

@@ -10,10 +10,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
 import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
+import { Badge } from "@/components/ui/badge";
+import { Headset } from "lucide-react";
+import { ensureChamadosTILoaded, subscribeChamadosTI, getChamadosTIByDiretor, type ChamadoTI } from "@/stores/chamadosTIStore";
+
+const URGENCIA_LABEL: Record<string, { label: string; color: string }> = {
+  baixa: { label: "Baixa", color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  media: { label: "Média", color: "bg-amber-50 text-amber-700 border-amber-200" },
+  alta: { label: "Alta", color: "bg-orange-50 text-orange-700 border-orange-200" },
+  extrema: { label: "Extrema", color: "bg-red-50 text-red-700 border-red-200" },
+};
 
 const DiretoriaAprovacao = () => {
   const { diretor } = useParams<{ diretor: string }>();
@@ -22,6 +32,16 @@ const DiretoriaAprovacao = () => {
   const solicitacoes = useSolicitacoesDiretor(diretor || "");
   const [busca, setBusca] = useState("");
   const [filtroPrioridade, setFiltroPrioridade] = useState("todas");
+  const [chamadosTI, setChamadosTI] = useState<ChamadoTI[]>([]);
+
+  useEffect(() => {
+    ensureChamadosTILoaded().then(() => {
+      setChamadosTI(getChamadosTIByDiretor(diretor || ""));
+    });
+    return subscribeChamadosTI(() => {
+      setChamadosTI(getChamadosTIByDiretor(diretor || ""));
+    });
+  }, [diretor]);
 
   const filtered = solicitacoes.filter((s) => {
     const matchBusca =
@@ -32,6 +52,17 @@ const DiretoriaAprovacao = () => {
     const matchPrioridade = filtroPrioridade === "todas" || s.prioridade === filtroPrioridade;
     return matchBusca && matchPrioridade;
   }).sort(sortByPrioridade);
+
+  const filteredChamadosTI = chamadosTI.filter((c) => {
+    if (!busca) return true;
+    return (
+      c.solicitanteNome.toLowerCase().includes(busca.toLowerCase()) ||
+      c.categoria.toLowerCase().includes(busca.toLowerCase()) ||
+      c.departamento.toLowerCase().includes(busca.toLowerCase())
+    );
+  });
+
+  const totalCount = filtered.length + filteredChamadosTI.length;
 
   return (
     <AppLayout>
@@ -63,12 +94,47 @@ const DiretoriaAprovacao = () => {
         </Select>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-3">{filtered.length} registro(s)</p>
+      <p className="text-sm text-muted-foreground mb-3">{totalCount} registro(s)</p>
 
       <div className="space-y-3">
-        {filtered.length === 0 && (
-          <p className="text-muted-foreground text-sm py-8 text-center">Nenhuma solicitação pendente.</p>
-        )}
+        {/* Chamados TI aguardando aprovação */}
+        {filteredChamadosTI.map((c) => {
+          const urg = URGENCIA_LABEL[c.urgencia] || URGENCIA_LABEL.baixa;
+          return (
+            <div
+              key={`ti-${c.id}`}
+              className="bg-card border border-border rounded-lg p-4 flex flex-wrap items-center gap-4 shadow-sm"
+            >
+              <div className="h-10 w-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
+                <Headset className="h-5 w-5" />
+              </div>
+              <Badge variant="outline" className={`${urg.color} text-xs font-semibold`}>{urg.label}</Badge>
+              <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground text-xs block">Data</span>
+                  <span className="font-medium">{new Date(c.criadoEm).toLocaleDateString("pt-BR")}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs block">Colaborador</span>
+                  <span className="font-medium">{c.solicitanteNome}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs block">Departamento</span>
+                  <span className="font-medium">{c.departamento}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs block">Tipo</span>
+                  <span className="font-medium text-xs">Chamado TI - Teams</span>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => navigate(`/diretoria/${diretor}/chamado-ti/${c.id}`)}>
+                Ver
+              </Button>
+            </div>
+          );
+        })}
+
+        {/* Solicitações normais */}
         {filtered.map((sol) => {
           const Icon = getIconForTipo(sol.tipo);
           return (
@@ -105,6 +171,10 @@ const DiretoriaAprovacao = () => {
             </div>
           );
         })}
+
+        {totalCount === 0 && (
+          <p className="text-muted-foreground text-sm py-8 text-center">Nenhuma solicitação pendente.</p>
+        )}
       </div>
     </AppLayout>
   );

@@ -149,6 +149,8 @@ export default function ChamadoTINovo() {
         }
       }
 
+      const isTeams = categoria === "Permissões de equipes Teams (SharePoint)";
+
       await addChamadoTI({
         solicitanteId: currentUser?.id || null,
         solicitanteNome: currentUser?.nome || "Desconhecido",
@@ -163,6 +165,7 @@ export default function ChamadoTINovo() {
         urgencia,
         observacoes,
         anexos: uploadedUrls,
+        ...(isTeams ? { status: "aguardando_diretoria", diretorAprovacao: "soraya" } : {}),
       });
       toast.success("Chamado aberto com sucesso!");
       navigate("/chamado-ti/pendentes");

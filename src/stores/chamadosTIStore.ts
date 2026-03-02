@@ -15,7 +15,9 @@ export interface ChamadoTI {
   urgencia: string;
   observacoes: string;
   anexos: string[];
-  status: "pendente" | "resolvido" | "cancelado";
+  status: "pendente" | "resolvido" | "cancelado" | "aguardando_diretoria";
+  diretorAprovacao: string;
+  resultadoAprovacao: string;
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -37,6 +39,8 @@ function mapRow(row: any): ChamadoTI {
     observacoes: row.observacoes || "",
     anexos: row.anexos || [],
     status: row.status,
+    diretorAprovacao: row.diretor_aprovacao || "",
+    resultadoAprovacao: row.resultado_aprovacao || "",
     criadoEm: row.created_at,
     atualizadoEm: row.updated_at,
   };
@@ -70,6 +74,9 @@ export function ensureChamadosTILoaded() {
 
 export function getChamadosTI() { return chamados; }
 export function getChamadosTIByStatus(status: string) { return chamados.filter(c => c.status === status); }
+export function getChamadosTIByDiretor(diretor: string) {
+  return chamados.filter(c => c.status === "aguardando_diretoria" && c.diretorAprovacao.toLowerCase() === diretor.toLowerCase());
+}
 
 export async function addChamadoTI(data: {
   solicitanteId: string | null;
@@ -85,6 +92,8 @@ export async function addChamadoTI(data: {
   urgencia: string;
   observacoes?: string;
   anexos?: string[];
+  diretorAprovacao?: string;
+  status?: string;
 }) {
   const { error } = await supabase.from("chamados_ti").insert({
     solicitante_id: data.solicitanteId,
@@ -100,14 +109,25 @@ export async function addChamadoTI(data: {
     urgencia: data.urgencia,
     observacoes: data.observacoes || "",
     anexos: data.anexos || [],
-    status: "pendente",
+    status: data.status || "pendente",
+    diretor_aprovacao: data.diretorAprovacao || "",
+    resultado_aprovacao: "",
   });
   if (error) throw error;
   await loadChamadosTI();
 }
 
-export async function updateChamadoTIStatus(id: string, status: "pendente" | "resolvido" | "cancelado") {
+export async function updateChamadoTIStatus(id: string, status: "pendente" | "resolvido" | "cancelado" | "aguardando_diretoria") {
   const { error } = await supabase.from("chamados_ti").update({ status }).eq("id", id);
+  if (error) throw error;
+  await loadChamadosTI();
+}
+
+export async function aprovarChamadoTIDiretoria(id: string, resultado: "aprovado" | "reprovado") {
+  const { error } = await supabase.from("chamados_ti").update({
+    status: "pendente",
+    resultado_aprovacao: resultado,
+  }).eq("id", id);
   if (error) throw error;
   await loadChamadosTI();
 }

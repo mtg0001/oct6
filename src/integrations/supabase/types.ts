@@ -86,9 +86,11 @@ export type Database = {
           categoria: string
           created_at: string
           departamento: string
+          diretor_aprovacao: string | null
           id: string
           novo_colaborador: string | null
           observacoes: string | null
+          resultado_aprovacao: string | null
           site_especifico: string | null
           site_suspeito: string | null
           solicitante_id: string | null
@@ -105,9 +107,11 @@ export type Database = {
           categoria: string
           created_at?: string
           departamento?: string
+          diretor_aprovacao?: string | null
           id?: string
           novo_colaborador?: string | null
           observacoes?: string | null
+          resultado_aprovacao?: string | null
           site_especifico?: string | null
           site_suspeito?: string | null
           solicitante_id?: string | null
@@ -124,9 +128,11 @@ export type Database = {
           categoria?: string
           created_at?: string
           departamento?: string
+          diretor_aprovacao?: string | null
           id?: string
           novo_colaborador?: string | null
           observacoes?: string | null
+          resultado_aprovacao?: string | null
           site_especifico?: string | null
           site_suspeito?: string | null
           solicitante_id?: string | null
