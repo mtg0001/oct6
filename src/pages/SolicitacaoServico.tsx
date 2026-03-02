@@ -12,6 +12,11 @@ import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
 import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
@@ -59,6 +64,10 @@ const SolicitacaoServico = () => {
   const [anexoFiles, setAnexoFiles] = useState<File[]>([]);
   const [sendingAndamento, setSendingAndamento] = useState(false);
   const [downloadingAnexo, setDownloadingAnexo] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogAction, setDialogAction] = useState<"cancelar" | "concluir">("cancelar");
+  const [observacaoAcao, setObservacaoAcao] = useState("");
 
   if (!sol) {
     return (
@@ -80,6 +89,35 @@ const SolicitacaoServico = () => {
   const isDiretoriaUniformes = showDiretoriaButtons && sol.tipo === 'Uniformes e EPI';
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
+  const openActionDialog = (action: "cancelar" | "concluir") => {
+    setDialogAction(action);
+    setObservacaoAcao("");
+    setDialogOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    setActionLoading(dialogAction);
+    try {
+      const nome = currentUser?.nome || "Usuário";
+      const obs = observacaoAcao.trim();
+      if (obs) {
+        await addAndamento(sol.id, `[${nome}] ${dialogAction === "concluir" ? "✅ Concluído" : "❌ Cancelado"}\nObservação: ${obs}`);
+      }
+      if (dialogAction === "concluir") {
+        await concluirSolicitacao(sol.id);
+      } else {
+        await cancelarSolicitacao(sol.id);
+      }
+      setDialogOpen(false);
+      toast.success(dialogAction === "concluir" ? "Solicitação concluída!" : "Solicitação cancelada!");
+      navigate(-1);
+    } catch {
+      toast.error("Erro ao processar ação");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const hasAnexo = !!parsed["Anexo"];
 
   const handleEnviarAndamento = async () => {
@@ -614,18 +652,19 @@ const SolicitacaoServico = () => {
               variant="outline"
               size="sm"
               className="border-primary text-primary"
+              disabled={sendingAndamento}
               onClick={() => setShowAndamento(true)}
             >
-              Em andamento
+              {sendingAndamento ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Adicionando...</> : "Em andamento"}
             </Button>
             {/* Expedition: if returned from diretoria, show Concluir + Cancelar + Encaminhar Logística */}
             {isExpedicao && isPendente && isDevolvido && (
               <>
-                <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
-                  Cancelar
+                <Button size="sm" variant="destructive" disabled={!!actionLoading} onClick={() => openActionDialog("cancelar")}>
+                  {actionLoading === "cancelar" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Cancelando...</> : "Cancelar"}
                 </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>
-                  Concluir
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={!!actionLoading} onClick={() => openActionDialog("concluir")}>
+                  {actionLoading === "concluir" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Concluindo...</> : "Concluir"}
                 </Button>
                 <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={async () => {
                   const nome = currentUser?.nome || "Expedição";
@@ -641,11 +680,11 @@ const SolicitacaoServico = () => {
             {/* Normal Concluir/Cancelar (not for returned expedition items) */}
             {showConcluirCancelar && !(isExpedicao && isDevolvido) && (
               <>
-                <Button size="sm" variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>
-                  Cancelar
+                <Button size="sm" variant="destructive" disabled={!!actionLoading} onClick={() => openActionDialog("cancelar")}>
+                  {actionLoading === "cancelar" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Cancelando...</> : "Cancelar"}
                 </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>
-                  Concluir
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={!!actionLoading} onClick={() => openActionDialog("concluir")}>
+                  {actionLoading === "concluir" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Concluindo...</> : "Concluir"}
                 </Button>
               </>
             )}
@@ -778,6 +817,44 @@ const SolicitacaoServico = () => {
             </Button>
           </div>
         </div>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {dialogAction === "concluir" ? "Concluir solicitação" : "Cancelar solicitação"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                A solicitação será {dialogAction === "concluir" ? "concluída" : "cancelada"}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-2">
+              <Label className="text-sm font-medium">Deseja adicionar uma observação? <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Textarea
+                value={observacaoAcao}
+                onChange={(e) => setObservacaoAcao(e.target.value)}
+                placeholder="Digite uma observação..."
+                className="mt-2 min-h-[80px] resize-none"
+                maxLength={2000}
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={!!actionLoading}>Cancelar</AlertDialogCancel>
+              <Button
+                onClick={handleConfirmAction}
+                disabled={!!actionLoading}
+                className={dialogAction === "concluir"
+                  ? "gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  : "gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                }
+              >
+                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {actionLoading ? (dialogAction === "concluir" ? "Concluindo..." : "Cancelando...") : (dialogAction === "concluir" ? "Concluir" : "Cancelar")}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );
