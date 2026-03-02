@@ -317,7 +317,7 @@ export async function cancelarSolicitacao(solId: string) {
 
 export async function encaminharSolicitacao(solId: string, destino: string, diretorNome?: string, novoStatus?: string) {
   const updates: Record<string, any> = { setor_atual: destino };
-  if (destino === 'diretoria' && diretorNome) {
+  if (diretorNome !== undefined) {
     updates.diretor_area = diretorNome;
   }
   if (novoStatus) {

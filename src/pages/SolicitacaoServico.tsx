@@ -694,7 +694,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Recursos Humanos`);
-                  await encaminharSolicitacao(sol.id, '', undefined, 'pendente');
+                  await encaminharSolicitacao(sol.id, '', '', 'pendente');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
@@ -703,7 +703,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
-                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado', undefined, 'aprovado');
+                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado', '', 'aprovado');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
@@ -712,7 +712,7 @@ const SolicitacaoServico = () => {
                 <Button size="sm" variant="destructive" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
                   await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome}`);
-                  await encaminharSolicitacao(sol.id, '', undefined, 'reprovado');
+                  await encaminharSolicitacao(sol.id, '', '', 'reprovado');
                   navigate(-1);
                 }}>
                   Reprovar
