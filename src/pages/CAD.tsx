@@ -78,7 +78,7 @@ const CAD = () => {
                 <div><span className="text-muted-foreground text-[10px] block">Data</span><span className="font-medium text-xs">{sol.dataCriacao}</span></div>
                 <div><span className="text-muted-foreground text-[10px] block">Solicitante</span><span className="font-medium text-xs truncate block">{sol.solicitante}</span></div>
                 <div><span className="text-muted-foreground text-[10px] block">Unidade</span><Badge variant="outline" className="text-[10px]">{siglaUnidade(sol.unidade)}</Badge></div>
-                <div><span className="text-muted-foreground text-[10px] block">Tipo</span><span className="font-medium text-xs truncate block">{sol.tipo}</span></div>
+                <div><span className="text-muted-foreground text-[10px] block">Tipo</span><span className="font-medium text-xs truncate block">{sol.tipo === "CAD" ? "CS" : sol.tipo}</span></div>
               </div>
             </div>
           );

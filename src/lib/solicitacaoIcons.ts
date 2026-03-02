@@ -1,7 +1,7 @@
 import {
   Sparkles, ShowerHead, Car, Truck, Zap, Hotel, Plane, Tent,
   ArrowUpDown, Package, ShoppingCart, Handshake, UserPlus, Monitor,
-  Wrench, Shirt, PenTool, FileText,
+  Wrench, Shirt, PenTool, FileText, UserCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -23,6 +23,8 @@ const iconMap: Record<string, LucideIcon> = {
   "Manutenção Predial": Wrench,
   "Uniformes e EPI": Shirt,
   "Materiais de Escritório": PenTool,
+  "CS": UserCheck,
+  "CAD": UserCheck,
 };
 
 export function getIconForTipo(tipo: string): LucideIcon {

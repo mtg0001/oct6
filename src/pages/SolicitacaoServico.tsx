@@ -467,7 +467,13 @@ const SolicitacaoServico = () => {
       { campo: "Evento", valor: chars.eventoOrcamento || parsed["Evento"] || "" },
       { campo: "Local", valor: chars.local || parsed["Local"] || "" },
       { campo: "Data de Realização", valor: chars.dataRealizacao || parsed["Data Realização"] || "" },
-      { campo: "Itens", valor: chars.itens || parsed["Itens"] || "" },
+      ...((() => {
+        const itensRaw = chars.itens || parsed["Itens"] || "";
+        if (!itensRaw) return [];
+        const lista = itensRaw.split(";").map((s: string) => s.trim()).filter(Boolean);
+        if (lista.length <= 1) return [{ campo: "Itens", valor: itensRaw }];
+        return lista.map((item: string, i: number) => ({ campo: `Item ${i + 1}`, valor: item.replace(/^\d+\)\s*/, "") }));
+      })()),
       { campo: "CS Responsável", valor: chars.csResponsavel || parsed["CS Responsável"] || "" },
       { campo: "Nº da Proposta", valor: chars.numeroProposta || parsed["Nº Proposta"] || "" },
       { campo: "Data da Proposta", valor: chars.dataProposta || parsed["Data Proposta"] || "" },
@@ -488,7 +494,7 @@ const SolicitacaoServico = () => {
   const isNegociacao = sol.tipo === "Negociação de Mão de Obra";
   const isManutencao = sol.tipo === "Manutenção Predial";
   const isColaborador = sol.tipo === "Novo Colaborador";
-  const isCS = sol.tipo === "CAD";
+  const isCS = sol.tipo === "CAD" || sol.tipo === "CS";
   const tableRows = isCS ? getCSRows() : isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : isEquipTI ? getEquipamentosTIRows() : isNegociacao ? getNegociacaoRows() : isManutencao ? getManutencaoRows() : isColaborador ? getNovoColaboradorRows() : getGenericRows();
   const tableTitle = isCS ? "Dados do CS — Orçamento de Adicionais" : isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : isEquipTI ? "Itens — Equipamentos de TI" : isNegociacao ? "Dados da Negociação" : isManutencao ? "Serviços de Manutenção" : isColaborador ? "Dados da Vaga" : "Dados da Solicitação";
 
@@ -498,7 +504,7 @@ const SolicitacaoServico = () => {
       {/* ── Título ── */}
       <div className="bg-primary text-primary-foreground px-6 py-4 rounded-t-md">
         <h1 className="text-center text-lg font-bold uppercase tracking-wide">
-          Solicitação — {sol.tipo}
+          Solicitação — {sol.tipo === "CAD" ? "CS" : sol.tipo}
         </h1>
       </div>
 
