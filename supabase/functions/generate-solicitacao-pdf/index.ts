@@ -89,6 +89,31 @@ async function listFolderChildren(
   return data.value || [];
 }
 
+function normalizeSharePointKey(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
+const UNIDADE_SHAREPOINT_MAP: Record<string, string> = {
+  goiania: "Goiânia",
+  mairipora: "Mairiporã",
+  pinheiros: "Pinheiros",
+};
+
+const SERVICO_SHAREPOINT_MAP: Record<string, string> = {
+  "chamados ti": "Chamados TI",
+  "materiais (expedicao)": "Materiais (Expedição)",
+};
+
+function toSharePointUnidade(unidade: string): string {
+  const normalized = normalizeSharePointKey(unidade);
+  return UNIDADE_SHAREPOINT_MAP[normalized] || unidade;
+}
+
+function toSharePointServico(servico: string): string {
+  const normalized = normalizeSharePointKey(servico);
+  return SERVICO_SHAREPOINT_MAP[normalized] || servico;
+}
+
 function getNextSequentialName(existingFolders: any[]): string {
   const now = new Date();
   const dd = String(now.getDate()).padStart(2, "0");
@@ -503,7 +528,7 @@ Deno.serve(async (req) => {
     const rootFolder = Deno.env.get("SHAREPOINT_ROOT_FOLDER")!;
 
     // Create user folder (parent path is fixed/pre-existing)
-    const parentPath = `${rootFolder}/${sol.unidade}/${sol.tipo}`;
+    const parentPath = `${rootFolder}/${toSharePointUnidade(sol.unidade)}/${toSharePointServico(sol.tipo)}`;
     await createFolderAtLocation(token, driveId, parentPath, sol.solicitante);
     const userFolderPath = `${parentPath}/${sol.solicitante}`;
 
