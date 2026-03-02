@@ -457,6 +457,23 @@ const SolicitacaoServico = () => {
     return entries.map(([k, v]) => ({ campo: k, valor: v }));
   };
 
+  // ── CS (CAD) table rows ──
+  const getCSRows = () => {
+    const chars = (sol.caracteristicas || {}) as Record<string, any>;
+    return [
+      { campo: "Cliente", valor: chars.cliente || parsed["Cliente"] || "" },
+      { campo: "CNPJ", valor: chars.cnpj || parsed["CNPJ"] || "" },
+      { campo: "Razão Social", valor: chars.razaoSocial || parsed["Razão Social"] || "" },
+      { campo: "Evento", valor: chars.eventoOrcamento || parsed["Evento"] || "" },
+      { campo: "Local", valor: chars.local || parsed["Local"] || "" },
+      { campo: "Data de Realização", valor: chars.dataRealizacao || parsed["Data Realização"] || "" },
+      { campo: "Itens", valor: chars.itens || parsed["Itens"] || "" },
+      { campo: "CS Responsável", valor: chars.csResponsavel || parsed["CS Responsável"] || "" },
+      { campo: "Nº da Proposta", valor: chars.numeroProposta || parsed["Nº Proposta"] || "" },
+      { campo: "Data da Proposta", valor: chars.dataProposta || parsed["Data Proposta"] || "" },
+    ].filter(r => r.valor);
+  };
+
   const isDiarista = sol.tipo === "Serviço de Diarista";
   const isAluguelBanheiro = sol.tipo === "Aluguel de Banheiro";
   const isLocacaoVeiculos = sol.tipo === "Locação de Veículos";
@@ -471,8 +488,10 @@ const SolicitacaoServico = () => {
   const isNegociacao = sol.tipo === "Negociação de Mão de Obra";
   const isManutencao = sol.tipo === "Manutenção Predial";
   const isColaborador = sol.tipo === "Novo Colaborador";
-  const tableRows = isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : isEquipTI ? getEquipamentosTIRows() : isNegociacao ? getNegociacaoRows() : isManutencao ? getManutencaoRows() : isColaborador ? getNovoColaboradorRows() : getGenericRows();
-  const tableTitle = isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : isEquipTI ? "Itens — Equipamentos de TI" : isNegociacao ? "Dados da Negociação" : isManutencao ? "Serviços de Manutenção" : isColaborador ? "Dados da Vaga" : "Dados da Solicitação";
+  const isCS = sol.tipo === "CAD";
+  const tableRows = isCS ? getCSRows() : isDiarista ? getDiaristaRows() : isAluguelBanheiro ? getAluguelBanheiroRows() : isLocacaoVeiculos ? getLocacaoVeiculosRows() : isFrete ? getFreteRows() : isGerador ? getGeradorRows() : isHospedagem ? getHospedagemRows() : isPassagens ? getPassagensRows() : isTendas ? getTendasRows() : isPlataforma ? getPlataformaRows() : isMateriais ? getMateriaisRows() : isEquipTI ? getEquipamentosTIRows() : isNegociacao ? getNegociacaoRows() : isManutencao ? getManutencaoRows() : isColaborador ? getNovoColaboradorRows() : getGenericRows();
+  const tableTitle = isCS ? "Dados do CS — Orçamento de Adicionais" : isDiarista ? "Dados do Serviço de Diarista" : isAluguelBanheiro ? "Dados do Aluguel de Banheiro" : isLocacaoVeiculos ? "Dados da Locação de Veículos" : isFrete ? "Dados do Frete" : isGerador ? "Dados do Gerador" : isHospedagem ? "Dados da Hospedagem" : isPassagens ? "Dados da Passagem" : isTendas ? "Dados das Tendas" : isPlataforma ? "Dados da Plataforma Elevatória" : isMateriais ? `Itens — ${sol.tipo}` : isEquipTI ? "Itens — Equipamentos de TI" : isNegociacao ? "Dados da Negociação" : isManutencao ? "Serviços de Manutenção" : isColaborador ? "Dados da Vaga" : "Dados da Solicitação";
+
 
   return (
     <AppLayout>
