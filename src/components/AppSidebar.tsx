@@ -204,7 +204,7 @@ export function AppSidebar() {
 
     if (isAdmin) {
       items.push({
-        title: "Solicitações GO",
+        title: "Solicitações Goiânia",
         icon: FileSearch,
         children: [
           { title: "Pendentes", path: "/solicitacoes-go/pendentes" },
