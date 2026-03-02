@@ -162,7 +162,7 @@ const DiretoriaAprovacao = () => {
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Tipo</span>
-                  <span className="font-medium text-xs">{sol.tipo}</span>
+                  <span className="font-medium text-xs">{sol.tipo === "CAD" ? "CS" : sol.tipo}</span>
                 </div>
               </div>
               <ExcluirChamadoButton solicitacaoId={sol.id} />

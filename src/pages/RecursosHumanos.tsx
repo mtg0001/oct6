@@ -70,7 +70,7 @@ const RecursosHumanos = () => {
                 <div><span className="text-muted-foreground text-[10px] block">Data</span><span className="font-medium text-xs">{sol.dataCriacao}</span></div>
                 <div><span className="text-muted-foreground text-[10px] block">Colaborador</span><span className="font-medium text-xs truncate block">{sol.solicitante}</span></div>
                 <div><span className="text-muted-foreground text-[10px] block">Unidade</span><span className="font-medium text-xs">{siglaUnidade(sol.unidade)}</span></div>
-                <div><span className="text-muted-foreground text-[10px] block">Tipo</span><span className="font-medium text-xs truncate block">{sol.tipo}</span></div>
+                <div><span className="text-muted-foreground text-[10px] block">Tipo</span><span className="font-medium text-xs truncate block">{sol.tipo === "CAD" ? "CS" : sol.tipo}</span></div>
               </div>
             </div>
           );

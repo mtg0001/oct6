@@ -205,7 +205,7 @@ export function getSolicitacoesCS(status?: string) {
 
 export function getSolicitacoesCAD(status?: string) {
   return solicitacoes.filter((s) => {
-    const isCAD = s.tipo === 'CAD';
+    const isCAD = s.tipo === 'CAD' || s.tipo === 'CS';
     return status ? isCAD && s.status === status : isCAD;
   });
 }

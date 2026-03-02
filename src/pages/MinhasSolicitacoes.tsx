@@ -98,7 +98,7 @@ const MinhasSolicitacoes = () => {
                 </div>
                 <div>
                   <span className="text-muted-foreground text-[10px] block">Tipo</span>
-                  <span className="font-medium text-xs truncate block">{sol.tipo}</span>
+                  <span className="font-medium text-xs truncate block">{sol.tipo === "CAD" ? "CS" : sol.tipo}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-[10px] block">Unidade</span>

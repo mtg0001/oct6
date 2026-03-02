@@ -232,7 +232,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
       let storedAnexo = anexoNome;
       let dateFolder: string | undefined;
       if (file && anexoNome) {
-        dateFolder = await getNextSequentialFolder(unidade, "CAD", currentUser?.nome || "Desconhecido");
+        dateFolder = await getNextSequentialFolder(unidade, "CS", currentUser?.nome || "Desconhecido");
         storedAnexo = buildStoredFileName(anexoNome, dateFolder);
       }
 
@@ -242,7 +242,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
       }).join("; ");
 
       await addSolicitacao({
-        tipo: "CAD",
+        tipo: "CS",
         solicitanteId: currentUser?.id || "",
         unidade,
         evento,
@@ -292,7 +292,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
       });
 
       if (file && storedAnexo && dateFolder) {
-        uploadAttachmentToSharePoint({ file, unidade, servico: "CAD", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
+        uploadAttachmentToSharePoint({ file, unidade, servico: "CS", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
 
       toast({ title: "Solicitação de CS enviada com sucesso!" });

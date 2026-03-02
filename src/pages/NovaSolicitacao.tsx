@@ -65,7 +65,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Solicitação de Manutenção Predial", serviceKey: "Manutenção Predial", description: "Reparos e serviços prediais.", icon: Wrench, available: true },
   { title: "Solicitação de Uniformes e EPI", serviceKey: "Uniformes e EPI", description: "Uniformes e equipamentos de proteção.", icon: Shirt, available: true },
   { title: "Solicitação de Materiais de Escritório", serviceKey: "Materiais de Escritório", description: "Materiais de escritório em geral.", icon: PenTool, available: true },
-  { title: "CS", serviceKey: "CAD", description: "Customer Success.", icon: UserCheck, available: true, variant: 'pink' },
+  { title: "CS", serviceKey: "CS", description: "Customer Success.", icon: UserCheck, available: true, variant: 'pink' },
 ];
 
 const NovaSolicitacao = () => {
