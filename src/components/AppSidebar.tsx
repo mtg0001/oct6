@@ -87,8 +87,11 @@ export function AppSidebar() {
 
     const items: MenuItem[] = [
       { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-      { title: "Chat", icon: MessageCircle, path: "/chat" },
     ];
+
+    if (u?.podeUsarChat !== false) {
+      items.push({ title: "Chat", icon: MessageCircle, path: "/chat" });
+    }
 
     // Abrir Chamado TI (red variant)
     items.push({

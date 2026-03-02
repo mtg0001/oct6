@@ -66,7 +66,7 @@ export interface Usuario {
   podeExcluirChamado: boolean;
   podeVerLixeira: boolean;
   resolveCs: boolean;
-  podeVerCad: boolean;
+  podeUsarChat: boolean;
 }
 
 function mapRow(row: any): Usuario {
@@ -93,7 +93,7 @@ function mapRow(row: any): Usuario {
     podeExcluirChamado: row.pode_excluir_chamado || false,
     podeVerLixeira: row.pode_ver_lixeira || false,
     resolveCs: row.resolve_cs || false,
-    podeVerCad: row.pode_ver_cad || false,
+    podeUsarChat: row.pode_usar_chat !== false,
   };
 }
 
@@ -119,7 +119,7 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   if (u.podeExcluirChamado !== undefined) m.pode_excluir_chamado = u.podeExcluirChamado;
   if (u.podeVerLixeira !== undefined) m.pode_ver_lixeira = u.podeVerLixeira;
   if (u.resolveCs !== undefined) m.resolve_cs = u.resolveCs;
-  if (u.podeVerCad !== undefined) m.pode_ver_cad = u.podeVerCad;
+  if (u.podeUsarChat !== undefined) m.pode_usar_chat = u.podeUsarChat;
   return m;
 }
 

@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       resolveRecursosHumanosGo, resolveRecursosHumanosSp,
       diretoria, servicosPermitidos, visualizaSolicitacoesUnidades,
       podeExcluirChamado, podeVerLixeira,
-      resolveCs, podeVerCad,
+      resolveCs, podeUsarChat,
     } = await req.json();
 
     if (!username || !password) {
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
         pode_excluir_chamado: podeExcluirChamado || false,
         pode_ver_lixeira: podeVerLixeira || false,
         resolve_cs: resolveCs || false,
-        pode_ver_cad: podeVerCad || false,
+        pode_usar_chat: podeUsarChat !== false,
         must_change_password: true,
       })
       .eq("user_id", newUser.user!.id);
