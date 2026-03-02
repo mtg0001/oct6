@@ -34,6 +34,7 @@ const URGENCIA_CONFIG: Record<string, { label: string; icon: React.ReactNode; co
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   pendente: { label: "Pendente", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-amber-50 border-amber-200 text-amber-700" },
+  aguardando_diretoria: { label: "Aguardando Diretoria", icon: <Clock className="h-3.5 w-3.5" />, color: "bg-purple-50 border-purple-200 text-purple-700" },
   resolvido: { label: "Resolvido", icon: <CheckCircle2 className="h-3.5 w-3.5" />, color: "bg-emerald-50 border-emerald-200 text-emerald-700" },
   cancelado: { label: "Cancelado", icon: <XCircle className="h-3.5 w-3.5" />, color: "bg-red-50 border-red-200 text-red-700" },
 };
@@ -254,7 +255,14 @@ export default function ChamadoTIDetalhe() {
             )}
             {chamado.novoColaborador && (
               <InfoRow icon={<User className="h-4 w-4" />} label="Novo Colaborador">
-                {chamado.novoColaborador === "sim" ? "Sim" : "Não"}
+                {chamado.novoColaborador}
+              </InfoRow>
+            )}
+            {chamado.resultadoAprovacao && (
+              <InfoRow icon={<CheckCircle2 className="h-4 w-4" />} label="Aprovação Diretoria">
+                <Badge variant="outline" className={`text-xs font-semibold ${chamado.resultadoAprovacao === "aprovado" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"}`}>
+                  {chamado.resultadoAprovacao === "aprovado" ? "Aprovado" : "Reprovado"}
+                </Badge>
               </InfoRow>
             )}
             {chamado.anydesk && (
