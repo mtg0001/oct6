@@ -661,7 +661,7 @@ const SolicitacaoServico = () => {
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>Diretoria Aprovação</DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                      {DIRETORES.map((dir) => (
+                      {DIRETORES.filter((dir) => dir !== "Jessica").map((dir) => (
                         <DropdownMenuItem key={dir} onClick={async () => {
                           const nome = currentUser?.nome || "Expedição";
                           await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Diretoria — ${dir}`);
