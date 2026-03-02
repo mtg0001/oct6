@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, Paperclip, ExternalLink,
   MessageSquarePlus, Send, Loader2, RotateCcw, FileText, User, Building2,
-  CalendarDays, Tag, AlertTriangle, Info, Monitor,
+  CalendarDays, Tag, AlertTriangle, Info, Monitor, Printer,
 } from "lucide-react";
 import {
   ensureChamadosTILoaded,
@@ -201,9 +201,20 @@ export default function ChamadoTIDetalhe() {
               <p className="text-xs text-muted-foreground font-mono tracking-wide">#{chamado.id.slice(0, 8).toUpperCase()}</p>
             </div>
           </div>
-          <Badge variant="outline" className={`${st.color} gap-1.5 px-3 py-1 text-xs font-semibold shrink-0`}>
-            {st.icon} {st.label}
-          </Badge>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.print()}
+              className="rounded-full h-9 w-9 print:hidden"
+              title="Imprimir chamado"
+            >
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Badge variant="outline" className={`${st.color} gap-1.5 px-3 py-1 text-xs font-semibold`}>
+              {st.icon} {st.label}
+            </Badge>
+          </div>
         </div>
 
         {/* Main Info Card */}
@@ -401,7 +412,7 @@ export default function ChamadoTIDetalhe() {
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-2.5 flex-wrap pt-2">
+        <div className="flex justify-end gap-2.5 flex-wrap pt-2 print:hidden">
           {chamado.status === "aguardando_diretoria" && !isTI && (
             <Button
               variant="outline"
@@ -457,6 +468,218 @@ export default function ChamadoTIDetalhe() {
               Reabrir
             </Button>
           )}
+        </div>
+
+        {/* Print-only layout */}
+        <div className="hidden print:block print-chamado-ti">
+          <style>{`
+            @media print {
+              .print-chamado-ti {
+                font-family: 'Inter', sans-serif;
+                color: #1a1a1a;
+                font-size: 11px;
+                line-height: 1.5;
+              }
+              .print-chamado-ti .print-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 3px solid #ef4444;
+                padding-bottom: 12px;
+                margin-bottom: 20px;
+              }
+              .print-chamado-ti .print-header img {
+                height: 44px;
+              }
+              .print-chamado-ti .print-title {
+                text-align: right;
+              }
+              .print-chamado-ti .print-title h1 {
+                font-size: 18px;
+                font-weight: 700;
+                color: #ef4444;
+                margin: 0;
+              }
+              .print-chamado-ti .print-title p {
+                font-size: 11px;
+                color: #666;
+                margin: 2px 0 0;
+              }
+              .print-chamado-ti .print-section {
+                margin-bottom: 16px;
+              }
+              .print-chamado-ti .print-section-title {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #ef4444;
+                border-bottom: 1px solid #e5e5e5;
+                padding-bottom: 4px;
+                margin-bottom: 8px;
+              }
+              .print-chamado-ti .print-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px 24px;
+              }
+              .print-chamado-ti .print-field {
+                display: flex;
+                gap: 6px;
+              }
+              .print-chamado-ti .print-field-label {
+                font-weight: 600;
+                color: #555;
+                white-space: nowrap;
+                min-width: 100px;
+              }
+              .print-chamado-ti .print-field-value {
+                color: #1a1a1a;
+              }
+              .print-chamado-ti .print-obs {
+                background: #fafafa;
+                border: 1px solid #e5e5e5;
+                border-radius: 6px;
+                padding: 10px 14px;
+                white-space: pre-wrap;
+                font-size: 11px;
+              }
+              .print-chamado-ti .print-andamento {
+                border-left: 3px solid #e5e5e5;
+                padding: 6px 0 6px 12px;
+                margin-bottom: 8px;
+              }
+              .print-chamado-ti .print-andamento-date {
+                font-size: 9px;
+                color: #999;
+              }
+              .print-chamado-ti .print-footer {
+                margin-top: 30px;
+                border-top: 1px solid #e5e5e5;
+                padding-top: 8px;
+                font-size: 9px;
+                color: #999;
+                text-align: center;
+              }
+              .print-chamado-ti .print-status-badge {
+                display: inline-block;
+                padding: 2px 10px;
+                border-radius: 12px;
+                font-size: 10px;
+                font-weight: 600;
+              }
+              .print-chamado-ti .print-status-pendente { background: #fef3c7; color: #92400e; }
+              .print-chamado-ti .print-status-resolvido { background: #d1fae5; color: #065f46; }
+              .print-chamado-ti .print-status-cancelado { background: #fee2e2; color: #991b1b; }
+              .print-chamado-ti .print-status-aguardando_diretoria { background: #ede9fe; color: #5b21b6; }
+            }
+          `}</style>
+
+          <div className="print-header">
+            <img src={octarteLogo} alt="Octarte" />
+            <div className="print-title">
+              <h1>Chamado de TI</h1>
+              <p>#{chamado.id.slice(0, 8).toUpperCase()} • {new Date(chamado.criadoEm).toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+
+          <div className="print-section">
+            <div className="print-section-title">Informações do Chamado</div>
+            <div className="print-grid">
+              <div className="print-field">
+                <span className="print-field-label">Status:</span>
+                <span className={`print-status-badge print-status-${chamado.status}`}>{st.label}</span>
+              </div>
+              <div className="print-field">
+                <span className="print-field-label">Urgência:</span>
+                <span className="print-field-value">{urg.label}</span>
+              </div>
+              <div className="print-field">
+                <span className="print-field-label">Solicitante:</span>
+                <span className="print-field-value">{chamado.solicitanteNome}</span>
+              </div>
+              <div className="print-field">
+                <span className="print-field-label">Departamento:</span>
+                <span className="print-field-value">{chamado.departamento}</span>
+              </div>
+              <div className="print-field">
+                <span className="print-field-label">Data:</span>
+                <span className="print-field-value">{new Date(chamado.criadoEm).toLocaleString("pt-BR")}</span>
+              </div>
+              <div className="print-field">
+                <span className="print-field-label">Categoria:</span>
+                <span className="print-field-value">{chamado.categoria}</span>
+              </div>
+              {chamado.subOpcoes.length > 0 && (
+                <div className="print-field" style={{ gridColumn: "1 / -1" }}>
+                  <span className="print-field-label">Detalhes:</span>
+                  <span className="print-field-value">{chamado.subOpcoes.join(", ")}</span>
+                </div>
+              )}
+              {chamado.siteEspecifico && (
+                <div className="print-field">
+                  <span className="print-field-label">Site Específico:</span>
+                  <span className="print-field-value">{chamado.siteEspecifico}</span>
+                </div>
+              )}
+              {chamado.siteSuspeito && (
+                <div className="print-field">
+                  <span className="print-field-label">Site Suspeito:</span>
+                  <span className="print-field-value">{chamado.siteSuspeito}</span>
+                </div>
+              )}
+              {chamado.novoColaborador && (
+                <div className="print-field">
+                  <span className="print-field-label">Novo Colaborador:</span>
+                  <span className="print-field-value">{chamado.novoColaborador}</span>
+                </div>
+              )}
+              {chamado.anydesk && (
+                <div className="print-field">
+                  <span className="print-field-label">AnyDesk:</span>
+                  <span className="print-field-value" style={{ fontFamily: "monospace" }}>{chamado.anydesk}</span>
+                </div>
+              )}
+              {chamado.aprovadoGestor && isTI && (
+                <div className="print-field">
+                  <span className="print-field-label">Aprovado Gestor:</span>
+                  <span className="print-field-value">{chamado.aprovadoGestor === "sim" ? "Sim" : "Não"}</span>
+                </div>
+              )}
+              {chamado.resultadoAprovacao && isTI && (
+                <div className="print-field">
+                  <span className="print-field-label">Aprovação Diretoria:</span>
+                  <span className="print-field-value">{chamado.resultadoAprovacao === "aprovado" ? "Aprovado" : "Reprovado"}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {chamado.observacoes && (
+            <div className="print-section">
+              <div className="print-section-title">Observações</div>
+              <div className="print-obs">{chamado.observacoes}</div>
+            </div>
+          )}
+
+          {(() => {
+            const printAndamentos = isTI ? andamentos : andamentos.filter(a => !a.texto?.startsWith("[Diretoria]"));
+            return printAndamentos.length > 0 && (
+              <div className="print-section">
+                <div className="print-section-title">Andamentos ({printAndamentos.length})</div>
+                {printAndamentos.map((a) => (
+                  <div key={a.id} className="print-andamento">
+                    <div>{a.texto}</div>
+                    <div className="print-andamento-date">{new Date(a.created_at).toLocaleString("pt-BR")}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          <div className="print-footer">
+            Octarte Engenharia • Chamado #{chamado.id.slice(0, 8).toUpperCase()} • Impresso em {new Date().toLocaleString("pt-BR")}
+          </div>
         </div>
       </div>
     </AppLayout>
