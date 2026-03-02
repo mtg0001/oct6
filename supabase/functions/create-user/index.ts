@@ -53,21 +53,38 @@ Deno.serve(async (req) => {
       resolveCs, podeUsarChat, podeAbrirChamado,
     } = await req.json();
 
-    if (!username || !password) {
+    if (!username || !password || typeof username !== "string" || typeof password !== "string") {
       return new Response(JSON.stringify({ error: "Usuário e senha são obrigatórios" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    // Sanitize username: only allow alphanumeric and dots, max 50 chars
+    const sanitizedUsername = username.replace(/[^a-zA-Z0-9.]/g, "").substring(0, 50);
+    if (!sanitizedUsername || sanitizedUsername.length < 3) {
+      return new Response(JSON.stringify({ error: "Nome de usuário inválido (mín. 3 caracteres alfanuméricos)" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate nome length
+    if (nome && typeof nome === "string" && nome.length > 200) {
+      return new Response(JSON.stringify({ error: "Nome excede o limite de caracteres" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (password.length < 8 || password.length > 100 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
       return new Response(JSON.stringify({ error: "Senha não atende aos requisitos de complexidade" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const authEmail = `${username}@octarte.com.br`;
+    const authEmail = `${sanitizedUsername}@octarte.com.br`;
 
     const { data: newUser, error: createErr } = await adminClient.auth.admin.createUser({
       email: authEmail,
@@ -77,7 +94,11 @@ Deno.serve(async (req) => {
     });
 
     if (createErr) {
-      return new Response(JSON.stringify({ error: createErr.message }), {
+      console.error("Auth createUser error:", createErr.message);
+      const safeMsg = createErr.message?.includes("already been registered")
+        ? "Usuário já existe"
+        : "Erro ao criar usuário";
+      return new Response(JSON.stringify({ error: safeMsg }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -173,7 +194,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("create-user error:", err);
+    return new Response(JSON.stringify({ error: "Erro ao processar solicitação" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

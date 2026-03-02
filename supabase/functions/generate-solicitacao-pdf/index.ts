@@ -559,7 +559,7 @@ Deno.serve(async (req) => {
   } catch (err) {
     console.error("PDF generation error:", err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: "Erro ao gerar PDF da solicitação" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
