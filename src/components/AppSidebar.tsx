@@ -233,7 +233,7 @@ export function AppSidebar() {
     }
 
     // Tecnologia da Informação - same permission as "Abrir Chamado TI"
-    if (isAdmin || u?.podeAbrirChamado) {
+    if (isAdmin) {
       items.push({
         title: "Tecnologia da Informação",
         icon: Monitor,
