@@ -477,96 +477,46 @@ export default function ChamadoTIDetalhe() {
               .print-chamado-ti {
                 font-family: 'Inter', sans-serif;
                 color: #1a1a1a;
-                font-size: 11px;
-                line-height: 1.5;
+                font-size: 9px;
+                line-height: 1.3;
               }
               .print-chamado-ti .print-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 3px solid #ef4444;
-                padding-bottom: 12px;
-                margin-bottom: 20px;
-              }
-              .print-chamado-ti .print-header img {
-                height: 44px;
-              }
-              .print-chamado-ti .print-title {
-                text-align: right;
-              }
-              .print-chamado-ti .print-title h1 {
-                font-size: 18px;
-                font-weight: 700;
-                color: #ef4444;
-                margin: 0;
-              }
-              .print-chamado-ti .print-title p {
-                font-size: 11px;
-                color: #666;
-                margin: 2px 0 0;
-              }
-              .print-chamado-ti .print-section {
-                margin-bottom: 16px;
-              }
-              .print-chamado-ti .print-section-title {
-                font-size: 10px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                color: #ef4444;
-                border-bottom: 1px solid #e5e5e5;
-                padding-bottom: 4px;
+                border-bottom: 2px solid #ef4444;
+                padding-bottom: 6px;
                 margin-bottom: 8px;
+              }
+              .print-chamado-ti .print-header img { height: 30px; }
+              .print-chamado-ti .print-title { text-align: right; }
+              .print-chamado-ti .print-title h1 { font-size: 13px; font-weight: 700; color: #ef4444; margin: 0; }
+              .print-chamado-ti .print-title p { font-size: 9px; color: #666; margin: 1px 0 0; }
+              .print-chamado-ti .print-section { margin-bottom: 6px; }
+              .print-chamado-ti .print-section-title {
+                font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+                color: #ef4444; border-bottom: 1px solid #e5e5e5; padding-bottom: 2px; margin-bottom: 4px;
               }
               .print-chamado-ti .print-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 6px 24px;
+                display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px 12px;
               }
-              .print-chamado-ti .print-field {
-                display: flex;
-                gap: 6px;
-              }
-              .print-chamado-ti .print-field-label {
-                font-weight: 600;
-                color: #555;
-                white-space: nowrap;
-                min-width: 100px;
-              }
-              .print-chamado-ti .print-field-value {
-                color: #1a1a1a;
-              }
+              .print-chamado-ti .print-field { display: flex; gap: 4px; }
+              .print-chamado-ti .print-field-label { font-weight: 600; color: #555; white-space: nowrap; }
+              .print-chamado-ti .print-field-value { color: #1a1a1a; }
               .print-chamado-ti .print-obs {
-                background: #fafafa;
-                border: 1px solid #e5e5e5;
-                border-radius: 6px;
-                padding: 10px 14px;
-                white-space: pre-wrap;
-                font-size: 11px;
+                background: #fafafa; border: 1px solid #e5e5e5; border-radius: 4px;
+                padding: 4px 8px; white-space: pre-wrap; font-size: 9px;
               }
               .print-chamado-ti .print-andamento {
-                border-left: 3px solid #e5e5e5;
-                padding: 6px 0 6px 12px;
-                margin-bottom: 8px;
+                border-left: 2px solid #e5e5e5; padding: 2px 0 2px 8px; margin-bottom: 4px;
               }
-              .print-chamado-ti .print-andamento-date {
-                font-size: 9px;
-                color: #999;
-              }
+              .print-chamado-ti .print-andamento-date { font-size: 8px; color: #999; }
               .print-chamado-ti .print-footer {
-                margin-top: 30px;
-                border-top: 1px solid #e5e5e5;
-                padding-top: 8px;
-                font-size: 9px;
-                color: #999;
-                text-align: center;
+                margin-top: 10px; border-top: 1px solid #e5e5e5; padding-top: 4px;
+                font-size: 8px; color: #999; text-align: center;
               }
               .print-chamado-ti .print-status-badge {
-                display: inline-block;
-                padding: 2px 10px;
-                border-radius: 12px;
-                font-size: 10px;
-                font-weight: 600;
+                display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 8px; font-weight: 600;
               }
               .print-chamado-ti .print-status-pendente { background: #fef3c7; color: #92400e; }
               .print-chamado-ti .print-status-resolvido { background: #d1fae5; color: #065f46; }
