@@ -448,7 +448,7 @@ export default function ChamadoTINovo() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar"
                   multiple
                   className="hidden"
                   onChange={handleFileChange}
