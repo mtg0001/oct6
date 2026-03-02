@@ -1,24 +1,41 @@
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacoesExcluidas } from "@/hooks/useSolicitacoes";
 import { useCurrentUser } from "@/hooks/useUsuarios";
-import { restaurarSolicitacao, loadSolicitacoesExcluidas } from "@/stores/solicitacoesStore";
+import { restaurarSolicitacao, loadSolicitacoesExcluidas, esvaziarLixeira } from "@/stores/solicitacoesStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { siglaUnidade } from "@/lib/utils";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Lixeira = () => {
   const currentUser = useCurrentUser();
   const solicitacoes = useSolicitacoesExcluidas();
   const [busca, setBusca] = useState("");
   const [restoring, setRestoring] = useState<string | null>(null);
+  const [emptying, setEmptying] = useState(false);
 
   const canDelete = currentUser?.podeExcluirChamado || false;
+
+  const handleEmptyTrash = async () => {
+    setEmptying(true);
+    try {
+      await esvaziarLixeira();
+      toast.success("Lixeira esvaziada com sucesso!");
+    } catch (err: any) {
+      toast.error("Erro ao esvaziar lixeira: " + err.message);
+    } finally {
+      setEmptying(false);
+    }
+  };
 
   const filtered = solicitacoes
     .filter(
@@ -73,6 +90,30 @@ const Lixeira = () => {
           onChange={(e) => setBusca(e.target.value)}
           className="max-w-xs"
         />
+        {canDelete && solicitacoes.length > 0 && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size="sm" variant="destructive" className="gap-1" disabled={emptying}>
+                {emptying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                {emptying ? "Esvaziando..." : "Esvaziar Lixeira"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Esvaziar lixeira?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Essa ação é irreversível. Todos os <strong>{solicitacoes.length}</strong> chamado(s) na lixeira serão removidos permanentemente do banco de dados.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleEmptyTrash} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Esvaziar permanentemente
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
 
       <p className="text-sm text-muted-foreground mb-3">{filtered.length} registro(s)</p>
