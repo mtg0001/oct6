@@ -1,6 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
+ * Map URL-style unidade slugs to the proper SharePoint folder names.
+ */
+const UNIDADE_SHAREPOINT_MAP: Record<string, string> = {
+  goiania: "Goiânia",
+  mairipora: "Mairiporã",
+  pinheiros: "Pinheiros",
+};
+
+export function toSharePointUnidade(unidade: string): string {
+  return UNIDADE_SHAREPOINT_MAP[unidade] || unidade;
+}
+
+/**
  * Returns today's date as ddMMyyyy string.
  */
 export function getDateFolder(): string {
@@ -24,7 +37,7 @@ export async function getNextSequentialFolder(
     const { data, error } = await supabase.functions.invoke("sharepoint-manager", {
       body: {
         action: "get-next-date-folder",
-        unidade,
+        unidade: toSharePointUnidade(unidade),
         servico,
         userName,
       },
@@ -142,7 +155,7 @@ export async function uploadAttachmentToSharePoint({
     const { data, error } = await supabase.functions.invoke("sharepoint-manager", {
       body: {
         action: "upload-file",
-        unidade,
+        unidade: toSharePointUnidade(unidade),
         servico,
         userName,
         fileName: file.name,
@@ -186,7 +199,7 @@ export async function getSharePointDownloadLink({
       actualFileName = fileName.substring(slashIdx + 1);
     }
 
-    const basePath = `${getRootFolder()}/${unidade}/${servico}/${userName}`;
+    const basePath = `${getRootFolder()}/${toSharePointUnidade(unidade)}/${servico}/${userName}`;
     const filePath = datePart
       ? `${basePath}/${datePart}/${actualFileName}`
       : `${basePath}/${actualFileName}`;
