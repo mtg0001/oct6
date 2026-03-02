@@ -198,16 +198,14 @@ export function getSolicitacoesRH(status?: string) {
 
 export function getSolicitacoesCS(status?: string) {
   return solicitacoes.filter((s) => {
-    const inCSQueue = s.setorAtual === 'cs';
+    const isCSByTipo = s.tipo === 'CS' || s.tipo === 'CAD';
+    const inCSQueue = s.setorAtual === 'cs' || (isCSByTipo && s.setorAtual === '');
     return status ? inCSQueue && s.status === status : inCSQueue;
   });
 }
 
 export function getSolicitacoesCAD(status?: string) {
-  return solicitacoes.filter((s) => {
-    const isCAD = s.tipo === 'CAD' || s.tipo === 'CS';
-    return status ? isCAD && s.status === status : isCAD;
-  });
+  return getSolicitacoesCS(status);
 }
 export function getSolicitacoesByUser(userId: string, status?: string) {
   return solicitacoes.filter((s) => {
@@ -239,7 +237,8 @@ export function getTotaisPorUnidadeEStatus(unidade: string) {
 // Mutations
 export async function addSolicitacao(sol: Omit<SolicitacaoColaborador, "id" | "dataCriacao" | "status" | "andamentos" | "setorAtual"> & { setorAtual?: string }) {
   const dbRow = toDbInsert(sol);
-  if (sol.setorAtual) dbRow.setor_atual = sol.setorAtual;
+  const setorAtualPadrao = (sol.tipo === "CS" || sol.tipo === "CAD") ? "cs" : undefined;
+  if (sol.setorAtual || setorAtualPadrao) dbRow.setor_atual = sol.setorAtual || setorAtualPadrao;
   const { data, error } = await supabase.from("solicitacoes").insert([dbRow] as any).select().single();
   if (error) throw error;
   const nova = mapSolRow(data, []);

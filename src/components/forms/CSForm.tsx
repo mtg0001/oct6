@@ -243,6 +243,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
 
       await addSolicitacao({
         tipo: "CS",
+        setorAtual: "cs",
         solicitanteId: currentUser?.id || "",
         unidade,
         evento,
