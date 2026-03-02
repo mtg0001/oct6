@@ -15,6 +15,7 @@ import MateriaisForm from "@/components/forms/MateriaisForm";
 import EquipamentosTIForm from "@/components/forms/EquipamentosTIForm";
 import NegociacaoMaoDeObraForm from "@/components/forms/NegociacaoMaoDeObraForm";
 import ManutencaoPredialForm from "@/components/forms/ManutencaoPredialForm";
+import CSForm from "@/components/forms/CSForm";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import {
   Sparkles,
@@ -196,7 +197,7 @@ const NovaSolicitacao = () => {
       <NegociacaoMaoDeObraForm open={negociacaoOpen} onOpenChange={setNegociacaoOpen} unidade={unidade || "goiania"} />
       <FreteForm open={freteOpen} onOpenChange={setFreteOpen} unidade={unidade || "goiania"} />
       <ManutencaoPredialForm open={manutencaoOpen} onOpenChange={setManutencaoOpen} unidade={unidade || "goiania"} />
-      <MateriaisForm open={cadOpen} onOpenChange={setCadOpen} unidade={unidade || "goiania"} tipo="CAD" />
+      <CSForm open={cadOpen} onOpenChange={setCadOpen} unidade={unidade || "goiania"} />
     </AppLayout>
   );
 };
