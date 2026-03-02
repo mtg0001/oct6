@@ -44,6 +44,31 @@ function getRootFolder(): string {
   return Deno.env.get("SHAREPOINT_ROOT_FOLDER")!;
 }
 
+function normalizeSharePointKey(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
+const UNIDADE_SHAREPOINT_MAP: Record<string, string> = {
+  goiania: "Goiânia",
+  mairipora: "Mairiporã",
+  pinheiros: "Pinheiros",
+};
+
+const SERVICO_SHAREPOINT_MAP: Record<string, string> = {
+  "chamados ti": "Chamados TI",
+  "materiais (expedicao)": "Materiais (Expedição)",
+};
+
+function toSharePointUnidade(unidade: string): string {
+  const normalized = normalizeSharePointKey(unidade);
+  return UNIDADE_SHAREPOINT_MAP[normalized] || unidade;
+}
+
+function toSharePointServico(servico: string): string {
+  const normalized = normalizeSharePointKey(servico);
+  return SERVICO_SHAREPOINT_MAP[normalized] || servico;
+}
+
 async function getSiteId(token: string): Promise<string> {
   const siteUrl = getSiteUrl();
   const parts = siteUrl.replace(/^https?:\/\//, "").split("/");
@@ -236,7 +261,9 @@ Deno.serve(async (req) => {
       }
 
       // Ensure user folder exists
-      const parentPath = `${rootFolder}/${unidade}/${servico}`;
+      const unidadeSharePoint = toSharePointUnidade(unidade);
+      const servicoSharePoint = toSharePointServico(servico);
+      const parentPath = `${rootFolder}/${unidadeSharePoint}/${servicoSharePoint}`;
       await createFolder(token, driveId, parentPath, userName);
 
       const userPath = `${parentPath}/${userName}`;
@@ -262,9 +289,11 @@ Deno.serve(async (req) => {
 
       for (const unidade of unidades) {
         for (const servico of servicos) {
-          const parentPath = `${rootFolder}/${unidade}/${servico}`;
+          const unidadeSharePoint = toSharePointUnidade(unidade);
+          const servicoSharePoint = toSharePointServico(servico);
+          const parentPath = `${rootFolder}/${unidadeSharePoint}/${servicoSharePoint}`;
           const result = await createFolder(token, driveId, parentPath, userName);
-          results.push({ unidade, servico, userName, result });
+          results.push({ unidade: unidadeSharePoint, servico: servicoSharePoint, userName, result });
         }
       }
 
@@ -283,7 +312,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      const parentPath = `${rootFolder}/${unidade}/${servico}`;
+      const parentPath = `${rootFolder}/${toSharePointUnidade(unidade)}/${toSharePointServico(servico)}`;
       // Create user folder (parent path is fixed/pre-existing)
       await createFolder(token, driveId, parentPath, userName);
 

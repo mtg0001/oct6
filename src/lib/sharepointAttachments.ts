@@ -1,6 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
+ * Normalize SharePoint keys to avoid duplicates by casing/accents.
+ */
+function normalizeSharePointKey(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+}
+
+/**
  * Map URL-style unidade slugs to the proper SharePoint folder names.
  */
 const UNIDADE_SHAREPOINT_MAP: Record<string, string> = {
@@ -9,8 +16,22 @@ const UNIDADE_SHAREPOINT_MAP: Record<string, string> = {
   pinheiros: "Pinheiros",
 };
 
+/**
+ * Map service variants to canonical SharePoint folder names.
+ */
+const SERVICO_SHAREPOINT_MAP: Record<string, string> = {
+  "chamados ti": "Chamados TI",
+  "materiais (expedicao)": "Materiais (Expedição)",
+};
+
 export function toSharePointUnidade(unidade: string): string {
-  return UNIDADE_SHAREPOINT_MAP[unidade] || unidade;
+  const normalized = normalizeSharePointKey(unidade);
+  return UNIDADE_SHAREPOINT_MAP[normalized] || unidade;
+}
+
+export function toSharePointServico(servico: string): string {
+  const normalized = normalizeSharePointKey(servico);
+  return SERVICO_SHAREPOINT_MAP[normalized] || servico;
 }
 
 /**
@@ -38,7 +59,7 @@ export async function getNextSequentialFolder(
       body: {
         action: "get-next-date-folder",
         unidade: toSharePointUnidade(unidade),
-        servico,
+        servico: toSharePointServico(servico),
         userName,
       },
     });
@@ -156,7 +177,7 @@ export async function uploadAttachmentToSharePoint({
       body: {
         action: "upload-file",
         unidade: toSharePointUnidade(unidade),
-        servico,
+        servico: toSharePointServico(servico),
         userName,
         fileName: file.name,
         fileBase64,
@@ -199,7 +220,7 @@ export async function getSharePointDownloadLink({
       actualFileName = fileName.substring(slashIdx + 1);
     }
 
-    const basePath = `${getRootFolder()}/${toSharePointUnidade(unidade)}/${servico}/${userName}`;
+    const basePath = `${getRootFolder()}/${toSharePointUnidade(unidade)}/${toSharePointServico(servico)}/${userName}`;
     const filePath = datePart
       ? `${basePath}/${datePart}/${actualFileName}`
       : `${basePath}/${actualFileName}`;
