@@ -410,7 +410,7 @@ export type Database = {
           nome: string
           nova_solicitacao_unidades: string[]
           pode_excluir_chamado: boolean
-          pode_ver_cad: boolean
+          pode_usar_chat: boolean
           pode_ver_lixeira: boolean
           resolve_cs: boolean
           resolve_expedicao_go: boolean
@@ -438,7 +438,7 @@ export type Database = {
           nome: string
           nova_solicitacao_unidades?: string[]
           pode_excluir_chamado?: boolean
-          pode_ver_cad?: boolean
+          pode_usar_chat?: boolean
           pode_ver_lixeira?: boolean
           resolve_cs?: boolean
           resolve_expedicao_go?: boolean
@@ -466,7 +466,7 @@ export type Database = {
           nome?: string
           nova_solicitacao_unidades?: string[]
           pode_excluir_chamado?: boolean
-          pode_ver_cad?: boolean
+          pode_usar_chat?: boolean
           pode_ver_lixeira?: boolean
           resolve_cs?: boolean
           resolve_expedicao_go?: boolean

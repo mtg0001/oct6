@@ -55,7 +55,7 @@ const emptyForm = {
   podeExcluirChamado: false,
   podeVerLixeira: false,
   resolveCs: false,
-  podeVerCad: false,
+  podeUsarChat: true,
 };
 
 function validatePassword(pw: string) {
@@ -101,7 +101,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         podeExcluirChamado: usuario.podeExcluirChamado || false,
         podeVerLixeira: usuario.podeVerLixeira || false,
         resolveCs: usuario.resolveCs || false,
-        podeVerCad: usuario.podeVerCad || false,
+        podeUsarChat: usuario.podeUsarChat !== false,
       });
       setUsername("");
       setPassword("");
@@ -147,7 +147,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           podeExcluirChamado: form.podeExcluirChamado,
           podeVerLixeira: form.podeVerLixeira,
           resolveCs: form.resolveCs,
-          podeVerCad: form.podeVerCad,
+          podeUsarChat: form.podeUsarChat,
         };
         await updateUsuario(usuario.id, data);
 
@@ -215,7 +215,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
             podeExcluirChamado: form.podeExcluirChamado,
             podeVerLixeira: form.podeVerLixeira,
             resolveCs: form.resolveCs,
-            podeVerCad: form.podeVerCad,
+            podeUsarChat: form.podeUsarChat,
           },
         });
 
@@ -400,7 +400,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 <RadioRow label="Resolve Solicitações Recursos Humanos GO:" checked={form.resolveRecursosHumanosGo} onChange={(v) => setForm({ ...form, resolveRecursosHumanosGo: v })} />
                 <RadioRow label="Resolve Solicitações Recursos Humanos SP:" checked={form.resolveRecursosHumanosSp} onChange={(v) => setForm({ ...form, resolveRecursosHumanosSp: v })} />
                 <RadioRow label="Resolve Solicitações CS:" checked={form.resolveCs} onChange={(v) => setForm({ ...form, resolveCs: v })} />
-                <RadioRow label="Pode ver CAD:" checked={form.podeVerCad} onChange={(v) => setForm({ ...form, podeVerCad: v })} />
+                <RadioRow label="Pode usar o Chat:" checked={form.podeUsarChat} onChange={(v) => setForm({ ...form, podeUsarChat: v })} />
               </div>
 
               {/* Visualiza Todas Solicitações */}
