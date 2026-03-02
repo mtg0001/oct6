@@ -300,7 +300,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
         <Input value={value} onChange={onChange} placeholder="dd/mm/aaaa" maxLength={10} inputMode="numeric" className="pr-10" />
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
-            <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+            <button type="button" tabIndex={-1} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
               <CalendarIcon className="h-4 w-4" />
             </button>
           </PopoverTrigger>

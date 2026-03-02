@@ -268,7 +268,7 @@ const FreteForm = ({ open, onOpenChange, unidade }: FreteFormProps) => {
         />
         <Popover open={calOpen} onOpenChange={setCalOpen}>
           <PopoverTrigger asChild>
-            <button type="button" className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <button type="button" tabIndex={-1} className="shrink-0 p-2 text-muted-foreground hover:text-foreground transition-colors">
               <CalendarIcon className="h-4 w-4" />
             </button>
           </PopoverTrigger>

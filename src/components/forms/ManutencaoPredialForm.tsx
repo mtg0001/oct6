@@ -259,7 +259,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
                         onOpenChange={(v) => setCalOpenMap((p) => ({ ...p, [s.id]: v }))}
                       >
                         <PopoverTrigger asChild>
-                          <Button type="button" variant="outline" size="icon" className="shrink-0">
+                          <Button type="button" variant="outline" size="icon" className="shrink-0" tabIndex={-1}>
                             <CalendarIcon className="h-4 w-4" />
                           </Button>
                         </PopoverTrigger>

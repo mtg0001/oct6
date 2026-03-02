@@ -255,24 +255,32 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
     label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     calendarOpen: boolean; setCalendarOpen: (o: boolean) => void; calendarDate: Date | undefined;
     onCalendarSelect: (d: Date | undefined) => void;
-  }) => (
-    <div>
-      <Label className="text-xs font-bold">{label}</Label>
-      <div className="relative mt-1">
-        <Input value={value} onChange={onChange} placeholder="dd/mm/aaaa" maxLength={10} inputMode="numeric" className="pr-10" />
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
-            <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-              <CalendarIcon className="h-4 w-4" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar mode="single" selected={calendarDate} onSelect={onCalendarSelect} locale={ptBR} className={cn("p-3 pointer-events-auto")} />
-          </PopoverContent>
-        </Popover>
+  }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(e);
+      // Restore focus after mask applies
+      requestAnimationFrame(() => inputRef.current?.focus());
+    };
+    return (
+      <div>
+        <Label className="text-xs font-bold">{label}</Label>
+        <div className="relative mt-1">
+          <Input ref={inputRef} value={value} onChange={handleChange} placeholder="dd/mm/aaaa" maxLength={10} inputMode="numeric" className="pr-10" />
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen} modal>
+            <PopoverTrigger asChild>
+              <button type="button" tabIndex={-1} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <CalendarIcon className="h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar mode="single" selected={calendarDate} onSelect={onCalendarSelect} locale={ptBR} className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
