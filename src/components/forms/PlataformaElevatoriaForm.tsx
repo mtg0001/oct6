@@ -80,6 +80,7 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const updateItem = (id: number, updates: Partial<PlataformaItem>) => {
     setItens((prev) => prev.map((it) => (it.id === id ? { ...it, ...updates } : it)));
@@ -163,6 +164,7 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
       return `${prefix}Tipos: ${it.tiposSelecionados.join(", ")} | Entrega: ${it.dataEntrega} | Retirada: ${it.dataRetirada}`;
     });
 
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -206,13 +208,15 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Plataforma Elevatória", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Plataforma Elevatória", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Plataforma Elevatória enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -345,7 +349,7 @@ const PlataformaElevatoriaForm = ({ open, onOpenChange, unidade }: PlataformaEle
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-1">
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>Cancelar</Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

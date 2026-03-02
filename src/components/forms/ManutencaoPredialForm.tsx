@@ -63,6 +63,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
   const [servicos, setServicos] = useState<ServicoItem[]>([{ id: nextId++, tipoServico: "", dataExecucao: "" }]);
   const [observacoes, setObservacoes] = useState("");
   const [anexoNome, setAnexoNome] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Calendar popover state per service
@@ -133,6 +134,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
       .map((s, i) => `Serviço ${i + 1}: ${s.tipoServico} | Melhor data: ${s.dataExecucao}`)
       .join("\n");
 
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -168,13 +170,15 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
         caracteristicas: {},
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Manutenção Predial", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Manutenção Predial", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch {
       toast({ title: "Erro ao enviar solicitação", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -334,7 +338,7 @@ const ManutencaoPredialForm = ({ open, onOpenChange, unidade }: ManutencaoPredia
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

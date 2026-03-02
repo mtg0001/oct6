@@ -74,6 +74,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // ── handlers ──
   const handleEntregaInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +127,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -169,13 +171,15 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Aluguel de Banheiro", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Aluguel de Banheiro", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Aluguel de Banheiro enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -431,7 +435,7 @@ const AluguelBanheiroForm = ({ open, onOpenChange, unidade }: AluguelBanheiroFor
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>
