@@ -451,7 +451,7 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
             <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">Anexos e Observações</legend>
             <div className="mt-3 space-y-4">
               <div>
-                <Label className="text-xs font-bold">Anexar Documento (PDF)</Label>
+                <Label className="text-xs font-bold">Anexar Documento</Label>
                 <div
                   className={cn(
                     "mt-1 flex items-center gap-3 border border-input rounded-md px-3 py-2 cursor-pointer hover:bg-muted/50 transition-colors",
@@ -473,8 +473,8 @@ const HospedagemForm = ({ open, onOpenChange, unidade }: HospedagemFormProps) =>
                     </button>
                   )}
                 </div>
-                <input ref={fileInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
-                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo em PDF.</p>
+                <input ref={fileInputRef} type="file" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar" className="hidden" onChange={handleFileChange} />
+                <p className="text-xs text-muted-foreground mt-1">Quando necessário, anexe um arquivo.</p>
               </div>
               <div>
                 <Label className="text-xs font-bold">Observações</Label>
