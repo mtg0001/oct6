@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
 import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import {
@@ -56,6 +57,7 @@ const SolicitacaoServico = () => {
   const [textoAndamento, setTextoAndamento] = useState("");
   const [anexoNomes, setAnexoNomes] = useState<string[]>([]);
   const [anexoFiles, setAnexoFiles] = useState<File[]>([]);
+  const [sendingAndamento, setSendingAndamento] = useState(false);
   const [downloadingAnexo, setDownloadingAnexo] = useState(false);
 
   if (!sol) {
@@ -81,24 +83,32 @@ const SolicitacaoServico = () => {
   const hasAnexo = !!parsed["Anexo"];
 
   const handleEnviarAndamento = async () => {
-    if (!textoAndamento.trim()) return;
-    const nome = currentUser?.nome || "Usuário";
-    const textoComNome = `[${nome}] ${textoAndamento}`;
-    const storageUserName = sol.solicitante || nome;
-    let dateFolder = resolveExistingDateFolder([
-      sol.justificativa,
-      sol.caracteristicas,
-      ...sol.andamentos.flatMap((a) => a.anexos || []),
-    ]);
-    if (!dateFolder && anexoFiles.length > 0) {
-      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, storageUserName);
+    if (!textoAndamento.trim() || sendingAndamento) return;
+    setSendingAndamento(true);
+    try {
+      const nome = currentUser?.nome || "Usuário";
+      const textoComNome = `[${nome}] ${textoAndamento}`;
+      const storageUserName = sol.solicitante || nome;
+      let dateFolder = resolveExistingDateFolder([
+        sol.justificativa,
+        sol.caracteristicas,
+        ...sol.andamentos.flatMap((a) => a.anexos || []),
+      ]);
+      if (!dateFolder && anexoFiles.length > 0) {
+        dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, storageUserName);
+      }
+      const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
+      for (const file of anexoFiles) {
+        await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: storageUserName, datePasta: dateFolder });
+      }
+      await addAndamento(sol.id, textoComNome, storedNomes);
+      setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
+      toast.success("Andamento salvo com sucesso!");
+    } catch {
+      toast.error("Erro ao salvar andamento");
+    } finally {
+      setSendingAndamento(false);
     }
-    const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
-    for (const file of anexoFiles) {
-      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: storageUserName, datePasta: dateFolder });
-    }
-    await addAndamento(sol.id, textoComNome, storedNomes);
-    setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -588,7 +598,9 @@ const SolicitacaoServico = () => {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={handleEnviarAndamento}>Salvar Andamento</Button>
+                    <Button size="sm" onClick={handleEnviarAndamento} disabled={sendingAndamento || !textoAndamento.trim()}>
+                      {sendingAndamento ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Salvando andamento...</> : "Salvar Andamento"}
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => { setShowAndamento(false); setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); }}>Cancelar</Button>
                   </div>
                 </div>
