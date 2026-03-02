@@ -248,7 +248,7 @@ export default function ChamadoTIDetalhe() {
                 {chamado.siteSuspeito}
               </InfoRow>
             )}
-            {chamado.aprovadoGestor && (
+            {chamado.aprovadoGestor && isTI && (
               <InfoRow icon={<CheckCircle2 className="h-4 w-4" />} label="Aprovado pelo Gestor">
                 {chamado.aprovadoGestor === "sim" ? "Sim" : "Não"}
               </InfoRow>
@@ -258,7 +258,7 @@ export default function ChamadoTIDetalhe() {
                 {chamado.novoColaborador}
               </InfoRow>
             )}
-            {chamado.resultadoAprovacao && (
+            {chamado.resultadoAprovacao && isTI && (
               <InfoRow icon={<CheckCircle2 className="h-4 w-4" />} label="Aprovação Diretoria">
                 <Badge variant="outline" className={`text-xs font-semibold ${chamado.resultadoAprovacao === "aprovado" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"}`}>
                   {chamado.resultadoAprovacao === "aprovado" ? "Aprovado" : "Reprovado"}
@@ -308,29 +308,32 @@ export default function ChamadoTIDetalhe() {
         )}
 
         {/* Andamentos */}
-        {andamentos.length > 0 && (
-          <Card className="mb-5 shadow-sm">
-            <div className="px-5 py-4">
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Andamentos</h2>
-                <Badge variant="secondary" className="text-xs h-5 px-1.5">{andamentos.length}</Badge>
+        {(() => {
+          const filteredAndamentos = isTI ? andamentos : andamentos.filter(a => !a.texto?.startsWith("[Diretoria]"));
+          return filteredAndamentos.length > 0 && (
+            <Card className="mb-5 shadow-sm">
+              <div className="px-5 py-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Andamentos</h2>
+                  <Badge variant="secondary" className="text-xs h-5 px-1.5">{filteredAndamentos.length}</Badge>
+                </div>
+                <div className="space-y-3">
+                  {filteredAndamentos.map((a) => (
+                    <AndamentoBubble
+                      key={a.id}
+                      texto={a.texto}
+                      data={new Date(a.created_at).toLocaleString("pt-BR")}
+                      anexos={a.anexos}
+                      unidade={chamado?.departamento || "ti"}
+                      servico="Chamados TI"
+                      userName={chamado?.solicitanteNome || nomeUsuario}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="space-y-3">
-                {andamentos.map((a) => (
-                  <AndamentoBubble
-                    key={a.id}
-                    texto={a.texto}
-                    data={new Date(a.created_at).toLocaleString("pt-BR")}
-                    anexos={a.anexos}
-                    unidade={chamado?.departamento || "ti"}
-                    servico="Chamados TI"
-                    userName={chamado?.solicitanteNome || nomeUsuario}
-                  />
-                ))}
-              </div>
-            </div>
-          </Card>
-        )}
+            </Card>
+          );
+        })()}
 
         {/* Novo Andamento */}
         {andamentoOpen && (
