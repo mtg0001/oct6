@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { siglaUnidade } from "@/lib/utils";
 import { useState } from "react";
-import { Paperclip, Forward } from "lucide-react";
+import { Paperclip, Forward, Printer } from "lucide-react";
 import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
@@ -176,7 +176,9 @@ const RHSolicitacaoDetalhe = () => {
         </div>
 
         <div className="flex flex-wrap gap-3 pt-2 items-center">
-          <Button variant="outline" className="border-primary text-primary" onClick={() => setShowAndamento(true)}>Andamento</Button>
+          {isPendente && (
+            <Button variant="outline" className="border-primary text-primary" onClick={() => setShowAndamento(true)}>Andamento</Button>
+          )}
           {isPendente && (
             <>
               <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
@@ -195,6 +197,10 @@ const RHSolicitacaoDetalhe = () => {
               Encaminhar para Expedição
             </Button>
           )}
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Printer className="h-4 w-4 mr-1" />
+            Imprimir
+          </Button>
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>Voltar</Button>
         </div>
       </div>

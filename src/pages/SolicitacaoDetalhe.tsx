@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { siglaUnidade } from "@/lib/utils";
 import { useState } from "react";
-import { Paperclip, Forward } from "lucide-react";
+import { Paperclip, Forward, Printer } from "lucide-react";
 import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import {
@@ -244,13 +244,15 @@ const SolicitacaoDetalhe = () => {
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3 pt-2 items-center">
-          <Button
-            variant="outline"
-            className="border-primary text-primary"
-            onClick={() => setShowAndamento(true)}
-          >
-            Andamento
-          </Button>
+          {sol.status === "pendente" && (
+            <Button
+              variant="outline"
+              className="border-primary text-primary"
+              onClick={() => setShowAndamento(true)}
+            >
+              Andamento
+            </Button>
+          )}
           {sol.setorAtual === 'diretoria' ? (
             <>
               {/* Forwarded from expedition: 3 options */}
@@ -292,6 +294,10 @@ const SolicitacaoDetalhe = () => {
               <Button variant="destructive" onClick={async () => { const nome = currentUser?.nome || nomeDir; await addAndamento(sol.id, `[${nome}] ❌ Solicitação REPROVADA por ${nome}`); await reprovarSolicitacao(sol.id); navigate(-1); }}>Reprovar</Button>
             </>
           )}
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Printer className="h-4 w-4 mr-1" />
+            Imprimir
+          </Button>
           <Button variant="outline" className="ml-auto" onClick={() => navigate(-1)}>
             Voltar
           </Button>
