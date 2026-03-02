@@ -22,7 +22,7 @@ import {
   Headset,
   ExternalLink,
   Heart,
-  Sparkles,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/hooks/useUsuarios";
@@ -155,7 +155,7 @@ export function AppSidebar() {
     if (isAdmin || u?.resolveCs) {
       items.push({
         title: "CS",
-        icon: Heart,
+        icon: UserCheck,
         variant: 'pink',
         children: [
           { title: "Pendentes", path: "/cs/pendentes" },
