@@ -4,7 +4,13 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, Paperclip, ExternalLink,
   FileText, User, Building2, CalendarDays, Tag, AlertTriangle, Info, Monitor, Loader2,
@@ -32,6 +38,9 @@ export default function DiretoriaChamadoTIDetalhe() {
   const [chamado, setChamado] = useState<ChamadoTI | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [andamentos, setAndamentos] = useState<any[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogAction, setDialogAction] = useState<"aprovado" | "reprovado">("aprovado");
+  const [observacaoDiretoria, setObservacaoDiretoria] = useState("");
 
   useEffect(() => {
     ensureChamadosTILoaded().then(() => {
@@ -48,19 +57,30 @@ export default function DiretoriaChamadoTIDetalhe() {
       .then(({ data }) => { if (data) setAndamentos(data); });
   }, [id]);
 
-  const handleAprovacao = async (resultado: "aprovado" | "reprovado") => {
+  const openDialog = (action: "aprovado" | "reprovado") => {
+    setDialogAction(action);
+    setObservacaoDiretoria("");
+    setDialogOpen(true);
+  };
+
+  const handleConfirmAprovacao = async () => {
     if (!chamado) return;
-    setActionLoading(resultado);
+    setActionLoading(dialogAction);
     try {
-      // Add andamento with approval result
-      const label = resultado === "aprovado" ? "APROVADO" : "REPROVADO";
+      const label = dialogAction === "aprovado" ? "APROVADO" : "REPROVADO";
+      const obs = observacaoDiretoria.trim();
+      const textoAndamento = obs
+        ? `[Diretoria] ${label} pela diretoria e enviado para TI\nObservação: ${obs}`
+        : `[Diretoria] ${label} pela diretoria e enviado para TI`;
+
       await supabase.from("andamentos_ti" as any).insert({
         chamado_id: chamado.id,
-        texto: `[Diretoria] ${label} pela diretoria e enviado para TI`,
+        texto: textoAndamento,
         anexos: [],
       });
-      await aprovarChamadoTIDiretoria(chamado.id, resultado);
-      toast.success(resultado === "aprovado" ? "Aprovado e enviado para TI!" : "Reprovado e enviado para TI!");
+      await aprovarChamadoTIDiretoria(chamado.id, dialogAction);
+      setDialogOpen(false);
+      toast.success(dialogAction === "aprovado" ? "Aprovado e enviado para TI!" : "Reprovado e enviado para TI!");
       navigate(-1);
     } catch {
       toast.error("Erro ao processar aprovação");
@@ -199,22 +219,60 @@ export default function DiretoriaChamadoTIDetalhe() {
             <Button
               variant="outline"
               className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
-              onClick={() => handleAprovacao("reprovado")}
+              onClick={() => openDialog("reprovado")}
               disabled={!!actionLoading}
             >
-              {actionLoading === "reprovado" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+              <XCircle className="h-4 w-4" />
               Reprovar e enviar para TI
             </Button>
             <Button
               className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={() => handleAprovacao("aprovado")}
+              onClick={() => openDialog("aprovado")}
               disabled={!!actionLoading}
             >
-              {actionLoading === "aprovado" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              <CheckCircle2 className="h-4 w-4" />
               Aprovar e enviar para TI
             </Button>
           </div>
         )}
+
+        {/* Confirmation Dialog */}
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {dialogAction === "aprovado" ? "Aprovar chamado" : "Reprovar chamado"}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                O chamado será {dialogAction === "aprovado" ? "aprovado" : "reprovado"} e enviado para a equipe de TI.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-2">
+              <Label className="text-sm font-medium">Deseja adicionar uma observação? <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Textarea
+                value={observacaoDiretoria}
+                onChange={(e) => setObservacaoDiretoria(e.target.value)}
+                placeholder="Digite uma observação..."
+                className="mt-2 min-h-[80px] resize-none"
+                maxLength={2000}
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={!!actionLoading}>Cancelar</AlertDialogCancel>
+              <Button
+                onClick={handleConfirmAprovacao}
+                disabled={!!actionLoading}
+                className={dialogAction === "aprovado"
+                  ? "gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  : "gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                }
+              >
+                {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : dialogAction === "aprovado" ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                {actionLoading ? "Enviando..." : dialogAction === "aprovado" ? "Aprovar" : "Reprovar"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );
