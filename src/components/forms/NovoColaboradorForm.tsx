@@ -45,7 +45,7 @@ const diretores = ["Jessica", "Soraya", "Danielle"];
 const caracteristicaOptions = ["Aplica", "Não se aplica"];
 
 const caracteristicasGrid = [
-  ["Pro atividade", "Foco", "Relacionamento"],
+  ["Proatividade", "Foco", "Relacionamento"],
   ["Decisão", "Asseio", "Iniciativa"],
   ["Competitividade", "Ousadia", "Estratégia"],
   ["Agilidade", "Liderança", "Oratória"],
