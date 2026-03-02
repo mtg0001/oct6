@@ -70,41 +70,50 @@ const MinhasSolicitacoes = () => {
         {filtered.length === 0 && (
           <p className="text-muted-foreground text-sm py-8 text-center">Nenhuma solicitação encontrada.</p>
         )}
-        {filtered.map((sol) => (
-          <div
-            key={sol.id}
-            className="bg-card border border-border rounded-lg p-4 flex flex-wrap items-center gap-4 shadow-sm"
-          >
-            <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              {(() => { const Icon = getIconForTipo(sol.tipo); return <Icon className="h-5 w-5" />; })()}
+        {filtered.map((sol) => {
+          const Icon = getIconForTipo(sol.tipo);
+          return (
+            <div
+              key={sol.id}
+              className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm"
+            >
+              {/* Top row: icon + priority + actions */}
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Icon className="h-4 w-4" />
+                </div>
+                <PrioridadeBadge value={sol.prioridade} />
+                <div className="ml-auto flex items-center gap-1.5">
+                  <ExcluirChamadoButton solicitacaoId={sol.id} />
+                  <Button size="sm" onClick={() => navigate(`/minhas-solicitacoes/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
+                    Ver
+                  </Button>
+                </div>
+              </div>
+              {/* Details grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1.5 text-sm">
+                <div>
+                  <span className="text-muted-foreground text-[10px] block">Data</span>
+                  <span className="font-medium text-xs">{sol.dataCriacao}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-[10px] block">Tipo</span>
+                  <span className="font-medium text-xs truncate block">{sol.tipo}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-[10px] block">Unidade</span>
+                  <Badge variant="outline" className="text-[10px]">{siglaUnidade(sol.unidade)}</Badge>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-[10px] block">Status</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${statusBadge[sol.status] || ""}`}>
+                    {sol.status.charAt(0).toUpperCase() + sol.status.slice(1).replace("_", " ")}
+                  </span>
+                </div>
+              </div>
             </div>
-            <PrioridadeBadge value={sol.prioridade} />
-            <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-              <div>
-                <span className="text-muted-foreground text-xs block">Data</span>
-                <span className="font-medium">{sol.dataCriacao}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs block">Tipo</span>
-                <span className="font-medium text-xs">{sol.tipo}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs block">Unidade</span>
-                <Badge variant="outline">{siglaUnidade(sol.unidade)}</Badge>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-xs block">Status</span>
-                <span className={`text-xs px-2 py-0.5 rounded font-medium ${statusBadge[sol.status] || ""}`}>
-                  {sol.status.charAt(0).toUpperCase() + sol.status.slice(1).replace("_", " ")}
-                </span>
-              </div>
-            </div>
-            <ExcluirChamadoButton solicitacaoId={sol.id} />
-            <Button size="sm" onClick={() => navigate(`/minhas-solicitacoes/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
-              Ver
-            </Button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </AppLayout>
   );

@@ -28,7 +28,7 @@ export function ServiceBreakdown({ solicitacoes }: Props) {
 
   return (
     <div className="bg-card rounded-xl p-4 shadow-sm border border-border hover:shadow-md transition-shadow">
-      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Top Serviços</p>
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3" translate="no">Top Serviços</p>
       {breakdown.length === 0 ? (
         <p className="text-xs text-muted-foreground">Nenhum dado disponível</p>
       ) : (
