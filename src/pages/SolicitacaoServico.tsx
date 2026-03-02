@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { siglaUnidade } from "@/lib/utils";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
@@ -78,7 +79,7 @@ const SolicitacaoServico = () => {
     );
   }
 
-  const siglaUnidade = sol.unidade === "goiania" ? "GO" : "SP";
+  const siglaUni = siglaUnidade(sol.unidade);
   const isPendente = filtro === "pendentes" || isDiretoria;
   const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria;
   // Expedition forwarding logic
@@ -499,7 +500,7 @@ const SolicitacaoServico = () => {
               </div>
               <div>
                 <p className="text-[10px] text-muted-foreground font-bold uppercase">Unidade</p>
-                <span className="inline-block border border-border rounded px-2 py-0.5 font-bold text-xs">{siglaUnidade}</span>
+                <span className="inline-block border border-border rounded px-2 py-0.5 font-bold text-xs">{siglaUni}</span>
               </div>
               <div>
                 <p className="text-[10px] text-muted-foreground font-bold uppercase">Status</p>

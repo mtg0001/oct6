@@ -10,6 +10,7 @@ import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
 import { RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import { siglaUnidade } from "@/lib/utils";
 
 const Lixeira = () => {
   const currentUser = useCurrentUser();
@@ -103,7 +104,7 @@ const Lixeira = () => {
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Unidade</span>
-                  <Badge variant="outline">{sol.unidade === "goiania" ? "GO" : "SP"}</Badge>
+                  <Badge variant="outline">{siglaUnidade(sol.unidade)}</Badge>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Solicitante</span>

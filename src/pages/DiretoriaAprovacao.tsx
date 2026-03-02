@@ -3,6 +3,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacoesDiretor } from "@/hooks/useSolicitacoes";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { siglaUnidade } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -157,7 +158,7 @@ const DiretoriaAprovacao = () => {
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Unidade</span>
-                  <span className="font-medium">{sol.unidade === "goiania" ? "GO" : "SP"}</span>
+                  <span className="font-medium">{siglaUnidade(sol.unidade)}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Tipo</span>

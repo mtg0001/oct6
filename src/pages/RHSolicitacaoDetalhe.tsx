@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { siglaUnidade } from "@/lib/utils";
 import { useState } from "react";
 import { Paperclip, Forward } from "lucide-react";
 import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
@@ -45,7 +46,7 @@ const RHSolicitacaoDetalhe = () => {
     );
   }
 
-  const siglaUnidade = sol.unidade === "goiania" ? "GO" : "SP";
+  const siglaUni = siglaUnidade(sol.unidade);
   const campos = Object.keys(labelMap).map((key) => ({
     label: labelMap[key], value: (sol as any)[key] || "—",
   }));
@@ -102,7 +103,7 @@ const RHSolicitacaoDetalhe = () => {
           </div>
           <div className="space-y-1">
             <p><span className="text-muted-foreground text-xs">UNIDADE</span></p>
-            <p className="font-bold border border-border inline-block px-3 py-1 rounded">{siglaUnidade}</p>
+            <p className="font-bold border border-border inline-block px-3 py-1 rounded">{siglaUni}</p>
             <p className="mt-2"><span className="text-muted-foreground text-xs">PRIORIDADE</span></p>
             <p className="font-bold capitalize">{getPrioridadeLabel(sol.prioridade)}</p>
           </div>
