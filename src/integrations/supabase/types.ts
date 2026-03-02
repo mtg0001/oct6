@@ -87,6 +87,9 @@ export type Database = {
           created_at: string
           departamento: string
           diretor_aprovacao: string | null
+          excluido: boolean
+          excluido_em: string | null
+          excluido_por: string
           id: string
           novo_colaborador: string | null
           observacoes: string | null
@@ -109,6 +112,9 @@ export type Database = {
           created_at?: string
           departamento?: string
           diretor_aprovacao?: string | null
+          excluido?: boolean
+          excluido_em?: string | null
+          excluido_por?: string
           id?: string
           novo_colaborador?: string | null
           observacoes?: string | null
@@ -131,6 +137,9 @@ export type Database = {
           created_at?: string
           departamento?: string
           diretor_aprovacao?: string | null
+          excluido?: boolean
+          excluido_em?: string | null
+          excluido_por?: string
           id?: string
           novo_colaborador?: string | null
           observacoes?: string | null
