@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState, useRef } from "react";
 import { Paperclip, ArrowLeft, Printer, Forward, Loader2, ExternalLink } from "lucide-react";
-import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
+import { getSharePointDownloadLink, uploadAttachmentToSharePoint, buildStoredFileName, getDisplayFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -84,13 +84,18 @@ const SolicitacaoServico = () => {
     if (!textoAndamento.trim()) return;
     const nome = currentUser?.nome || "Usuário";
     const textoComNome = `[${nome}] ${textoAndamento}`;
-    let dateFolder: string | undefined;
-    if (anexoFiles.length > 0) {
-      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, nome);
+    const storageUserName = sol.solicitante || nome;
+    let dateFolder = resolveExistingDateFolder([
+      sol.justificativa,
+      sol.caracteristicas,
+      ...sol.andamentos.flatMap((a) => a.anexos || []),
+    ]);
+    if (!dateFolder && anexoFiles.length > 0) {
+      dateFolder = await getNextSequentialFolder(sol.unidade, sol.tipo, storageUserName);
     }
     const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
     for (const file of anexoFiles) {
-      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: nome, datePasta: dateFolder });
+      await uploadAttachmentToSharePoint({ file, unidade: sol.unidade, servico: sol.tipo, userName: storageUserName, datePasta: dateFolder });
     }
     await addAndamento(sol.id, textoComNome, storedNomes);
     setTextoAndamento(""); setAnexoNomes([]); setAnexoFiles([]); setShowAndamento(false);

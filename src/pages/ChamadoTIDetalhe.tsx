@@ -19,7 +19,7 @@ import {
   type ChamadoTI,
 } from "@/stores/chamadosTIStore";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
 import octarteLogo from "@/assets/octarte-logo.png";
 
@@ -94,9 +94,13 @@ export default function ChamadoTIDetalhe() {
     try {
       const nome = nomeUsuario;
       const texto = `[${nome}] ${andamentoTexto.trim()}`;
-      let dateFolder: string | undefined;
-      if (anexoFiles.length > 0) {
-        dateFolder = await getNextSequentialFolder(chamado.departamento || "ti", "Chamados TI", nome);
+      const storageUserName = chamado.solicitanteNome || nome;
+      let dateFolder = resolveExistingDateFolder([
+        chamado.anexos,
+        ...andamentos.map((a) => a?.anexos || []),
+      ]);
+      if (!dateFolder && anexoFiles.length > 0) {
+        dateFolder = await getNextSequentialFolder(chamado.departamento || "ti", "Chamados TI", storageUserName);
       }
       const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
       for (const file of anexoFiles) {
@@ -104,7 +108,7 @@ export default function ChamadoTIDetalhe() {
           file,
           unidade: chamado.departamento || "ti",
           servico: "Chamados TI",
-          userName: nome,
+          userName: storageUserName,
           datePasta: dateFolder,
         });
       }
@@ -261,7 +265,7 @@ export default function ChamadoTIDetalhe() {
                   anexos={a.anexos}
                   unidade={chamado?.departamento || "ti"}
                   servico="Chamados TI"
-                  userName={nomeUsuario}
+                  userName={chamado?.solicitanteNome || nomeUsuario}
                 />
               ))}
             </div>

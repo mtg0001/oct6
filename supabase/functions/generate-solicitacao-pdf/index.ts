@@ -108,6 +108,60 @@ function getNextSequentialName(existingFolders: any[]): string {
   return `${String(maxSeq + 1).padStart(4, "0")}-${today}`;
 }
 
+function getDateFolderFromStoredName(storedName: string): string | null {
+  const slashIndex = storedName.indexOf("/");
+  if (slashIndex <= 0) return null;
+  const folder = storedName.substring(0, slashIndex);
+  if (/^(\d{4}-\d{8}|\d{8})$/.test(folder)) return folder;
+  return null;
+}
+
+function findDateFolderInText(text: string): string | null {
+  const match = text.match(/(\d{4}-\d{8}|\d{8})\//);
+  return match?.[1] || null;
+}
+
+function findDateFolderDeep(value: unknown, seen = new Set<unknown>()): string | null {
+  if (typeof value === "string") {
+    return getDateFolderFromStoredName(value) || findDateFolderInText(value);
+  }
+
+  if (!value || typeof value !== "object") return null;
+  if (seen.has(value)) return null;
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findDateFolderDeep(item, seen);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  for (const entry of Object.values(value as Record<string, unknown>)) {
+    const found = findDateFolderDeep(entry, seen);
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function resolveExistingDateFolder(sol: any, andamentos: any[]): string | null {
+  const sources: unknown[] = [
+    sol?.justificativa,
+    sol?.caracteristicas,
+    sol?.observacoes,
+    ...(andamentos || []).map((a) => a?.anexos || []),
+  ];
+
+  for (const source of sources) {
+    const found = findDateFolderDeep(source);
+    if (found) return found;
+  }
+
+  return null;
+}
+
 async function uploadFileToSharePoint(
   token: string, driveId: string, folderPath: string, fileName: string,
   fileContent: Uint8Array, contentType: string
@@ -453,9 +507,13 @@ Deno.serve(async (req) => {
     await createFolderAtLocation(token, driveId, parentPath, sol.solicitante);
     const userFolderPath = `${parentPath}/${sol.solicitante}`;
 
-    // Get next sequential folder name
-    const children = await listFolderChildren(token, driveId, userFolderPath);
-    const dateFolder = getNextSequentialName(children);
+    // Reuse folder from existing attachments/andamentos when available
+    let dateFolder = resolveExistingDateFolder(sol, andamentos || []);
+    if (!dateFolder) {
+      const children = await listFolderChildren(token, driveId, userFolderPath);
+      dateFolder = getNextSequentialName(children);
+    }
+
     await createFolderAtLocation(token, driveId, userFolderPath, dateFolder);
     const folderPath = `${userFolderPath}/${dateFolder}`;
 

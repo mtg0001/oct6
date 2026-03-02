@@ -49,6 +49,59 @@ export function buildStoredFileName(fileName: string, dateFolder?: string): stri
 }
 
 /**
+ * Extract date folder from a stored filename.
+ * Supports both "0001-ddMMyyyy/file.pdf" and legacy "ddMMyyyy/file.pdf".
+ */
+export function getDateFolderFromStoredName(storedName: string): string | undefined {
+  const idx = storedName.indexOf("/");
+  if (idx <= 0) return undefined;
+  const folder = storedName.substring(0, idx);
+  if (/^(\d{4}-\d{8}|\d{8})$/.test(folder)) return folder;
+  return undefined;
+}
+
+function findDateFolderInText(text: string): string | undefined {
+  const match = text.match(/(\d{4}-\d{8}|\d{8})\//);
+  return match?.[1];
+}
+
+function findDateFolderDeep(value: unknown, seen = new Set<unknown>()): string | undefined {
+  if (typeof value === "string") {
+    return getDateFolderFromStoredName(value) || findDateFolderInText(value);
+  }
+
+  if (!value || typeof value !== "object") return undefined;
+  if (seen.has(value)) return undefined;
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findDateFolderDeep(item, seen);
+      if (found) return found;
+    }
+    return undefined;
+  }
+
+  for (const v of Object.values(value as Record<string, unknown>)) {
+    const found = findDateFolderDeep(v, seen);
+    if (found) return found;
+  }
+
+  return undefined;
+}
+
+/**
+ * Resolve an already existing folder (NNNN-ddMMyyyy or ddMMyyyy) from known data.
+ */
+export function resolveExistingDateFolder(values: unknown[]): string | undefined {
+  for (const value of values) {
+    const found = findDateFolderDeep(value);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+/**
  * Extract just the display name from a stored filename.
  * "0001-26072025/file.pdf" → "file.pdf"
  * "26072025/file.pdf" → "file.pdf" (backward compat)
