@@ -4,6 +4,7 @@ import { DonutChart } from "@/components/dashboard/DonutChart";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
 import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
@@ -145,6 +146,7 @@ const Index = () => {
         <div className="grid grid-cols-1 gap-2.5">
           <ServiceBreakdown solicitacoes={todas} />
           <RecentActivity solicitacoes={todas} />
+          <RecentChamadosTI />
         </div>
       </div>
     </AppLayout>
