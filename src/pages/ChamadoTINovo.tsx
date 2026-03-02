@@ -38,8 +38,7 @@ const SUB_OFFICE = ["Excel", "Word", "PowerPoint", "Outros"];
 const SUB_TEAMS = ["Comercial", "Financeiro", "Logística e Compras", "Marketing", "Operacional", "Projetos", "Recursos Humanos"];
 const SUB_INTERNET = ["Sem internet", "Site específico", "Todos os sites", "Demorando fazer downloads", "Demorando fazer uploads", "Site Suspeito", "Outros"];
 const SUB_EQUIPAMENTOS = ["Kit teclado e mouse", "Teclado", "Mouse", "Tela", "Notebook", "Desktop", "Cabo HDMI", "Cabo VGA", "Mousepad", "Headset", "Mochila", "Outros"];
-const SUB_CRIAR_NOVO = ["Usuário, Email e Notebook", "Usuário", "Email", "Notebook", "Smartphone", "Mochila"];
-const SUB_CRIAR_EXISTENTE = ["Usuário, Email e Notebook", "Usuário", "Email", "Notebook", "Smartphone", "Mochila"];
+const SUB_CRIAR = ["Usuário Windows", "Email"];
 const SUB_DESATIVAR = ["Usuário e Email", "Usuário", "Email"];
 const SUB_SMARTPHONE = ["Novo", "Troca", "Perda ou Roubo"];
 
@@ -55,8 +54,9 @@ export default function ChamadoTINovo() {
   const [urgencia, setUrgencia] = useState("baixa");
   const [siteEspecifico, setSiteEspecifico] = useState("");
   const [siteSuspeito, setSiteSuspeito] = useState("");
+  const [nomeColaborador, setNomeColaborador] = useState("");
+  const [cargoColaborador, setCargoColaborador] = useState("");
   const [aprovadoGestor, setAprovadoGestor] = useState<string>("");
-  const [novoColaborador, setNovoColaborador] = useState<string>("");
   const [anydesk, setAnydesk] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [arquivos, setArquivos] = useState<File[]>([]);
@@ -66,8 +66,9 @@ export default function ChamadoTINovo() {
     setSubOpcoes([]);
     setSiteEspecifico("");
     setSiteSuspeito("");
+    setNomeColaborador("");
+    setCargoColaborador("");
     setAprovadoGestor("");
-    setNovoColaborador("");
     setAnydesk("");
   };
 
@@ -101,7 +102,7 @@ export default function ChamadoTINovo() {
       case "Permissões de equipes Teams (SharePoint)": return SUB_TEAMS;
       case "Lentidão na internet": return SUB_INTERNET;
       case "Solicitação de equipamentos": return SUB_EQUIPAMENTOS;
-      case "Criação de Usuário": return novoColaborador === "sim" ? SUB_CRIAR_NOVO : SUB_CRIAR_EXISTENTE;
+      case "Criação de Usuário": return SUB_CRIAR;
       case "Desativar Usuário": return SUB_DESATIVAR;
       case "Solicitação de Smartphone": return SUB_SMARTPHONE;
       default: return [];
@@ -112,7 +113,7 @@ export default function ChamadoTINovo() {
   const showSiteField = categoria === "Lentidão na internet" && subOpcoes.includes("Site específico");
   const showSiteSuspeitoField = categoria === "Lentidão na internet" && subOpcoes.includes("Site Suspeito");
   const showAprovadoGestor = categoria === "Permissões de equipes Teams (SharePoint)" && subOpcoes.length > 0;
-  const showNovoColaborador = categoria === "Criação de Usuário";
+  const showNomeCargoColaborador = categoria === "Criação de Usuário";
 
   const toggleSubOpcao = (opt: string) => {
     setSubOpcoes(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
@@ -124,8 +125,9 @@ export default function ChamadoTINovo() {
     if (getSubOptions().length > 0 && subOpcoes.length === 0) { toast.error("Selecione pelo menos uma opção"); return; }
     if (showSiteField && !siteEspecifico.trim()) { toast.error("Digite o site"); return; }
     if (showSiteSuspeitoField && !siteSuspeito.trim()) { toast.error("Digite a URL suspeita"); return; }
+    if (showNomeCargoColaborador && !nomeColaborador.trim()) { toast.error("Informe o nome do colaborador"); return; }
+    if (showNomeCargoColaborador && !cargoColaborador.trim()) { toast.error("Informe o cargo do colaborador"); return; }
     if (showAprovadoGestor && !aprovadoGestor) { toast.error("Informe se foi aprovado pelo gestor"); return; }
-    if (showNovoColaborador && !novoColaborador) { toast.error("Informe se é novo colaborador"); return; }
 
     setEnviando(true);
     try {
@@ -149,7 +151,7 @@ export default function ChamadoTINovo() {
         siteEspecifico,
         siteSuspeito,
         aprovadoGestor,
-        novoColaborador,
+        novoColaborador: nomeColaborador ? `${nomeColaborador} | ${cargoColaborador}` : "",
         anydesk,
         urgencia,
         observacoes,
@@ -227,25 +229,36 @@ export default function ChamadoTINovo() {
                 </Select>
               </div>
 
-              {/* Novo Colaborador toggle (Criação de Usuário) */}
-              {showNovoColaborador && (
+              {/* Nome e Cargo do Colaborador (Criação de Usuário) */}
+              {showNomeCargoColaborador && (
                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                  <Label className="text-sm font-medium mb-3 block">É novo colaborador? <span className="text-destructive">*</span></Label>
-                  <RadioGroup value={novoColaborador} onValueChange={(v) => { setNovoColaborador(v); setSubOpcoes([]); }} className="flex gap-6">
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="sim" id="novo-sim" />
-                      <Label htmlFor="novo-sim" className="cursor-pointer">Sim</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium">Nome do colaborador <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={nomeColaborador}
+                        onChange={e => setNomeColaborador(e.target.value)}
+                        placeholder="Nome completo"
+                        className="mt-1.5"
+                        maxLength={200}
+                      />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="nao" id="novo-nao" />
-                      <Label htmlFor="novo-nao" className="cursor-pointer">Não</Label>
+                    <div>
+                      <Label className="text-sm font-medium">Cargo <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={cargoColaborador}
+                        onChange={e => setCargoColaborador(e.target.value)}
+                        placeholder="Cargo do colaborador"
+                        className="mt-1.5"
+                        maxLength={200}
+                      />
                     </div>
-                  </RadioGroup>
+                  </div>
                 </div>
               )}
 
               {/* Sub-options */}
-              {categoria && subOptions.length > 0 && (!showNovoColaborador || novoColaborador) && (
+              {categoria && subOptions.length > 0 && (
                 <div>
                   <Label className="text-sm font-medium">{subLabel} <span className="text-destructive">*</span></Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
