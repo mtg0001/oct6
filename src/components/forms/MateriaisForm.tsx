@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PrioridadeSelect } from "@/components/forms/PrioridadeSelect";
 import { Plus, Trash2, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,9 @@ interface ItemMaterial {
 
 let itemIdCounter = 1;
 
+const TAMANHOS_UNIFORME = ["P", "M", "G", "GG", "XG", "XGG"];
+const TAMANHOS_SAPATO = ["34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45"];
+
 const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps) => {
   const currentUser = useCurrentUser();
   const nomeUnidadeMap: Record<string, string> = { goiania: "Goiânia", mairipora: "Mairiporã", pinheiros: "Pinheiros" };
@@ -51,6 +55,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
     "Uniformes e EPI": "Solicitação de Uniformes e EPI",
   };
   const tituloForm = tituloMap[tipo] || `Solicitação de ${tipo}`;
+  const isUniformes = tipo === "Uniformes e EPI";
 
   const [evento, setEvento] = useState("");
   const [prioridade, setPrioridade] = useState("");
@@ -62,6 +67,14 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+
+  // Uniformes e EPI specific state
+  const [querUniforme, setQuerUniforme] = useState<boolean | null>(null);
+  const [tamanhoUniforme, setTamanhoUniforme] = useState("");
+  const [uniformeDisponivel, setUniformeDisponivel] = useState<boolean | null>(null);
+  const [querSapato, setQuerSapato] = useState<boolean | null>(null);
+  const [tamanhoSapato, setTamanhoSapato] = useState("");
+  const [sapatoDisponivel, setSapatoDisponivel] = useState<boolean | null>(null);
 
   const addItem = () => {
     setItens((prev) => [...prev, { id: itemIdCounter++, quantidade: "", unidadeMedida: "", descricao: "" }]);
@@ -97,11 +110,41 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
     setObservacoes("");
     setAnexoNome(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setQuerUniforme(null);
+    setTamanhoUniforme("");
+    setUniformeDisponivel(null);
+    setQuerSapato(null);
+    setTamanhoSapato("");
+    setSapatoDisponivel(null);
   };
 
   const validate = (): boolean => {
     if (!evento.trim()) { toast({ title: "Informe o Evento", variant: "destructive" }); return false; }
     if (!prioridade) { toast({ title: "Selecione a Prioridade", variant: "destructive" }); return false; }
+
+    if (isUniformes) {
+      if (querUniforme === null && querSapato === null) {
+        toast({ title: "Selecione ao menos Uniforme ou Sapato", variant: "destructive" });
+        return false;
+      }
+      if (querUniforme && !tamanhoUniforme) {
+        toast({ title: "Selecione o tamanho do Uniforme", variant: "destructive" });
+        return false;
+      }
+      if (querUniforme && uniformeDisponivel === null) {
+        toast({ title: "Informe se o Uniforme está disponível na empresa", variant: "destructive" });
+        return false;
+      }
+      if (querSapato && !tamanhoSapato) {
+        toast({ title: "Selecione o tamanho do Sapato", variant: "destructive" });
+        return false;
+      }
+      if (querSapato && sapatoDisponivel === null) {
+        toast({ title: "Informe se o Sapato está disponível na empresa", variant: "destructive" });
+        return false;
+      }
+    }
+
     for (let i = 0; i < itens.length; i++) {
       const item = itens[i];
       if (!item.quantidade.trim()) { toast({ title: `Item ${i + 1}: informe a quantidade`, variant: "destructive" }); return false; }
@@ -123,6 +166,27 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         storedAnexo = buildStoredFileName(anexoNome, dateFolder);
       }
       const itensTexto = itens.map((item, i) => `${i + 1}) ${item.quantidade} ${item.unidadeMedida} - ${item.descricao}`).join("; ");
+
+      // Determine routing for Uniformes e EPI
+      const algumNaoDisponivel = isUniformes && (
+        (querUniforme && uniformeDisponivel === false) ||
+        (querSapato && sapatoDisponivel === false)
+      );
+
+      const caracteristicas: Record<string, any> = { itens: itensTexto };
+      if (isUniformes) {
+        caracteristicas.uniforme = querUniforme ? "sim" : "não";
+        if (querUniforme) {
+          caracteristicas.tamanhoUniforme = tamanhoUniforme;
+          caracteristicas.uniformeDisponivel = uniformeDisponivel ? "sim" : "não";
+        }
+        caracteristicas.sapato = querSapato ? "sim" : "não";
+        if (querSapato) {
+          caracteristicas.tamanhoSapato = tamanhoSapato;
+          caracteristicas.sapatoDisponivel = sapatoDisponivel ? "sim" : "não";
+        }
+      }
+
       await addSolicitacao({
         tipo,
         solicitanteId: currentUser?.id || "",
@@ -134,7 +198,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         cargo: "",
         unidadeDestino: "",
         departamentoDestino: "",
-        diretorArea: "",
+        diretorArea: algumNaoDisponivel ? "Soraya" : "",
         tipoVaga: "",
         nomeSubstituido: "",
         justificativa: [
@@ -149,13 +213,14 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         tipoContrato: "",
         horarioDe: "",
         horarioAte: "",
-        caracteristicas: { itens: itensTexto },
+        caracteristicas,
         observacoes,
+        ...(algumNaoDisponivel ? { setorAtual: "diretoria" } : {}),
       });
       if (file && storedAnexo && dateFolder) {
         await uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
       }
-      toast({ title: `${tituloForm} enviada com sucesso!` });
+      toast({ title: `${tituloForm} enviada com sucesso!${algumNaoDisponivel ? " Encaminhada para Diretoria (Soraya)." : ""}` });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
@@ -197,6 +262,130 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
               </div>
             </div>
           </fieldset>
+
+          {/* ── Uniformes e Sapatos (only for Uniformes e EPI) ── */}
+          {isUniformes && (
+            <fieldset className="border border-primary/30 rounded-md p-4">
+              <legend className="text-sm font-bold bg-primary text-primary-foreground rounded px-3 py-0.5">
+                Uniformes e Sapatos
+              </legend>
+              <div className="mt-3 space-y-5">
+                {/* Uniforme */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold">Uniforme *</Label>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={querUniforme === true}
+                        onCheckedChange={() => setQuerUniforme(true)}
+                      />
+                      Sim
+                    </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={querUniforme === false}
+                        onCheckedChange={() => {
+                          setQuerUniforme(false);
+                          setTamanhoUniforme("");
+                          setUniformeDisponivel(null);
+                        }}
+                      />
+                      Não
+                    </label>
+                  </div>
+                  {querUniforme && (
+                    <div className="pl-4 border-l-2 border-primary/20 space-y-3">
+                      <div>
+                        <Label className="text-xs font-bold">Tamanho *</Label>
+                        <Select value={tamanhoUniforme} onValueChange={setTamanhoUniforme}>
+                          <SelectTrigger className="mt-1 w-32"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                          <SelectContent>
+                            {TAMANHOS_UNIFORME.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-bold">Este item está disponível na empresa? *</Label>
+                        <div className="flex gap-6 mt-1">
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={uniformeDisponivel === true}
+                              onCheckedChange={() => setUniformeDisponivel(true)}
+                            />
+                            Sim
+                          </label>
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={uniformeDisponivel === false}
+                              onCheckedChange={() => setUniformeDisponivel(false)}
+                            />
+                            Não
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sapato */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold">Sapato *</Label>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={querSapato === true}
+                        onCheckedChange={() => setQuerSapato(true)}
+                      />
+                      Sim
+                    </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={querSapato === false}
+                        onCheckedChange={() => {
+                          setQuerSapato(false);
+                          setTamanhoSapato("");
+                          setSapatoDisponivel(null);
+                        }}
+                      />
+                      Não
+                    </label>
+                  </div>
+                  {querSapato && (
+                    <div className="pl-4 border-l-2 border-primary/20 space-y-3">
+                      <div>
+                        <Label className="text-xs font-bold">Tamanho *</Label>
+                        <Select value={tamanhoSapato} onValueChange={setTamanhoSapato}>
+                          <SelectTrigger className="mt-1 w-32"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                          <SelectContent>
+                            {TAMANHOS_SAPATO.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-bold">Este item está disponível na empresa? *</Label>
+                        <div className="flex gap-6 mt-1">
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={sapatoDisponivel === true}
+                              onCheckedChange={() => setSapatoDisponivel(true)}
+                            />
+                            Sim
+                          </label>
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <Checkbox
+                              checked={sapatoDisponivel === false}
+                              onCheckedChange={() => setSapatoDisponivel(false)}
+                            />
+                            Não
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </fieldset>
+          )}
 
           {/* ── Itens ── */}
           <fieldset className="border border-primary/30 rounded-md p-4">
