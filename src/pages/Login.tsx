@@ -209,14 +209,14 @@ export default function Login() {
             </div>
             <div className="flex items-center gap-2 mt-1">
               <button type="button" onClick={() => setRememberMe(!rememberMe)}
-                className="w-4 h-4 rounded border flex items-center justify-center transition-all"
+                className="w-4 h-4 rounded border flex items-center justify-center transition-all shrink-0"
                 style={{
                   borderColor: rememberMe ? brandGreen : "rgba(255,255,255,0.15)",
                   background: rememberMe ? brandGreen : "rgba(255,255,255,0.04)",
                 }}>
                 {rememberMe && <span className="text-white text-[10px] leading-none">✓</span>}
               </button>
-              <span className="text-xs text-white/40 select-none cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>Lembrar usuário</span>
+              <span className="text-xs text-white/40 select-none cursor-pointer whitespace-nowrap" onClick={() => setRememberMe(!rememberMe)}>Lembrar usuário</span>
             </div>
             <Button type="submit" className="w-full h-11 rounded-xl font-medium text-sm mt-2" disabled={loading}
               style={{

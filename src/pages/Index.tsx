@@ -48,58 +48,58 @@ const Index = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
         {/* Quick Access */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow group">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-              <FilePlus className="h-4 w-4 text-primary" />
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow group overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+              <FilePlus className="h-3.5 w-3.5 text-primary" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Acesso Rápido</p>
+            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Acesso Rápido</p>
           </div>
-          <p className="text-sm font-bold text-foreground">Nova Solicitação</p>
-          <div className="flex gap-1.5 mt-1.5">
+          <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">Nova Solicitação</p>
+          <div className="flex flex-wrap gap-1 mt-1.5">
             {showGO && (
-              <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">GO</Link>
+              <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">GO</Link>
             )}
             {showMairipora && (
-              <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">Mairiporã</Link>
+              <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Mairiporã</Link>
             )}
             {showPinheiros && (
-              <Link to="/nova-solicitacao/pinheiros" className="text-[10px] px-2.5 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm">Pinheiros</Link>
+              <Link to="/nova-solicitacao/pinheiros" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Pinheiros</Link>
             )}
           </div>
         </div>
 
         {/* Entradas Hoje */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
-              <ArrowDownToLine className="h-4 w-4 text-success" />
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="h-7 w-7 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
+              <ArrowDownToLine className="h-3.5 w-3.5 text-success" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chamados Hoje</p>
+            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Chamados Hoje</p>
           </div>
           <p className="text-2xl font-extrabold text-foreground leading-none">{entradasHoje}</p>
           <p className="text-[10px] text-muted-foreground mt-1">aberturas registradas</p>
         </div>
 
         {/* Saídas Hoje */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-              <ArrowUpFromLine className="h-4 w-4 text-destructive" />
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+              <ArrowUpFromLine className="h-3.5 w-3.5 text-destructive" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Resolv. / Canc.</p>
+            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Resolv. / Canc.</p>
           </div>
           <p className="text-2xl font-extrabold text-foreground leading-none">{saidasHoje}</p>
           <p className="text-[10px] text-muted-foreground mt-1">finalizados hoje</p>
         </div>
 
         {/* Total */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="h-4 w-4 text-accent" />
+        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="h-7 w-7 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+              <TrendingUp className="h-3.5 w-3.5 text-accent" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Geral</p>
+            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Total Geral</p>
           </div>
           <p className="text-2xl font-extrabold text-foreground leading-none">{total}</p>
           <p className="text-[10px] text-muted-foreground mt-1">solicitações no sistema</p>

@@ -55,36 +55,23 @@ const RecursosHumanos = () => {
         {filtered.map((sol) => {
           const Icon = getIconForTipo(sol.tipo);
           return (
-            <div
-              key={sol.id}
-              className="bg-card border border-border rounded-lg p-4 flex flex-wrap items-center gap-4 shadow-sm"
-            >
-              <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5" />
-              </div>
-              <PrioridadeBadge value={sol.prioridade} />
-              <div className="flex-1 min-w-0 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-                <div>
-                  <span className="text-muted-foreground text-xs block">Data</span>
-                  <span className="font-medium">{sol.dataCriacao}</span>
+            <div key={sol.id} className="bg-card border border-border rounded-lg p-3 sm:p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Icon className="h-4 w-4" />
                 </div>
-                <div>
-                  <span className="text-muted-foreground text-xs block">Colaborador</span>
-                  <span className="font-medium">{sol.solicitante}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-xs block">Unidade</span>
-                  <span className="font-medium">{siglaUnidade(sol.unidade)}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-xs block">Tipo</span>
-                  <span className="font-medium text-xs">{sol.tipo}</span>
+                <PrioridadeBadge value={sol.prioridade} />
+                <div className="ml-auto flex items-center gap-1.5">
+                  <ExcluirChamadoButton solicitacaoId={sol.id} />
+                  <Button size="sm" onClick={() => navigate(`/rh/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>Ver</Button>
                 </div>
               </div>
-              <ExcluirChamadoButton solicitacaoId={sol.id} />
-              <Button size="sm" onClick={() => navigate(`/rh/${filtro || "pendentes"}/solicitacao/${sol.id}`)}>
-                Ver
-              </Button>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1.5 text-sm">
+                <div><span className="text-muted-foreground text-[10px] block">Data</span><span className="font-medium text-xs">{sol.dataCriacao}</span></div>
+                <div><span className="text-muted-foreground text-[10px] block">Colaborador</span><span className="font-medium text-xs truncate block">{sol.solicitante}</span></div>
+                <div><span className="text-muted-foreground text-[10px] block">Unidade</span><span className="font-medium text-xs">{siglaUnidade(sol.unidade)}</span></div>
+                <div><span className="text-muted-foreground text-[10px] block">Tipo</span><span className="font-medium text-xs truncate block">{sol.tipo}</span></div>
+              </div>
             </div>
           );
         })}
