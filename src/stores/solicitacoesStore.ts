@@ -380,3 +380,20 @@ export function ensureTrashLoaded() {
   if (trashLoaded) return Promise.resolve();
   return loadSolicitacoesExcluidas();
 }
+
+export async function esvaziarLixeira() {
+  // Get all deleted solicitacao IDs
+  const ids = solicitacoesExcluidas.map((s) => s.id);
+  if (ids.length === 0) return;
+
+  // Delete andamentos for these solicitacoes first
+  const { error: andErr } = await supabase.from("andamentos").delete().in("solicitacao_id", ids);
+  if (andErr) throw andErr;
+
+  // Permanently delete the solicitacoes
+  const { error } = await supabase.from("solicitacoes").delete().in("id", ids);
+  if (error) throw error;
+
+  solicitacoesExcluidas = [];
+  notify();
+}
