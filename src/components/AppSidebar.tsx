@@ -232,18 +232,20 @@ export function AppSidebar() {
       });
     }
 
-    // Tecnologia da Informação
-    items.push({
-      title: "Tecnologia da Informação",
-      icon: Monitor,
-      variant: 'red',
-      children: [
-        { title: "Chamados Pendentes", path: "/ti/chamados/pendentes" },
-        { title: "Chamados Resolvidos", path: "/ti/chamados/resolvidos" },
-        { title: "Chamados Cancelados", path: "/ti/chamados/cancelados" },
-        { title: "GLPI", path: "/ti/glpi" },
-      ],
-    });
+    // Tecnologia da Informação - same permission as "Abrir Chamado TI"
+    if (isAdmin || u?.podeAbrirChamado) {
+      items.push({
+        title: "Tecnologia da Informação",
+        icon: Monitor,
+        variant: 'red',
+        children: [
+          { title: "Chamados Pendentes", path: "/ti/chamados/pendentes" },
+          { title: "Chamados Resolvidos", path: "/ti/chamados/resolvidos" },
+          { title: "Chamados Cancelados", path: "/ti/chamados/cancelados" },
+          { title: "GLPI", path: "/ti/glpi" },
+        ],
+      });
+    }
 
     if (u?.podeVerLixeira || isAdmin) {
       items.push({ title: "Lixeira", icon: Trash2, path: "/lixeira" });
