@@ -21,6 +21,9 @@ export interface ChamadoTI {
   sharepointPasta: string;
   criadoEm: string;
   atualizadoEm: string;
+  excluido: boolean;
+  excluidoEm: string | null;
+  excluidoPor: string;
 }
 
 function mapRow(row: any): ChamadoTI {
@@ -45,6 +48,9 @@ function mapRow(row: any): ChamadoTI {
     sharepointPasta: row.sharepoint_pasta || "",
     criadoEm: row.created_at,
     atualizadoEm: row.updated_at,
+    excluido: row.excluido || false,
+    excluidoEm: row.excluido_em || null,
+    excluidoPor: row.excluido_por || "",
   };
 }
 
@@ -74,8 +80,9 @@ export function ensureChamadosTILoaded() {
   return loadingPromise;
 }
 
-export function getChamadosTI() { return chamados; }
-export function getChamadosTIByStatus(status: string) { return chamados.filter(c => c.status === status); }
+export function getChamadosTI() { return chamados.filter(c => !c.excluido); }
+export function getChamadosTIByStatus(status: string) { return chamados.filter(c => !c.excluido && c.status === status); }
+export function getChamadosTIExcluidos() { return chamados.filter(c => c.excluido); }
 export function getChamadosTIByDiretor(diretor: string) {
   return chamados.filter(c => c.status === "aguardando_diretoria" && c.diretorAprovacao.toLowerCase() === diretor.toLowerCase());
 }
@@ -133,5 +140,34 @@ export async function aprovarChamadoTIDiretoria(id: string, resultado: "aprovado
     resultado_aprovacao: resultado,
   }).eq("id", id);
   if (error) throw error;
+  await loadChamadosTI();
+}
+
+export async function excluirChamadoTI(id: string, excluidoPor: string) {
+  const { error } = await supabase.from("chamados_ti").update({
+    excluido: true,
+    excluido_em: new Date().toISOString(),
+    excluido_por: excluidoPor,
+  }).eq("id", id);
+  if (error) throw error;
+  await loadChamadosTI();
+}
+
+export async function restaurarChamadoTI(id: string) {
+  const { error } = await supabase.from("chamados_ti").update({
+    excluido: false,
+    excluido_em: null,
+    excluido_por: "",
+  }).eq("id", id);
+  if (error) throw error;
+  await loadChamadosTI();
+}
+
+export async function esvaziarLixeiraTI() {
+  const excluidos = chamados.filter(c => c.excluido);
+  for (const c of excluidos) {
+    await supabase.from("andamentos_ti" as any).delete().eq("chamado_id", c.id);
+    await supabase.from("chamados_ti").delete().eq("id", c.id);
+  }
   await loadChamadosTI();
 }

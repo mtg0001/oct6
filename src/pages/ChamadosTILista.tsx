@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Headset, Monitor, Clock, Eye } from "lucide-react";
+import { ExcluirChamadoTIButton } from "@/components/ExcluirChamadoTIButton";
 import {
   getChamadosTIByStatus,
   ensureChamadosTILoaded,
@@ -103,6 +104,7 @@ export default function ChamadosTILista({ contexto = "chamado-ti" }: ChamadosTIL
                       <Button size="sm" variant="outline" className="gap-1" onClick={() => navigate(`${basePath}/${filtro}/chamado/${c.id}`)}>
                         <Eye className="h-3.5 w-3.5" /> Ver
                       </Button>
+                      <ExcluirChamadoTIButton chamadoId={c.id} />
                     </div>
                   </div>
                 </Card>

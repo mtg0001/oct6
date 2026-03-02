@@ -23,6 +23,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder, resolveExistingDateFolder } from "@/lib/sharepointAttachments";
 import { AndamentoBubble } from "@/components/AndamentoBubble";
+import { ExcluirChamadoTIButton } from "@/components/ExcluirChamadoTIButton";
 import octarteLogo from "@/assets/octarte-logo.png";
 
 const URGENCIA_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
@@ -255,6 +256,7 @@ export default function ChamadoTIDetalhe() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <ExcluirChamadoTIButton chamadoId={chamado.id} onDeleted={() => navigate(-1)} />
             <Button
               variant="ghost"
               size="icon"
