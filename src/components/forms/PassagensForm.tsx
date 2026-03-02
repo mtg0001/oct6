@@ -131,6 +131,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const dias = (() => {
     if (dataIdaDate && dataVoltaDate) {
@@ -229,6 +230,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
       .map((p) => `${p.nome} (CPF: ${p.cpf}, RG: ${p.rg}, Depto: ${p.departamento || "—"})`)
       .join("; ");
 
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -273,13 +275,15 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Passagens", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Passagens", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Passagens enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -480,7 +484,7 @@ const PassagensForm = ({ open, onOpenChange, unidade }: PassagensFormProps) => {
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>Cancelar</Button>
-            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90">Enviar Solicitação</Button>
+            <Button type="submit" className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

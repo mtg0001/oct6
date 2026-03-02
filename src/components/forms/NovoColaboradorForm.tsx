@@ -156,6 +156,7 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCalSelect = (setDate: (d: Date | undefined) => void, setInput: (v: string) => void, setOpen: (v: boolean) => void) =>
     (date: Date | undefined) => {
@@ -226,6 +227,7 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -266,13 +268,15 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Novo Colaborador", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Novo Colaborador", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -563,7 +567,7 @@ const NovoColaboradorForm = ({ open, onOpenChange, unidade }: NovoColaboradorFor
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

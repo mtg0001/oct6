@@ -125,6 +125,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
   // Anexo
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // ── derived ──
   const qtdDiarias = datasAdicionadas.length;
@@ -233,6 +234,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -278,13 +280,15 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Serviço de Diarista", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Serviço de Diarista", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Diarista enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -588,7 +592,7 @@ const DiaristaForm = ({ open, onOpenChange, unidade }: DiaristaFormProps) => {
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

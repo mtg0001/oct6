@@ -91,6 +91,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCalendarSelect = (
     date: Date | undefined,
@@ -204,6 +205,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
     const allTipos = tendas.filter(t => t.tipo).map(t => t.tipo);
     const tendasInfo = buildTendasInfo();
 
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -244,13 +246,15 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Tendas", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Tendas", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Tenda enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -492,7 +496,7 @@ const TendasForm = ({ open, onOpenChange, unidade }: TendasFormProps) => {
 
           <div className="flex justify-end gap-3 pt-1">
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>Cancelar</Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

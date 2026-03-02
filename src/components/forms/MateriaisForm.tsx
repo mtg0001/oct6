@@ -67,6 +67,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Uniformes e EPI specific state
   const [querUniforme, setQuerUniforme] = useState<boolean | null>(null);
@@ -157,6 +158,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -218,13 +220,15 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         ...(algumNaoDisponivel ? { setorAtual: "diretoria" } : {}),
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: `${tituloForm} enviada com sucesso!${algumNaoDisponivel ? " Encaminhada para Diretoria (Soraya)." : ""}` });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -516,7 +520,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">Enviar Solicitação</Button>
+            <Button type="submit" disabled={submitting}>{submitting ? "Enviando..." : "Enviar Solicitação"}</Button>
           </div>
         </form>
       </DialogContent>

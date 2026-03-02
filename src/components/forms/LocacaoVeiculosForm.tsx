@@ -206,6 +206,7 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
   const [observacoes, setObservacoes] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [anexoNome, setAnexoNome] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // ── CEP handlers ──
   const handleCepOrigem = useCallback(async (value: string) => {
@@ -319,6 +320,7 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setSubmitting(true);
     try {
       const file = fileInputRef.current?.files?.[0];
       let storedAnexo = anexoNome;
@@ -367,13 +369,15 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
         observacoes,
       });
       if (file && storedAnexo && dateFolder) {
-        await uploadAttachmentToSharePoint({ file, unidade, servico: "Locação de Veículos", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder });
+        uploadAttachmentToSharePoint({ file, unidade, servico: "Locação de Veículos", userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
       }
       toast({ title: "Solicitação de Locação de Veículos enviada com sucesso!" });
       resetForm();
       onOpenChange(false);
     } catch (err: any) {
       toast({ title: "Erro ao enviar solicitação", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -645,8 +649,8 @@ const LocacaoVeiculosForm = ({ open, onOpenChange, unidade }: LocacaoVeiculosFor
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancelar
             </Button>
-            <Button type="submit">
-              Enviar Solicitação
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Enviando..." : "Enviar Solicitação"}
             </Button>
           </div>
         </form>
