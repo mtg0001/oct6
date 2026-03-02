@@ -220,8 +220,8 @@ const Chat = () => {
     const path = `${currentUser.id}/${Date.now()}_${file.name}`;
     const { error } = await supabase.storage.from("chat-attachments").upload(path, file);
     if (error) { toast.error("Erro ao enviar arquivo"); return; }
-    const { data: urlData } = supabase.storage.from("chat-attachments").getPublicUrl(path);
-    await sendMessage("file", file.name, urlData.publicUrl, file.name);
+    // Store the storage path (not public URL) since bucket is private
+    await sendMessage("file", file.name, path, file.name);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -428,16 +428,24 @@ const Chat = () => {
                             : "bg-accent text-accent-foreground rounded-bl-md"
                         )}>
                           {msg.message_type === "file" && msg.file_url ? (
-                            <a
-                              href={msg.file_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={cn("flex items-center gap-2 text-xs underline", isMine ? "text-primary-foreground" : "text-foreground")}
+                            <button
+                              onClick={async () => {
+                                // file_url stores the storage path; generate a signed URL
+                                const isPath = msg.file_url && !msg.file_url.startsWith("http");
+                                if (isPath) {
+                                  const { data } = await supabase.storage.from("chat-attachments").createSignedUrl(msg.file_url!, 300);
+                                  if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                                  else toast.error("Erro ao abrir arquivo");
+                                } else {
+                                  window.open(msg.file_url!, "_blank");
+                                }
+                              }}
+                              className={cn("flex items-center gap-2 text-xs underline cursor-pointer", isMine ? "text-primary-foreground" : "text-foreground")}
                             >
                               <FileText className="h-4 w-4 shrink-0" />
                               <span className="truncate">{msg.file_name || "Arquivo"}</span>
                               <Download className="h-3 w-3 shrink-0" />
-                            </a>
+                            </button>
                           ) : (
                             <p className="text-xs break-words whitespace-pre-wrap">{msg.content}</p>
                           )}

@@ -303,14 +303,18 @@ Deno.serve(async (req) => {
     }
 
     if (action === "upload-file") {
-      const { unidade, servico, userName, fileName, fileBase64, contentType, datePasta } = body;
+      const { unidade, servico, userName: rawUserName, fileName: rawFileName, fileBase64, contentType, datePasta } = body;
 
-      if (!unidade || !servico || !userName || !fileName || !fileBase64) {
+      if (!unidade || !servico || !rawUserName || !rawFileName || !fileBase64) {
         return new Response(
           JSON.stringify({ error: "Campos obrigatórios faltando" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+
+      // Sanitize path inputs to prevent traversal
+      const userName = String(rawUserName).replace(/[\\\/\.\.]/g, "_").substring(0, 255);
+      const fileName = String(rawFileName).replace(/[\\\/\.\.]/g, "_").substring(0, 255);
 
       const parentPath = `${rootFolder}/${toSharePointUnidade(unidade)}/${toSharePointServico(servico)}`;
       // Create user folder (parent path is fixed/pre-existing)
@@ -376,7 +380,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("SharePoint error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: "Erro ao processar solicitação no SharePoint" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

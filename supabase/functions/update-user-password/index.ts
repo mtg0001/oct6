@@ -44,14 +44,23 @@ Deno.serve(async (req) => {
 
     const { userId, password } = await req.json();
 
-    if (!userId || !password) {
+    if (!userId || !password || typeof userId !== "string" || typeof password !== "string") {
       return new Response(JSON.stringify({ error: "userId e password são obrigatórios" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      return new Response(JSON.stringify({ error: "userId inválido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (password.length < 8 || password.length > 100 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
       return new Response(JSON.stringify({ error: "Senha não atende aos requisitos de complexidade" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -60,7 +69,8 @@ Deno.serve(async (req) => {
 
     const { error: updateErr } = await adminClient.auth.admin.updateUserById(userId, { password });
     if (updateErr) {
-      return new Response(JSON.stringify({ error: updateErr.message }), {
+      console.error("Password update error:", updateErr.message);
+      return new Response(JSON.stringify({ error: "Erro ao atualizar senha" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -76,7 +86,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("update-user-password error:", err);
+    return new Response(JSON.stringify({ error: "Erro ao processar solicitação" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
