@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { AppLayout } from "@/components/AppLayout";
@@ -10,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Headset, Paperclip, X, Send } from "lucide-react";
+import { Headset, Paperclip, X, Send, CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { addChamadoTI } from "@/stores/chamadosTIStore";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -57,6 +61,7 @@ export default function ChamadoTINovo() {
   const [nomeColaborador, setNomeColaborador] = useState("");
   const [cargoColaborador, setCargoColaborador] = useState("");
   const [aprovadoGestor, setAprovadoGestor] = useState<string>("");
+  const [dataInicio, setDataInicio] = useState<Date | undefined>(undefined);
   const [anydesk, setAnydesk] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [arquivos, setArquivos] = useState<File[]>([]);
@@ -68,6 +73,7 @@ export default function ChamadoTINovo() {
     setSiteSuspeito("");
     setNomeColaborador("");
     setCargoColaborador("");
+    setDataInicio(undefined);
     setAprovadoGestor("");
     setAnydesk("");
   };
@@ -127,6 +133,7 @@ export default function ChamadoTINovo() {
     if (showSiteSuspeitoField && !siteSuspeito.trim()) { toast.error("Digite a URL suspeita"); return; }
     if (showNomeCargoColaborador && !nomeColaborador.trim()) { toast.error("Informe o nome do colaborador"); return; }
     if (showNomeCargoColaborador && !cargoColaborador.trim()) { toast.error("Informe o cargo do colaborador"); return; }
+    if (showNomeCargoColaborador && !dataInicio) { toast.error("Informe a data de início"); return; }
     if (showAprovadoGestor && !aprovadoGestor) { toast.error("Informe se foi aprovado pelo gestor"); return; }
 
     setEnviando(true);
@@ -151,7 +158,7 @@ export default function ChamadoTINovo() {
         siteEspecifico,
         siteSuspeito,
         aprovadoGestor,
-        novoColaborador: nomeColaborador ? `${nomeColaborador} | ${cargoColaborador}` : "",
+        novoColaborador: nomeColaborador ? `${nomeColaborador} | ${cargoColaborador} | Início: ${dataInicio ? format(dataInicio, "dd/MM/yyyy") : ""}` : "",
         anydesk,
         urgencia,
         observacoes,
@@ -232,7 +239,7 @@ export default function ChamadoTINovo() {
               {/* Nome e Cargo do Colaborador (Criação de Usuário) */}
               {showNomeCargoColaborador && (
                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label className="text-sm font-medium">Nome do colaborador <span className="text-destructive">*</span></Label>
                       <Input
@@ -252,6 +259,32 @@ export default function ChamadoTINovo() {
                         className="mt-1.5"
                         maxLength={200}
                       />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Data de início <span className="text-destructive">*</span></Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full mt-1.5 justify-start text-left font-normal",
+                              !dataInicio && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dataInicio ? format(dataInicio, "dd/MM/yyyy") : "dd/mm/aaaa"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={dataInicio}
+                            onSelect={setDataInicio}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 </div>
