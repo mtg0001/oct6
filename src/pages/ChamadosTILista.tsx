@@ -31,12 +31,23 @@ export default function ChamadosTILista({ contexto = "chamado-ti" }: ChamadosTIL
 
   const status = filtro === "resolvidos" ? "resolvido" : filtro === "cancelados" ? "cancelado" : "pendente";
   const titulo = filtro === "resolvidos" ? "Resolvidos" : filtro === "cancelados" ? "Cancelados" : "Pendentes";
+
+  // For pending list, also include "aguardando_diretoria" chamados
+  const getChamadosForList = () => {
+    if (status === "pendente") {
+      return [
+        ...getChamadosTIByStatus("pendente"),
+        ...getChamadosTIByStatus("aguardando_diretoria"),
+      ];
+    }
+    return getChamadosTIByStatus(status);
+  };
   const isTI = contexto === "ti";
   const icon = isTI ? Monitor : Headset;
 
   useEffect(() => {
-    ensureChamadosTILoaded().then(() => setChamados(getChamadosTIByStatus(status)));
-    return subscribeChamadosTI(() => setChamados(getChamadosTIByStatus(status)));
+    ensureChamadosTILoaded().then(() => setChamados(getChamadosForList()));
+    return subscribeChamadosTI(() => setChamados(getChamadosForList()));
   }, [status]);
 
   const basePath = isTI ? "/ti/chamados" : "/chamado-ti";
@@ -83,6 +94,9 @@ export default function ChamadosTILista({ contexto = "chamado-ti" }: ChamadosTIL
                       </p>
                       {c.observacoes && (
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-1">Obs: {c.observacoes}</p>
+                      )}
+                      {c.status === "aguardando_diretoria" && isTI && (
+                        <Badge variant="outline" className="text-[10px] bg-purple-50 text-purple-700 border-purple-200">Aguardando Diretoria</Badge>
                       )}
                     </div>
                     <div className="flex gap-2 shrink-0">

@@ -386,8 +386,29 @@ export default function ChamadoTIDetalhe() {
           </Card>
         )}
 
+        {/* Aguardando Diretoria message - only in TI view */}
+        {chamado.status === "aguardando_diretoria" && isTI && (
+          <Card className="mb-5 shadow-sm border-purple-200 bg-purple-50/50">
+            <div className="px-5 py-4 text-center">
+              <Clock className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+              <p className="text-sm font-semibold text-purple-700">Aguardando aprovação da Diretoria</p>
+              <p className="text-xs text-purple-600 mt-1">Este chamado será liberado após aprovação ou reprovação pela diretoria.</p>
+            </div>
+          </Card>
+        )}
+
         {/* Actions */}
         <div className="flex justify-end gap-2.5 flex-wrap pt-2">
+          {chamado.status === "aguardando_diretoria" && !isTI && (
+            <Button
+              variant="outline"
+              className="gap-1.5"
+              onClick={() => setAndamentoOpen(!andamentoOpen)}
+              disabled={!!actionLoading}
+            >
+              <MessageSquarePlus className="h-4 w-4" /> Andamento
+            </Button>
+          )}
           {chamado.status === "pendente" && (
             <>
               <Button
@@ -399,25 +420,27 @@ export default function ChamadoTIDetalhe() {
                 <MessageSquarePlus className="h-4 w-4" /> Andamento
               </Button>
               {isTI && (
-                <Button
-                  variant="outline"
-                  className="gap-1.5 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-                  onClick={() => handleAction("resolvido")}
-                  disabled={!!actionLoading}
-                >
-                  {actionLoading === "resolvido" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                  Resolver
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className="gap-1.5 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                    onClick={() => handleAction("resolvido")}
+                    disabled={!!actionLoading}
+                  >
+                    {actionLoading === "resolvido" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    Resolver
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
+                    onClick={() => handleAction("cancelado")}
+                    disabled={!!actionLoading}
+                  >
+                    {actionLoading === "cancelado" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                    Cancelar
+                  </Button>
+                </>
               )}
-              <Button
-                variant="outline"
-                className="gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
-                onClick={() => handleAction("cancelado")}
-                disabled={!!actionLoading}
-              >
-                {actionLoading === "cancelado" ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-                Cancelar
-              </Button>
             </>
           )}
           {(chamado.status === "resolvido" || chamado.status === "cancelado") && isTI && (
