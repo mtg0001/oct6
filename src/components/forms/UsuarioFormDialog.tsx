@@ -56,6 +56,7 @@ const emptyForm = {
   podeVerLixeira: false,
   resolveCs: false,
   podeUsarChat: true,
+  podeAbrirChamado: false,
 };
 
 function validatePassword(pw: string) {
@@ -102,6 +103,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
         podeVerLixeira: usuario.podeVerLixeira || false,
         resolveCs: usuario.resolveCs || false,
         podeUsarChat: usuario.podeUsarChat !== false,
+        podeAbrirChamado: usuario.podeAbrirChamado || false,
       });
       setUsername("");
       setPassword("");
@@ -148,6 +150,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
           podeVerLixeira: form.podeVerLixeira,
           resolveCs: form.resolveCs,
           podeUsarChat: form.podeUsarChat,
+          podeAbrirChamado: form.podeAbrirChamado,
         };
         await updateUsuario(usuario.id, data);
 
@@ -216,6 +219,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
             podeVerLixeira: form.podeVerLixeira,
             resolveCs: form.resolveCs,
             podeUsarChat: form.podeUsarChat,
+            podeAbrirChamado: form.podeAbrirChamado,
           },
         });
 
@@ -401,6 +405,7 @@ export default function UsuarioFormDialog({ open, onOpenChange, usuario }: Props
                 <RadioRow label="Resolve Solicitações Recursos Humanos SP:" checked={form.resolveRecursosHumanosSp} onChange={(v) => setForm({ ...form, resolveRecursosHumanosSp: v })} />
                 <RadioRow label="Resolve Solicitações CS:" checked={form.resolveCs} onChange={(v) => setForm({ ...form, resolveCs: v })} />
                 <RadioRow label="Pode usar o Chat:" checked={form.podeUsarChat} onChange={(v) => setForm({ ...form, podeUsarChat: v })} />
+                <RadioRow label="Pode abrir Chamado TI:" checked={form.podeAbrirChamado} onChange={(v) => setForm({ ...form, podeAbrirChamado: v })} />
               </div>
 
               {/* Visualiza Todas Solicitações */}

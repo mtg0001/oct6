@@ -18,6 +18,7 @@ export interface ChamadoTI {
   status: "pendente" | "resolvido" | "cancelado" | "aguardando_diretoria";
   diretorAprovacao: string;
   resultadoAprovacao: string;
+  sharepointPasta: string;
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -41,6 +42,7 @@ function mapRow(row: any): ChamadoTI {
     status: row.status,
     diretorAprovacao: row.diretor_aprovacao || "",
     resultadoAprovacao: row.resultado_aprovacao || "",
+    sharepointPasta: row.sharepoint_pasta || "",
     criadoEm: row.created_at,
     atualizadoEm: row.updated_at,
   };
@@ -94,6 +96,7 @@ export async function addChamadoTI(data: {
   anexos?: string[];
   diretorAprovacao?: string;
   status?: string;
+  sharepointPasta?: string;
 }) {
   const { error } = await supabase.from("chamados_ti").insert({
     solicitante_id: data.solicitanteId,
@@ -112,6 +115,7 @@ export async function addChamadoTI(data: {
     status: data.status || "pendente",
     diretor_aprovacao: data.diretorAprovacao || "",
     resultado_aprovacao: "",
+    sharepoint_pasta: data.sharepointPasta || "",
   });
   if (error) throw error;
   await loadChamadosTI();

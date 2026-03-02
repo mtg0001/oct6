@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       resolveRecursosHumanosGo, resolveRecursosHumanosSp,
       diretoria, servicosPermitidos, visualizaSolicitacoesUnidades,
       podeExcluirChamado, podeVerLixeira,
-      resolveCs, podeUsarChat,
+      resolveCs, podeUsarChat, podeAbrirChamado,
     } = await req.json();
 
     if (!username || !password) {
@@ -105,6 +105,7 @@ Deno.serve(async (req) => {
         pode_ver_lixeira: podeVerLixeira || false,
         resolve_cs: resolveCs || false,
         pode_usar_chat: podeUsarChat !== false,
+        pode_abrir_chamado: podeAbrirChamado || false,
         must_change_password: true,
       })
       .eq("user_id", newUser.user!.id);
@@ -117,9 +118,10 @@ Deno.serve(async (req) => {
     try {
       const userUnidades = novaSolicitacaoUnidades || [];
       const userServicos = servicosPermitidos || [];
+      const spUrl = Deno.env.get("SUPABASE_URL")! + "/functions/v1/sharepoint-manager";
 
+      // Create folders for regular services
       if (userUnidades.length > 0 && userServicos.length > 0) {
-        const spUrl = Deno.env.get("SUPABASE_URL")! + "/functions/v1/sharepoint-manager";
         const spRes = await fetch(spUrl, {
           method: "POST",
           headers: {
@@ -139,6 +141,28 @@ Deno.serve(async (req) => {
           console.error("SharePoint folder creation error:", spErr);
         } else {
           console.log("SharePoint folders created for user:", nome);
+        }
+      }
+
+      // Create "Chamados TI" folder if user can open TI tickets
+      if (podeAbrirChamado) {
+        const spRes2 = await fetch(spUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader!,
+          },
+          body: JSON.stringify({
+            action: "create-user-folders",
+            userName: nome,
+            unidades: ["Chamados TI"],
+            servicos: ["Chamados TI"],
+          }),
+        });
+        if (!spRes2.ok) {
+          console.error("SharePoint TI folder creation error:", await spRes2.text());
+        } else {
+          console.log("SharePoint Chamados TI folder created for user:", nome);
         }
       }
     } catch (spError) {
