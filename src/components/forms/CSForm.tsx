@@ -367,7 +367,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                         onChange={(e) => updateItem(it.id, "quantidade", e.target.value.replace(/\D/g, ""))}
                         className="mt-1"
                         inputMode="numeric"
-                        placeholder="Somente números"
+                        
                       />
                     </div>
                     <div>
@@ -430,7 +430,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                     onChange={(e) => setNumeroProposta(e.target.value.replace(/\D/g, ""))}
                     className="mt-1"
                     inputMode="numeric"
-                    placeholder="Somente números"
+                    
                   />
                 </div>
                 <DateInput
