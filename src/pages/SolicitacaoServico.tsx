@@ -649,15 +649,17 @@ const SolicitacaoServico = () => {
 
           {/* ── Ações ── */}
           <div className="flex flex-wrap gap-3 pt-2 items-center print:hidden">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-primary text-primary"
-              disabled={sendingAndamento}
-              onClick={() => setShowAndamento(true)}
-            >
-              {sendingAndamento ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Adicionando...</> : "Em andamento"}
-            </Button>
+            {isPendente && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary text-primary"
+                disabled={sendingAndamento}
+                onClick={() => setShowAndamento(true)}
+              >
+                {sendingAndamento ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Adicionando...</> : "Em andamento"}
+              </Button>
+            )}
             {/* Expedition: if returned from diretoria, show Concluir + Cancelar + Encaminhar Logística */}
             {isExpedicao && isPendente && isDevolvido && (
               <>
