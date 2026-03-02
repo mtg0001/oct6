@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function siglaUnidade(unidade: string): string {
   const map: Record<string, string> = {
-    goiania: "GO",
+    goiania: "Goiânia",
     mairipora: "MA",
     pinheiros: "PI",
   };

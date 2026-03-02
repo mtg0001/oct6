@@ -58,7 +58,7 @@ const Index = () => {
           <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">Nova Solicitação</p>
           <div className="flex flex-wrap gap-1 mt-1.5">
             {showGO && (
-              <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">GO</Link>
+              <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Goiânia</Link>
             )}
             {showMairipora && (
               <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Mairiporã</Link>
