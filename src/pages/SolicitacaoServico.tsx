@@ -75,6 +75,7 @@ const SolicitacaoServico = () => {
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
+  const isDiretoriaUniformes = showDiretoriaButtons && sol.tipo === 'Uniformes e EPI';
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const hasAnexo = !!parsed["Anexo"];
@@ -270,7 +271,25 @@ const SolicitacaoServico = () => {
   // ── Materiais table rows (shared for all material types) ──
   const getMateriaisRows = () => {
     const rows: { campo: string; valor: string }[] = [];
-    const itensRaw = (sol.caracteristicas as any)?.itens || parsed["Itens"] || "";
+    const carac = sol.caracteristicas as any;
+
+    // Uniform/shoe details for Uniformes e EPI
+    if (sol.tipo === "Uniformes e EPI") {
+      if (carac?.uniforme === "sim") {
+        rows.push({ campo: "Uniforme", valor: `Sim — Tamanho: ${carac.tamanhoUniforme || "—"}` });
+        rows.push({ campo: "Uniforme disponível na empresa?", valor: carac.uniformeDisponivel === "sim" ? "Sim" : "Não" });
+      } else {
+        rows.push({ campo: "Uniforme", valor: "Não" });
+      }
+      if (carac?.sapato === "sim") {
+        rows.push({ campo: "Sapato", valor: `Sim — Tamanho: ${carac.tamanhoSapato || "—"}` });
+        rows.push({ campo: "Sapato disponível na empresa?", valor: carac.sapatoDisponivel === "sim" ? "Sim" : "Não" });
+      } else {
+        rows.push({ campo: "Sapato", valor: "Não" });
+      }
+    }
+
+    const itensRaw = carac?.itens || parsed["Itens"] || "";
     if (itensRaw) {
       const lista = itensRaw.split(";").map((s: string) => s.trim()).filter(Boolean);
       lista.forEach((item: string, i: number) => {
@@ -669,8 +688,39 @@ const SolicitacaoServico = () => {
                 Encaminhar para Expedição
               </Button>
             )}
-            {/* Diretoria: forwarded expedition item */}
-            {showDiretoriaButtons && (
+            {/* Diretoria: Uniformes e EPI (Soraya) - special buttons */}
+            {isDiretoriaUniformes && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Recursos Humanos`);
+                  await encaminharSolicitacao(sol.id, '', undefined, 'pendente');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e enviar para Recursos Humanos
+                </Button>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
+                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado', undefined, 'aprovado');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e enviar para Logística
+                </Button>
+                <Button size="sm" variant="destructive" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome}`);
+                  await encaminharSolicitacao(sol.id, '', undefined, 'reprovado');
+                  navigate(-1);
+                }}>
+                  Reprovar
+                </Button>
+              </>
+            )}
+            {/* Diretoria: forwarded expedition item (non-Uniformes) */}
+            {showDiretoriaButtons && !isDiretoriaUniformes && (
               <>
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;

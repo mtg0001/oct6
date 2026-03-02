@@ -189,7 +189,7 @@ export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI"] as const;
 
 export function getSolicitacoesRH(status?: string) {
   return solicitacoes.filter((s) => {
-    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo);
+    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo) && s.setorAtual !== 'diretoria' && s.setorAtual !== 'logistica_encaminhado';
     const isEncaminhado = s.setorAtual === 'rh_encaminhado';
     const inQueue = isRHOriginal || isEncaminhado;
     return status ? inQueue && s.status === status : inQueue;
@@ -237,8 +237,10 @@ export function getTotaisPorUnidadeEStatus(unidade: string) {
 }
 
 // Mutations
-export async function addSolicitacao(sol: Omit<SolicitacaoColaborador, "id" | "dataCriacao" | "status" | "andamentos" | "setorAtual">) {
-  const { data, error } = await supabase.from("solicitacoes").insert([toDbInsert(sol)] as any).select().single();
+export async function addSolicitacao(sol: Omit<SolicitacaoColaborador, "id" | "dataCriacao" | "status" | "andamentos" | "setorAtual"> & { setorAtual?: string }) {
+  const dbRow = toDbInsert(sol);
+  if (sol.setorAtual) dbRow.setor_atual = sol.setorAtual;
+  const { data, error } = await supabase.from("solicitacoes").insert([dbRow] as any).select().single();
   if (error) throw error;
   const nova = mapSolRow(data, []);
   solicitacoes = [nova, ...solicitacoes];
