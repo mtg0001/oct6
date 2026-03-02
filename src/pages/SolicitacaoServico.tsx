@@ -363,7 +363,7 @@ const SolicitacaoServico = () => {
       rows.push({ campo: "Contrato Temporário", valor: `${carac?.tempDe || "—"} a ${carac?.tempAte || "—"}` });
     }
     // Características comportamentais
-    const caracKeys = ["Pro atividade", "Foco", "Relacionamento", "Decisão", "Asseio", "Iniciativa", "Competitividade", "Ousadia", "Estratégia", "Agilidade", "Liderança", "Oratória", "Negociação", "Criatividade", "Serenidade", "Comunicação", "Organização", "Versatilidade", "Habilidade", "Simpatia"];
+    const caracKeys = ["Proatividade", "Foco", "Relacionamento", "Decisão", "Asseio", "Iniciativa", "Competitividade", "Ousadia", "Estratégia", "Agilidade", "Liderança", "Oratória", "Negociação", "Criatividade", "Serenidade", "Comunicação", "Organização", "Versatilidade", "Habilidade", "Simpatia"];
     const aplicaveis = caracKeys.filter((k) => carac?.[k] === "aplica");
     if (aplicaveis.length > 0) {
       rows.push({ campo: "Características (Aplica)", valor: aplicaveis.join(", ") });
