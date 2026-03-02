@@ -9,6 +9,7 @@ import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
 import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
+import { siglaUnidade } from "@/lib/utils";
 
 const statusMap: Record<string, string> = {
   pendentes: "pendente",
@@ -89,7 +90,7 @@ const MinhasSolicitacoes = () => {
               </div>
               <div>
                 <span className="text-muted-foreground text-xs block">Unidade</span>
-                <Badge variant="outline">{sol.unidade === "goiania" ? "GO" : "SP"}</Badge>
+                <Badge variant="outline">{siglaUnidade(sol.unidade)}</Badge>
               </div>
               <div>
                 <span className="text-muted-foreground text-xs block">Status</span>

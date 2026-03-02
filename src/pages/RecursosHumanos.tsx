@@ -7,6 +7,7 @@ import { useState } from "react";
 import { getIconForTipo } from "@/lib/solicitacaoIcons";
 import { PrioridadeBadge, sortByPrioridade } from "@/components/forms/PrioridadeSelect";
 import { ExcluirChamadoButton } from "@/components/ExcluirChamadoButton";
+import { siglaUnidade } from "@/lib/utils";
 
 const statusConfig: Record<string, { storeStatus: string; label: string }> = {
   pendentes: { storeStatus: "aprovado", label: "Pendentes" },
@@ -73,7 +74,7 @@ const RecursosHumanos = () => {
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Unidade</span>
-                  <span className="font-medium">{sol.unidade === "goiania" ? "GO" : "SP"}</span>
+                  <span className="font-medium">{siglaUnidade(sol.unidade)}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs block">Tipo</span>
