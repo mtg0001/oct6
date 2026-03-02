@@ -155,24 +155,12 @@ export function AppSidebar() {
     if (isAdmin || u?.resolveCs) {
       items.push({
         title: "CS",
-        icon: Sparkles,
+        icon: Heart,
+        variant: 'pink',
         children: [
           { title: "Pendentes", path: "/cs/pendentes" },
           { title: "Resolvidos", path: "/cs/resolvidos" },
           { title: "Cancelados", path: "/cs/cancelados" },
-        ],
-      });
-    }
-
-    if (isAdmin || u?.podeVerCad) {
-      items.push({
-        title: "CAD",
-        icon: Heart,
-        variant: 'pink',
-        children: [
-          { title: "Pendentes", path: "/cad/pendentes" },
-          { title: "Resolvidos", path: "/cad/resolvidos" },
-          { title: "Cancelados", path: "/cad/cancelados" },
         ],
       });
     }
