@@ -62,6 +62,62 @@ interface ItemDescricao {
   obs: string;
 }
 
+interface DateInputFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  calendarOpen: boolean;
+  setCalendarOpen: (open: boolean) => void;
+  calendarDate: Date | undefined;
+  onCalendarSelect: (date: Date | undefined) => void;
+}
+
+const DateInputField = ({
+  label,
+  value,
+  onChange,
+  calendarOpen,
+  setCalendarOpen,
+  calendarDate,
+  onCalendarSelect,
+}: DateInputFieldProps) => {
+  return (
+    <div>
+      <Label className="text-xs font-bold">{label}</Label>
+      <div className="relative mt-1">
+        <Input
+          value={value}
+          onChange={(e) => onChange(maskDate(e.target.value))}
+          placeholder="dd/mm/aaaa"
+          maxLength={10}
+          inputMode="numeric"
+          className="pr-10"
+        />
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen} modal>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              tabIndex={-1}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <CalendarIcon className="h-4 w-4" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <Calendar
+              mode="single"
+              selected={calendarDate}
+              onSelect={onCalendarSelect}
+              locale={ptBR}
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </div>
+  );
+};
+
 let itemIdCounter = 1;
 
 const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
@@ -249,38 +305,6 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
     }
   };
 
-  const DateInput = ({
-    label, value, onChange, calendarOpen, setCalendarOpen, calendarDate, onCalendarSelect,
-  }: {
-    label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    calendarOpen: boolean; setCalendarOpen: (o: boolean) => void; calendarDate: Date | undefined;
-    onCalendarSelect: (d: Date | undefined) => void;
-  }) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange(e);
-      // Restore focus after mask applies
-      requestAnimationFrame(() => inputRef.current?.focus());
-    };
-    return (
-      <div>
-        <Label className="text-xs font-bold">{label}</Label>
-        <div className="relative mt-1">
-          <Input ref={inputRef} value={value} onChange={handleChange} placeholder="dd/mm/aaaa" maxLength={10} inputMode="numeric" className="pr-10" />
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen} modal>
-            <PopoverTrigger asChild>
-              <button type="button" tabIndex={-1} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                <CalendarIcon className="h-4 w-4" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar mode="single" selected={calendarDate} onSelect={onCalendarSelect} locale={ptBR} className={cn("p-3 pointer-events-auto")} />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -347,10 +371,10 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                   <Input value={local} onChange={(e) => setLocal(e.target.value)} className="mt-1" />
                 </div>
               </div>
-              <DateInput
+              <DateInputField
                 label="Data de Realização *"
                 value={dataRealizacao}
-                onChange={(e) => setDataRealizacao(maskDate(e.target.value))}
+                onChange={setDataRealizacao}
                 calendarOpen={dataRealizacaoCalendarOpen}
                 setCalendarOpen={setDataRealizacaoCalendarOpen}
                 calendarDate={dataRealizacaoCalendarDate}
@@ -441,10 +465,10 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                     
                   />
                 </div>
-                <DateInput
+                <DateInputField
                   label="Data da Proposta *"
                   value={dataProposta}
-                  onChange={(e) => setDataProposta(maskDate(e.target.value))}
+                  onChange={setDataProposta}
                   calendarOpen={dataPropostaCalendarOpen}
                   setCalendarOpen={setDataPropostaCalendarOpen}
                   calendarDate={dataPropostaCalendarDate}
