@@ -91,6 +91,7 @@ export type Database = {
           novo_colaborador: string | null
           observacoes: string | null
           resultado_aprovacao: string | null
+          sharepoint_pasta: string
           site_especifico: string | null
           site_suspeito: string | null
           solicitante_id: string | null
@@ -112,6 +113,7 @@ export type Database = {
           novo_colaborador?: string | null
           observacoes?: string | null
           resultado_aprovacao?: string | null
+          sharepoint_pasta?: string
           site_especifico?: string | null
           site_suspeito?: string | null
           solicitante_id?: string | null
@@ -133,6 +135,7 @@ export type Database = {
           novo_colaborador?: string | null
           observacoes?: string | null
           resultado_aprovacao?: string | null
+          sharepoint_pasta?: string
           site_especifico?: string | null
           site_suspeito?: string | null
           solicitante_id?: string | null
@@ -415,6 +418,7 @@ export type Database = {
           must_change_password: boolean
           nome: string
           nova_solicitacao_unidades: string[]
+          pode_abrir_chamado: boolean
           pode_excluir_chamado: boolean
           pode_usar_chat: boolean
           pode_ver_lixeira: boolean
@@ -443,6 +447,7 @@ export type Database = {
           must_change_password?: boolean
           nome: string
           nova_solicitacao_unidades?: string[]
+          pode_abrir_chamado?: boolean
           pode_excluir_chamado?: boolean
           pode_usar_chat?: boolean
           pode_ver_lixeira?: boolean
@@ -471,6 +476,7 @@ export type Database = {
           must_change_password?: boolean
           nome?: string
           nova_solicitacao_unidades?: string[]
+          pode_abrir_chamado?: boolean
           pode_excluir_chamado?: boolean
           pode_usar_chat?: boolean
           pode_ver_lixeira?: boolean

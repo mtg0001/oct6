@@ -96,18 +96,23 @@ export default function ChamadoTIDetalhe() {
       const nome = nomeUsuario;
       const texto = `[${nome}] ${andamentoTexto.trim()}`;
       const storageUserName = chamado.solicitanteNome || nome;
-      let dateFolder = resolveExistingDateFolder([
+
+      // Use the chamado's existing sharepoint folder, or resolve from existing data, or create new
+      let dateFolder = chamado.sharepointPasta || resolveExistingDateFolder([
         chamado.anexos,
         ...andamentos.map((a) => a?.anexos || []),
       ]);
       if (!dateFolder && anexoFiles.length > 0) {
-        dateFolder = await getNextSequentialFolder(chamado.departamento || "ti", "Chamados TI", storageUserName);
+        dateFolder = await getNextSequentialFolder("Chamados TI", "Chamados TI", storageUserName);
+        // Save the folder back to the chamado for future use
+        await supabase.from("chamados_ti").update({ sharepoint_pasta: dateFolder }).eq("id", id);
       }
+
       const storedNomes = anexoFiles.map((f) => buildStoredFileName(f.name, dateFolder));
       for (const file of anexoFiles) {
         await uploadAttachmentToSharePoint({
           file,
-          unidade: chamado.departamento || "ti",
+          unidade: "Chamados TI",
           servico: "Chamados TI",
           userName: storageUserName,
           datePasta: dateFolder,
@@ -165,6 +170,54 @@ export default function ChamadoTIDetalhe() {
     const successMsg = { resolvido: "Chamado resolvido!", cancelado: "Chamado cancelado!", pendente: "Chamado reaberto!" };
     setActionLoading(action);
     try {
+      // When resolving, generate print PDF and upload to SharePoint
+      if (action === "resolvido" && chamado) {
+        try {
+          const storageUserName = chamado.solicitanteNome || nomeUsuario;
+          let dateFolder = chamado.sharepointPasta || resolveExistingDateFolder([
+            chamado.anexos,
+            ...andamentos.map((a) => a?.anexos || []),
+          ]);
+          if (!dateFolder) {
+            dateFolder = await getNextSequentialFolder("Chamados TI", "Chamados TI", storageUserName);
+          }
+
+          // Use browser print-to-PDF via hidden iframe approach - generate simple text PDF
+          const pdfFileName = `Chamado_TI_${chamado.id.slice(0, 8).toUpperCase()}.pdf`;
+
+          // Upload the print content as a text file (the actual PDF will be the print page)
+          // We save a summary text file to SharePoint  
+          const summaryLines = [
+            `CHAMADO DE TI - #${chamado.id.slice(0, 8).toUpperCase()}`,
+            `Status: Resolvido`,
+            `Solicitante: ${chamado.solicitanteNome}`,
+            `Departamento: ${chamado.departamento}`,
+            `Categoria: ${chamado.categoria}`,
+            `Detalhes: ${chamado.subOpcoes.join(", ")}`,
+            `Urgência: ${(URGENCIA_CONFIG[chamado.urgencia] || URGENCIA_CONFIG.baixa).label}`,
+            `Data Abertura: ${new Date(chamado.criadoEm).toLocaleString("pt-BR")}`,
+            `Data Conclusão: ${new Date().toLocaleString("pt-BR")}`,
+            chamado.observacoes ? `Observações: ${chamado.observacoes}` : "",
+            "",
+            `--- Andamentos (${andamentos.length}) ---`,
+            ...andamentos.map(a => `${new Date(a.created_at).toLocaleString("pt-BR")}: ${a.texto}`),
+          ].filter(Boolean).join("\n");
+
+          const blob = new Blob([summaryLines], { type: "text/plain" });
+          const file = new File([blob], pdfFileName.replace(".pdf", ".txt"), { type: "text/plain" });
+
+          uploadAttachmentToSharePoint({
+            file,
+            unidade: "Chamados TI",
+            servico: "Chamados TI",
+            userName: storageUserName,
+            datePasta: dateFolder,
+          }).catch(err => console.error("Erro ao salvar resumo no SharePoint:", err));
+        } catch (pdfErr) {
+          console.error("Erro ao gerar resumo:", pdfErr);
+        }
+      }
+
       await updateChamadoTIStatus(chamado.id, action);
       toast.success(successMsg[action]);
     } catch {
@@ -300,19 +353,21 @@ export default function ChamadoTIDetalhe() {
             <div className="px-5 py-4">
               <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Anexos</h2>
               <div className="space-y-1.5">
-                {chamado.anexos.map((url, idx) => (
-                  <a
-                    key={idx}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-primary font-medium hover:bg-primary/5 transition-colors group"
-                  >
-                    <Paperclip className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <span className="flex-1 truncate">Anexo {idx + 1}</span>
-                    <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </a>
-                ))}
+                {chamado.anexos.map((fileName, idx) => {
+                  const isUrl = fileName.startsWith("http");
+                  const displayName = isUrl ? `Anexo ${idx + 1}` : fileName.split("/").pop() || fileName;
+                  return (
+                    <AndamentoBubble
+                      key={idx}
+                      texto=""
+                      data=""
+                      anexos={[fileName]}
+                      unidade="Chamados TI"
+                      servico="Chamados TI"
+                      userName={chamado.solicitanteNome}
+                    />
+                  );
+                })}
               </div>
             </div>
           </Card>

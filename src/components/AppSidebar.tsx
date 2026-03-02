@@ -93,18 +93,20 @@ export function AppSidebar() {
       items.push({ title: "Chat", icon: MessageCircle, path: "/chat" });
     }
 
-    // Abrir Chamado TI (red variant)
-    items.push({
-      title: "Abrir Chamado TI",
-      icon: Headset,
-      variant: 'red',
-      children: [
-        { title: "Abrir novo chamado", path: "/chamado-ti/novo" },
-        { title: "Pendentes", path: "/chamado-ti/pendentes" },
-        { title: "Resolvidos", path: "/chamado-ti/resolvidos" },
-        { title: "Cancelados", path: "/chamado-ti/cancelados" },
-      ],
-    });
+    // Abrir Chamado TI (red variant) - only if user has permission
+    if (isAdmin || u?.podeAbrirChamado) {
+      items.push({
+        title: "Abrir Chamado TI",
+        icon: Headset,
+        variant: 'red',
+        children: [
+          { title: "Abrir novo chamado", path: "/chamado-ti/novo" },
+          { title: "Pendentes", path: "/chamado-ti/pendentes" },
+          { title: "Resolvidos", path: "/chamado-ti/resolvidos" },
+          { title: "Cancelados", path: "/chamado-ti/cancelados" },
+        ],
+      });
+    }
 
     const solUnidades = isAdmin
       ? [

@@ -67,6 +67,7 @@ export interface Usuario {
   podeVerLixeira: boolean;
   resolveCs: boolean;
   podeUsarChat: boolean;
+  podeAbrirChamado: boolean;
 }
 
 function mapRow(row: any): Usuario {
@@ -94,6 +95,7 @@ function mapRow(row: any): Usuario {
     podeVerLixeira: row.pode_ver_lixeira || false,
     resolveCs: row.resolve_cs || false,
     podeUsarChat: row.pode_usar_chat !== false,
+    podeAbrirChamado: row.pode_abrir_chamado || false,
   };
 }
 
@@ -120,6 +122,7 @@ function toDbRow(u: Partial<Usuario>): Record<string, any> {
   if (u.podeVerLixeira !== undefined) m.pode_ver_lixeira = u.podeVerLixeira;
   if (u.resolveCs !== undefined) m.resolve_cs = u.resolveCs;
   if (u.podeUsarChat !== undefined) m.pode_usar_chat = u.podeUsarChat;
+  if (u.podeAbrirChamado !== undefined) m.pode_abrir_chamado = u.podeAbrirChamado;
   return m;
 }
 

@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { addChamadoTI } from "@/stores/chamadosTIStore";
+import { uploadAttachmentToSharePoint, buildStoredFileName, getNextSequentialFolder } from "@/lib/sharepointAttachments";
 import { supabase } from "@/integrations/supabase/client";
 
 const URGENCIAS = [
@@ -138,14 +139,25 @@ export default function ChamadoTINovo() {
 
     setEnviando(true);
     try {
-      // Upload files
-      const uploadedUrls: string[] = [];
-      for (const file of arquivos) {
-        const path = `chamados-ti/${Date.now()}_${file.name}`;
-        const { error: upErr } = await supabase.storage.from("avatars").upload(path, file);
-        if (!upErr) {
-          const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-          uploadedUrls.push(urlData.publicUrl);
+      const userName = currentUser?.nome || "Desconhecido";
+
+      // Get sequential folder for SharePoint
+      let dateFolder: string | undefined;
+      let storedFileNames: string[] = [];
+
+      if (arquivos.length > 0) {
+        dateFolder = await getNextSequentialFolder("Chamados TI", "Chamados TI", userName);
+        storedFileNames = arquivos.map((f) => buildStoredFileName(f.name, dateFolder));
+
+        // Upload to SharePoint (non-blocking per file, but sequential)
+        for (const file of arquivos) {
+          uploadAttachmentToSharePoint({
+            file,
+            unidade: "Chamados TI",
+            servico: "Chamados TI",
+            userName,
+            datePasta: dateFolder,
+          }).catch((err) => console.error("Erro upload SharePoint:", err));
         }
       }
 
@@ -153,7 +165,7 @@ export default function ChamadoTINovo() {
 
       await addChamadoTI({
         solicitanteId: currentUser?.id || null,
-        solicitanteNome: currentUser?.nome || "Desconhecido",
+        solicitanteNome: userName,
         departamento: currentUser?.departamento || "",
         categoria,
         subOpcoes,
@@ -164,7 +176,8 @@ export default function ChamadoTINovo() {
         anydesk,
         urgencia,
         observacoes,
-        anexos: uploadedUrls,
+        anexos: storedFileNames,
+        sharepointPasta: dateFolder || "",
         ...(isTeams ? { status: "aguardando_diretoria", diretorAprovacao: "soraya" } : {}),
       });
       toast.success("Chamado aberto com sucesso!");
