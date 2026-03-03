@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const DEPARTAMENTOS = [
   "COMERCIAL",
+  "DIRETORIA",
   "MARKETING",
   "PROJETOS",
   "LICITAÇÕES",
