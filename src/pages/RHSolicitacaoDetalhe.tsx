@@ -179,11 +179,23 @@ const RHSolicitacaoDetalhe = () => {
           {isPendente && (
             <Button variant="outline" className="border-primary text-primary" onClick={() => setShowAndamento(true)}>Andamento</Button>
           )}
+          {isPendente && sol.setorAtual !== 'rh_reprovado_uniforme' && (
+            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
+          )}
           {isPendente && (
-            <>
-              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
-              <Button variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
-            </>
+            <Button variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
+          )}
+          {/* Uniformes e EPI: forward to Soraya */}
+          {isPendente && sol.tipo === 'Uniformes e EPI' && sol.setorAtual !== 'rh_aprovado_uniforme' && sol.setorAtual !== 'rh_reprovado_uniforme' && (
+            <Button size="sm" variant="outline" className="border-purple-500 text-purple-600" onClick={async () => {
+              const nome = currentUser?.nome || "RH";
+              await addAndamento(sol.id, `[${nome}] 📋 Encaminhado para aprovação da Diretoria (Soraya)`);
+              await encaminharSolicitacao(sol.id, 'diretoria_uniforme', 'Soraya');
+              navigate(-1);
+            }}>
+              <Forward className="h-4 w-4 mr-1" />
+              Encaminhar para Diretoria (Soraya)
+            </Button>
           )}
           {/* Forwarded from expedition: can send back */}
           {sol.setorAtual === 'rh_encaminhado' && isPendente && (
@@ -196,6 +208,13 @@ const RHSolicitacaoDetalhe = () => {
               <Forward className="h-4 w-4 mr-1" />
               Encaminhar para Expedição
             </Button>
+          )}
+          {/* Show badge for rejected by diretoria */}
+          {sol.setorAtual === 'rh_reprovado_uniforme' && (
+            <Badge variant="destructive" className="text-xs">Reprovado pela Diretoria</Badge>
+          )}
+          {sol.setorAtual === 'rh_aprovado_uniforme' && (
+            <Badge className="bg-green-600 text-white text-xs">Aprovado pela Diretoria</Badge>
           )}
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="h-4 w-4 mr-1" />
