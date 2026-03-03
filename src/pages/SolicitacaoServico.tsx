@@ -58,6 +58,7 @@ const SolicitacaoServico = () => {
   const isExpedicao = location.pathname.includes("/expedicao/");
   const isLogistica = location.pathname.includes("/logistica/");
   const isDiretoria = location.pathname.includes("/diretoria/");
+  const isRH = location.pathname.includes("/rh/");
   const isAdmin = currentUser?.administrador === true;
   const [showAndamento, setShowAndamento] = useState(false);
   const [textoAndamento, setTextoAndamento] = useState("");
@@ -81,13 +82,18 @@ const SolicitacaoServico = () => {
 
   const siglaUni = siglaUnidade(sol.unidade);
   const isPendente = filtro === "pendentes" || isDiretoria;
-  const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria;
+  const isDiretoriaUniformes = isDiretoria && sol.setorAtual === 'diretoria_uniforme';
+  const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria && !isRH;
+  // RH-specific logic
+  const isRHReprovado = sol.setorAtual === 'rh_reprovado_uniforme';
+  const isRHAprovado = sol.setorAtual === 'rh_aprovado_uniforme';
+  const showRHConcluirCancelar = isRH && isPendente;
+  const showRHEncaminharSoraya = isRH && isPendente && sol.tipo === 'Uniformes e EPI' && !isRHAprovado && !isRHReprovado;
   // Expedition forwarding logic
   const isDevolvido = sol.setorAtual === 'expedicao_devolvido';
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
-  const isDiretoriaUniformes = isDiretoria && sol.setorAtual === 'diretoria_uniforme';
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const openActionDialog = (action: "cancelar" | "concluir") => {
@@ -826,6 +832,38 @@ const SolicitacaoServico = () => {
                   Reprovar e devolver para Expedição
                 </Button>
               </>
+            )}
+            {/* RH: Concluir + Cancelar */}
+            {showRHConcluirCancelar && (
+              <>
+                <Button size="sm" variant="destructive" disabled={!!actionLoading} onClick={() => openActionDialog("cancelar")}>
+                  {actionLoading === "cancelar" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Cancelando...</> : "Cancelar"}
+                </Button>
+                {!isRHReprovado && (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={!!actionLoading} onClick={() => openActionDialog("concluir")}>
+                    {actionLoading === "concluir" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Concluindo...</> : "Concluir"}
+                  </Button>
+                )}
+              </>
+            )}
+            {/* RH: Encaminhar para Diretoria (Soraya) */}
+            {showRHEncaminharSoraya && (
+              <Button size="sm" variant="outline" className="border-purple-500 text-purple-600" onClick={async () => {
+                const nome = currentUser?.nome || "RH";
+                await addAndamento(sol.id, `[${nome}] 📋 Encaminhado para aprovação da Diretoria (Soraya)`);
+                await encaminharSolicitacao(sol.id, 'diretoria_uniforme', 'Soraya');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Encaminhar para Diretoria (Soraya)
+              </Button>
+            )}
+            {/* RH: badges for diretoria result */}
+            {isRH && isRHReprovado && (
+              <Badge variant="destructive" className="text-xs">Reprovado pela Diretoria</Badge>
+            )}
+            {isRH && isRHAprovado && (
+              <Badge className="bg-green-600 text-white text-xs">Aprovado pela Diretoria</Badge>
             )}
             <Button variant="outline" size="sm" onClick={() => window.print()}>
               <Printer className="h-4 w-4 mr-1" />
