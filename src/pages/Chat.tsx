@@ -21,12 +21,14 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
-// ─── Types ───
-interface Presence {
-  usuario_id: string;
-  status: string;
-  last_seen: string;
-}
+import {
+  usePresences,
+  getPresenceStatus,
+  getPresenceLastSeen,
+  getStatusColor,
+  getStatusLabel,
+  type Presence,
+} from "@/hooks/usePresence";
 
 interface Conversation {
   id: string;
@@ -57,7 +59,7 @@ const EMOJI_LIST = [
 const Chat = () => {
   const currentUser = useCurrentUser();
   const usuarios = useUsuarios();
-  const [presences, setPresences] = useState<Presence[]>([]);
+  const presences = usePresences();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -68,40 +70,6 @@ const Chat = () => {
   const [nudging, setNudging] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ─── Set own presence ───
-  useEffect(() => {
-    if (!currentUser?.id) return;
-    const upsertPresence = async () => {
-      await supabase.from("user_presence").upsert(
-        { usuario_id: currentUser.id, status: "online", last_seen: new Date().toISOString() },
-        { onConflict: "usuario_id" }
-      );
-    };
-    upsertPresence();
-    const interval = setInterval(upsertPresence, 30000);
-    return () => {
-      clearInterval(interval);
-      supabase.from("user_presence").upsert(
-        { usuario_id: currentUser.id, status: "offline", last_seen: new Date().toISOString() },
-        { onConflict: "usuario_id" }
-      );
-    };
-  }, [currentUser?.id]);
-
-  // ─── Load presences ───
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase.from("user_presence").select("*");
-      if (data) setPresences(data as Presence[]);
-    };
-    load();
-    const channel = supabase
-      .channel("presence-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "user_presence" }, () => load())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, []);
 
   // ─── Load conversations ───
   useEffect(() => {
@@ -239,35 +207,18 @@ const Chat = () => {
   const sendNudge = () => sendMessage("nudge", "🔔 Chamou sua atenção!");
 
   // ─── Helpers ───
-  const getPresenceStatus = (usuarioId: string) => {
-    const p = presences.find((pr) => pr.usuario_id === usuarioId);
-    if (!p) return "offline";
-    const diff = Date.now() - new Date(p.last_seen).getTime();
-    if (diff > 60000) return "offline";
-    return p.status;
-  };
+  const getStatus = (usuarioId: string) => getPresenceStatus(presences, usuarioId);
+  const getLastSeen = (usuarioId: string) => getPresenceLastSeen(presences, usuarioId);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "online": return "bg-green-500";
-      case "busy": return "bg-amber-500";
-      case "away": return "bg-yellow-500";
-      default: return "bg-muted";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "online": return "Online";
-      case "busy": return "Ocupado";
-      case "away": return "Ausente";
-      default: return "Offline";
-    }
+  const formatLastSeen = (usuarioId: string) => {
+    const lastSeen = getLastSeen(usuarioId);
+    if (!lastSeen) return "";
+    return format(new Date(lastSeen), "dd/MM/yyyy HH:mm", { locale: ptBR });
   };
 
   const otherUsers = usuarios.filter((u) => u.id !== currentUser?.id && u.ativo);
-  const onlineUsers = otherUsers.filter((u) => getPresenceStatus(u.id) === "online");
-  const offlineUsers = otherUsers.filter((u) => getPresenceStatus(u.id) !== "online");
+  const onlineUsers = otherUsers.filter((u) => getStatus(u.id) !== "offline");
+  const offlineUsers = otherUsers.filter((u) => getStatus(u.id) === "offline");
 
   const filteredOnline = onlineUsers.filter((u) => u.nome.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredOffline = offlineUsers.filter((u) => u.nome.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -333,11 +284,14 @@ const Chat = () => {
                         {u.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
                       </div>
                     )}
-                    <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getPresenceStatus(u.id)))} />
+                    <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getStatus(u.id)))} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-foreground truncate">{u.nome}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{getStatusLabel(getPresenceStatus(u.id))}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      {getStatusLabel(getStatus(u.id))}
+                      {formatLastSeen(u.id) && <span className="ml-1 opacity-70">· {formatLastSeen(u.id)}</span>}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -370,7 +324,9 @@ const Chat = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-foreground truncate">{u.nome}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">Offline</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      Visto por último: {formatLastSeen(u.id) || "—"}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -393,11 +349,16 @@ const Chat = () => {
                         {partnerUser.nome.split(" ").map(n => n[0]).slice(0, 2).join("").toUpperCase()}
                       </div>
                     )}
-                    <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getPresenceStatus(partnerUser.id)))} />
+                    <span className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", getStatusColor(getStatus(partnerUser.id)))} />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground">{partnerUser.nome}</p>
-                    <p className="text-[10px] text-muted-foreground">{getStatusLabel(getPresenceStatus(partnerUser.id))}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {getStatusLabel(getStatus(partnerUser.id))}
+                      {getStatus(partnerUser.id) === "offline" && formatLastSeen(partnerUser.id) && (
+                        <span className="ml-1">· Visto {formatLastSeen(partnerUser.id)}</span>
+                      )}
+                    </p>
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => { setActiveConversation(null); setChatPartnerId(null); }} className="lg:hidden">
