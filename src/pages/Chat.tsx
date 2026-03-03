@@ -635,6 +635,9 @@ const Chat = () => {
                       )}
                     </div>
                     <input ref={photoInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} />
+                    <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" onClick={sendNudge} title="Chamar atenção">
+                      <span className="text-lg">🫨</span>
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" onClick={() => setShowEmojis(!showEmojis)}>
                       <Smile className="h-5 w-5 text-muted-foreground" />
                     </Button>
