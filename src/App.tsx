@@ -11,7 +11,7 @@ import NovaSolicitacao from "./pages/NovaSolicitacao";
 import DiretoriaAprovacao from "./pages/DiretoriaAprovacao";
 import DiretoriaSolicitacaoWrapper from "./pages/DiretoriaSolicitacaoWrapper";
 import RecursosHumanos from "./pages/RecursosHumanos";
-import RHSolicitacaoDetalhe from "./pages/RHSolicitacaoDetalhe";
+import RHSolicitacaoWrapper from "./pages/RHSolicitacaoWrapper";
 import LogisticaCompras from "./pages/LogisticaCompras";
 import Expedicao from "./pages/Expedicao";
 import CustomerSuccess from "./pages/CustomerSuccess";
@@ -50,7 +50,7 @@ const App = () => (
             <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><DiretoriaSolicitacaoWrapper /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor/chamado-ti/:id" element={<ProtectedRoute><DiretoriaChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
-            <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoDetalhe /></ProtectedRoute>} />
+            <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoWrapper /></ProtectedRoute>} />
             <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />
             <Route path="/logistica/:filtro/solicitacao/:id" element={<ProtectedRoute><SolicitacaoServico /></ProtectedRoute>} />
             <Route path="/expedicao/:filtro" element={<ProtectedRoute><Expedicao /></ProtectedRoute>} />
