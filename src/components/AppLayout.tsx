@@ -1,6 +1,10 @@
 import { AppSidebar } from "./AppSidebar";
+import NotificationPrompt from "./NotificationPrompt";
+import { useRealtimeNotifications } from "@/hooks/useNotifications";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  useRealtimeNotifications();
+
   return (
     <div className="min-h-screen flex w-full">
       <div className="print:hidden">
@@ -11,6 +15,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
+      <NotificationPrompt />
     </div>
   );
 }
