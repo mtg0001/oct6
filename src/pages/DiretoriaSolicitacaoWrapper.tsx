@@ -26,6 +26,11 @@ const DiretoriaSolicitacaoWrapper = () => {
     return <SolicitacaoServico />;
   }
 
+  // Uniformes forwarded from RH for Soraya approval
+  if (sol.setorAtual === "diretoria_uniforme") {
+    return <SolicitacaoDetalhe />;
+  }
+
   // Otherwise, use the original director detail form
   return <SolicitacaoDetalhe />;
 };

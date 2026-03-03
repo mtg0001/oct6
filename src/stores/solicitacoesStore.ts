@@ -161,7 +161,10 @@ export function getSolicitacoesByDiretor(diretor: string) {
     ? ["pendente", "aprovado_diretor"]
     : ["pendente"];
   return solicitacoes.filter(
-    (s) => s.diretorArea.toLowerCase() === diretor.toLowerCase() && validStatuses.includes(s.status)
+    (s) => s.diretorArea.toLowerCase() === diretor.toLowerCase() && (
+      validStatuses.includes(s.status) ||
+      (s.setorAtual === 'diretoria_uniforme' && s.status === 'aprovado')
+    )
   );
 }
 
@@ -189,9 +192,10 @@ export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI"] as const;
 
 export function getSolicitacoesRH(status?: string) {
   return solicitacoes.filter((s) => {
-    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo) && s.setorAtual !== 'diretoria' && s.setorAtual !== 'logistica_encaminhado';
+    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo) && s.setorAtual !== 'diretoria' && s.setorAtual !== 'logistica_encaminhado' && s.setorAtual !== 'diretoria_uniforme';
     const isEncaminhado = s.setorAtual === 'rh_encaminhado';
-    const inQueue = isRHOriginal || isEncaminhado;
+    const isRetornoUniforme = s.setorAtual === 'rh_aprovado_uniforme' || s.setorAtual === 'rh_reprovado_uniforme';
+    const inQueue = isRHOriginal || isEncaminhado || isRetornoUniforme;
     return status ? inQueue && s.status === status : inQueue;
   });
 }
