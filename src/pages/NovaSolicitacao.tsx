@@ -58,7 +58,7 @@ const allSolicitacoes: SolicitacaoCard[] = [
   { title: "Solicitação de Tendas", serviceKey: "Tendas", description: "Abrir formulário para enviar.", icon: Tent, available: true },
   { title: "Solicitação de Plataforma Elevatória", serviceKey: "Plataforma Elevatória", description: "Abrir formulário para enviar.", icon: ArrowUpDown, available: true },
   { title: "Solicitação de Materiais (Expedição)", serviceKey: "Materiais (Expedição)", description: "Abrir formulário para enviar.", icon: Package, available: true },
-  { title: "Solicitação de Materiais (Compras)", serviceKey: "Materiais (Compras)", description: "Abrir formulário para enviar.", icon: ShoppingCart, available: true },
+  { title: "Solicitação de Compras", serviceKey: "Materiais (Compras)", description: "Abrir formulário para enviar.", icon: ShoppingCart, available: true },
   { title: "Negociação de Mão de Obra", serviceKey: "Negociação de Mão de Obra", description: "Abrir formulário para enviar.", icon: Handshake, available: true },
   { title: "Solicitação de Novo Colaborador", serviceKey: "Novo Colaborador", description: "Abrir formulário para enviar.", icon: UserPlus, available: true },
   { title: "Solicitação de Equipamentos de TI", serviceKey: "Equipamentos de TI", description: "Notebooks, tablets e periféricos.", icon: Monitor, available: true },
@@ -108,7 +108,7 @@ const NovaSolicitacao = () => {
     else if (title === "Solicitação de Passagens") setPassagensOpen(true);
     else if (title === "Solicitação de Tendas") setTendasOpen(true);
     else if (title === "Solicitação de Plataforma Elevatória") setPlataformaOpen(true);
-    else if (title === "Solicitação de Materiais (Compras)") setMateriaisComprasOpen(true);
+    else if (title === "Solicitação de Compras") setMateriaisComprasOpen(true);
     else if (title === "Solicitação de Materiais (Expedição)") setMateriaisExpedicaoOpen(true);
     else if (title === "Solicitação de Equipamentos de TI") setEquipamentosTIOpen(true);
     else if (title === "Solicitação de Materiais de Escritório") setMateriaisEscritorioOpen(true);
