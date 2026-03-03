@@ -7,18 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Paperclip,
   Send,
   Smile,
-  Zap,
   Search,
   X,
   FileText,
   Download,
   Mic,
-  Square,
   Play,
   Pause,
+  Plus,
+  Image,
+  File,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -123,9 +123,11 @@ const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [showEmojis, setShowEmojis] = useState(false);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [nudging, setNudging] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -239,6 +241,8 @@ const Chat = () => {
     if (error) { toast.error("Erro ao enviar arquivo"); return; }
     await sendMessage("file", file.name, path, file.name);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (photoInputRef.current) photoInputRef.current.value = "";
+    setShowAttachMenu(false);
   };
 
   // ─── Voice Recording ───
@@ -298,7 +302,7 @@ const Chat = () => {
     } catch {}
     setTimeout(() => setNudging(false), 500);
   };
-  const sendNudge = () => sendMessage("nudge", "🔔 Chamou sua atenção!");
+  const sendNudge = () => sendMessage("nudge", "🫨 Chamou sua atenção!");
 
   const getStatus = (usuarioId: string) => getPresenceStatus(presences, usuarioId);
   const getLastSeen = (usuarioId: string) => getPresenceLastSeen(presences, usuarioId);
@@ -484,12 +488,6 @@ const Chat = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={sendNudge} title="Chamar atenção">
-                    <Zap className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => fileInputRef.current?.click()} title="Enviar arquivo">
-                    <Paperclip className="h-4 w-4 text-muted-foreground" />
-                  </Button>
                   <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileUpload} />
                 </div>
               </div>
@@ -509,7 +507,7 @@ const Chat = () => {
                       return (
                         <div key={msg.id} className="flex justify-center py-1">
                           <span className="text-[11px] text-amber-600 font-medium bg-amber-100/80 dark:bg-amber-900/30 dark:text-amber-400 px-4 py-1 rounded-lg shadow-sm">
-                            🔔 {isMine ? "Você chamou a atenção" : `${partnerUser?.nome?.split(" ")[0]} chamou sua atenção!`}
+                            🫨 {isMine ? "Você chamou a atenção" : `${partnerUser?.nome?.split(" ")[0]} chamou sua atenção!`}
                           </span>
                         </div>
                       );
@@ -613,11 +611,32 @@ const Chat = () => {
                   </>
                 ) : (
                   <>
+                    <div className="relative">
+                      <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" onClick={() => setShowAttachMenu(!showAttachMenu)}>
+                        <Plus className="h-5 w-5 text-muted-foreground" />
+                      </Button>
+                      {showAttachMenu && (
+                        <div className="absolute bottom-12 left-0 bg-card border border-border rounded-lg shadow-lg py-1 min-w-[180px] z-50">
+                          <button
+                            onClick={() => { photoInputRef.current?.click(); }}
+                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            <Image className="h-4 w-4 text-primary" />
+                            Fotos e vídeos
+                          </button>
+                          <button
+                            onClick={() => { fileInputRef.current?.click(); }}
+                            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            <File className="h-4 w-4 text-primary" />
+                            Documentos
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <input ref={photoInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} />
                     <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" onClick={() => setShowEmojis(!showEmojis)}>
                       <Smile className="h-5 w-5 text-muted-foreground" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0" onClick={() => fileInputRef.current?.click()}>
-                      <Paperclip className="h-5 w-5 text-muted-foreground" />
                     </Button>
                     <div className="flex-1">
                       <Input
