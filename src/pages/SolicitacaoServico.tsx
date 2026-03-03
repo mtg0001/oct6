@@ -87,7 +87,7 @@ const SolicitacaoServico = () => {
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
-  const isDiretoriaUniformes = showDiretoriaButtons && sol.tipo === 'Uniformes e EPI';
+  const isDiretoriaUniformes = false; // Uniformes e EPI now goes directly to RH
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const openActionDialog = (action: "cancelar" | "concluir") => {
