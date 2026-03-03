@@ -287,28 +287,6 @@ const SolicitacaoDetalhe = () => {
                 Reprovar e devolver para Expedição
               </Button>
             </>
-          ) : sol.setorAtual === 'diretoria_uniforme' ? (
-            <>
-              {/* Uniformes forwarded from RH for Soraya */}
-              <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
-                const nome = currentUser?.nome || nomeDir;
-                await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e enviado para RH`);
-                await encaminharSolicitacao(sol.id, 'rh_aprovado_uniforme');
-                navigate(-1);
-              }}>
-                <Forward className="h-4 w-4 mr-1" />
-                Aprovar e enviar para RH
-              </Button>
-              <Button variant="destructive" onClick={async () => {
-                const nome = currentUser?.nome || nomeDir;
-                await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e enviado para RH`);
-                await encaminharSolicitacao(sol.id, 'rh_reprovado_uniforme');
-                navigate(-1);
-              }}>
-                <Forward className="h-4 w-4 mr-1" />
-                Reprovar e enviar para RH
-              </Button>
-            </>
           ) : (
             <>
               {/* Normal director flow */}

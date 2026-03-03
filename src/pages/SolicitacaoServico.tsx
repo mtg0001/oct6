@@ -87,7 +87,7 @@ const SolicitacaoServico = () => {
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
-  const isDiretoriaUniformes = false; // Uniformes e EPI now goes directly to RH
+  const isDiretoriaUniformes = isDiretoria && sol.setorAtual === 'diretoria_uniforme';
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const openActionDialog = (action: "cancelar" | "concluir") => {
@@ -772,34 +772,26 @@ const SolicitacaoServico = () => {
                 Encaminhar para Expedição
               </Button>
             )}
-            {/* Diretoria: Uniformes e EPI (Soraya) - special buttons */}
+            {/* Diretoria: Uniformes e EPI (Soraya) - approve/reject back to RH */}
             {isDiretoriaUniformes && (
               <>
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
-                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Recursos Humanos`);
-                  await encaminharSolicitacao(sol.id, '', '', 'pendente');
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e enviado para RH`);
+                  await encaminharSolicitacao(sol.id, 'rh_aprovado_uniforme');
                   navigate(-1);
                 }}>
                   <Forward className="h-4 w-4 mr-1" />
-                  Aprovar e enviar para Recursos Humanos
-                </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
-                  const nome = currentUser?.nome || nomeDir;
-                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e encaminhado para Logística & Compras`);
-                  await encaminharSolicitacao(sol.id, 'logistica_encaminhado', '', 'aprovado');
-                  navigate(-1);
-                }}>
-                  <Forward className="h-4 w-4 mr-1" />
-                  Aprovar e enviar para Logística
+                  Aprovar e enviar para RH
                 </Button>
                 <Button size="sm" variant="destructive" onClick={async () => {
                   const nome = currentUser?.nome || nomeDir;
-                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome}`);
-                  await encaminharSolicitacao(sol.id, '', '', 'reprovado');
+                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e enviado para RH`);
+                  await encaminharSolicitacao(sol.id, 'rh_reprovado_uniforme');
                   navigate(-1);
                 }}>
-                  Reprovar
+                  <Forward className="h-4 w-4 mr-1" />
+                  Reprovar e enviar para RH
                 </Button>
               </>
             )}
