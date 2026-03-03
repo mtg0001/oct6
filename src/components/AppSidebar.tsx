@@ -30,6 +30,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getManualStatus, setManualStatus, getStatusColor, getStatusLabel, type PresenceStatus } from "@/hooks/usePresence";
 import octarteLogo from "@/assets/octarte-logo.png";
 import octarteSidebarLogo from "@/assets/octarte-sidebar-logo.png";
 
@@ -52,6 +53,8 @@ export function AppSidebar() {
   const unreadCount = useUnreadMessages();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [currentStatus, setCurrentStatus] = useState<PresenceStatus>(getManualStatus());
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   // Load avatar
   React.useEffect(() => {
@@ -355,9 +358,37 @@ export function AppSidebar() {
                 <p className="text-sm font-semibold text-[hsl(var(--sidebar-accent-foreground))] truncate">
                   {currentUser?.nome || "Usuário"}
                 </p>
-                <p className="text-[11px] text-[hsl(var(--sidebar-muted))] truncate">
-                  {user?.email}
-                </p>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowStatusMenu(!showStatusMenu)}
+                    className="flex items-center gap-1.5 text-[11px] text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] transition-colors"
+                  >
+                    <span className={cn("h-2 w-2 rounded-full", getStatusColor(currentStatus))} />
+                    {getStatusLabel(currentStatus)}
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  {showStatusMenu && (
+                    <div className="absolute top-6 left-0 z-50 bg-card border border-border rounded-lg shadow-xl py-1 min-w-[130px]">
+                      {(["online", "busy", "away"] as PresenceStatus[]).map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            setManualStatus(s);
+                            setCurrentStatus(s);
+                            setShowStatusMenu(false);
+                          }}
+                          className={cn(
+                            "flex items-center gap-2 w-full px-3 py-1.5 text-xs text-foreground hover:bg-accent transition-colors",
+                            currentStatus === s && "bg-accent/50 font-semibold"
+                          )}
+                        >
+                          <span className={cn("h-2 w-2 rounded-full", getStatusColor(s))} />
+                          {getStatusLabel(s)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

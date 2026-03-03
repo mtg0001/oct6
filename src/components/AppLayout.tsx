@@ -1,9 +1,11 @@
 import { AppSidebar } from "./AppSidebar";
 import NotificationPrompt from "./NotificationPrompt";
 import { useRealtimeNotifications } from "@/hooks/useNotifications";
+import { useGlobalPresence } from "@/hooks/usePresence";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useRealtimeNotifications();
+  useGlobalPresence();
 
   return (
     <div className="min-h-screen flex w-full">
