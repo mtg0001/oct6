@@ -196,7 +196,12 @@ export function getSolicitacoesRH(status?: string) {
     const isEncaminhado = s.setorAtual === 'rh_encaminhado';
     const isRetornoUniforme = s.setorAtual === 'rh_aprovado_uniforme' || s.setorAtual === 'rh_reprovado_uniforme';
     const inQueue = isRHOriginal || isEncaminhado || isRetornoUniforme;
-    return status ? inQueue && s.status === status : inQueue;
+    if (!inQueue) return false;
+    if (!status) return true;
+    // Uniformes e EPI arrives with 'pendente' status (no director approval needed), treat as 'aprovado' for RH queue
+    if (s.tipo === 'Uniformes e EPI' && status === 'aprovado' && s.status === 'pendente') return true;
+    if (isRetornoUniforme && status === 'aprovado' && s.status === 'aprovado') return true;
+    return s.status === status;
   });
 }
 
