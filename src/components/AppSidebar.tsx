@@ -484,7 +484,7 @@ export function AppSidebar() {
                           to={child.path}
                           className={({ isActive }) =>
                             cn(
-                              "block px-3 rounded-md text-[12px] transition-all duration-200",
+                              "flex items-center justify-between px-3 rounded-md text-[12px] transition-all duration-200",
                               isAlwaysHighlighted
                                 ? "py-2 bg-destructive text-destructive-foreground font-semibold shadow-md shadow-destructive/30"
                                 : cn(
@@ -500,7 +500,12 @@ export function AppSidebar() {
                             )
                           }
                         >
-                          {child.title}
+                          <span>{child.title}</span>
+                          {(pendingCounts[child.path] ?? 0) > 0 && (
+                            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-1 animate-pulse">
+                              {pendingCounts[child.path] > 99 ? "99+" : pendingCounts[child.path]}
+                            </span>
+                          )}
                         </NavLink>
                       );
                     })}
