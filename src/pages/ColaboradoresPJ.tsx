@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/AppLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Pencil, Plus, X } from "lucide-react";
@@ -215,6 +215,43 @@ const ColaboradoresPJ = () => {
     );
   };
 
+  // Synced scrollbars
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const topDummyRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+  const syncing = useRef(false);
+
+  useEffect(() => {
+    if (tableRef.current && topDummyRef.current) {
+      const ro = new ResizeObserver(() => {
+        if (tableRef.current && topDummyRef.current) {
+          topDummyRef.current.style.width = `${tableRef.current.scrollWidth}px`;
+        }
+      });
+      ro.observe(tableRef.current);
+      return () => ro.disconnect();
+    }
+  }, [sorted]);
+
+  const handleTopScroll = useCallback(() => {
+    if (syncing.current) return;
+    syncing.current = true;
+    if (topScrollRef.current && tableScrollRef.current) {
+      tableScrollRef.current.scrollLeft = topScrollRef.current.scrollLeft;
+    }
+    requestAnimationFrame(() => { syncing.current = false; });
+  }, []);
+
+  const handleTableScroll = useCallback(() => {
+    if (syncing.current) return;
+    syncing.current = true;
+    if (topScrollRef.current && tableScrollRef.current) {
+      topScrollRef.current.scrollLeft = tableScrollRef.current.scrollLeft;
+    }
+    requestAnimationFrame(() => { syncing.current = false; });
+  }, []);
+
   return (
     <AppLayout>
       <div className="mb-6">
@@ -236,8 +273,23 @@ const ColaboradoresPJ = () => {
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-max min-w-full text-xs">
+        {/* Top scrollbar */}
+        <div
+          ref={topScrollRef}
+          onScroll={handleTopScroll}
+          className="overflow-x-auto"
+          style={{ scrollbarWidth: "auto" }}
+        >
+          <div ref={topDummyRef} style={{ height: 1 }} />
+        </div>
+
+        {/* Table */}
+        <div
+          ref={tableScrollRef}
+          onScroll={handleTableScroll}
+          className="overflow-x-auto"
+        >
+          <table ref={tableRef} className="w-max min-w-full text-xs">
             <thead>
               <tr className="bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]">
                 <th className="sticky left-0 z-20 bg-[hsl(var(--sidebar-primary))] px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 min-w-[90px]">

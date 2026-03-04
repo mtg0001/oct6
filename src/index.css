@@ -159,3 +159,19 @@
     print-color-adjust: exact !important;
   }
 }
+
+/* Thick scrollbars for colaboradores tables */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 14px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 7px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.35);
+  border-radius: 7px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
