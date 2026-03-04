@@ -178,12 +178,12 @@ export function AppSidebar() {
         title: "Recursos Humanos",
         icon: Users,
         children: [
-          { title: "Colaboradores PJ", path: "/rh/colaboradores-pj", variant: 'red' as const },
-          { title: "Colaboradores CLT", path: "/rh/colaboradores-clt", variant: 'red' as const },
           { title: "Pendentes", path: "/rh/pendentes" },
           { title: "Resolvidos", path: "/rh/resolvidos" },
           { title: "Cancelados", path: "/rh/cancelados" },
           { title: "Reprovados", path: "/rh/reprovados" },
+          { title: "Colaboradores CLT", path: "/rh/colaboradores-clt", variant: 'red' as const },
+          { title: "Colaboradores PJ", path: "/rh/colaboradores-pj", variant: 'red' as const },
         ],
       });
     }
