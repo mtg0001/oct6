@@ -32,6 +32,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getManualStatus, setManualStatus, getStatusColor, getStatusLabel, type PresenceStatus } from "@/hooks/usePresence";
 import { onNudgeShake } from "@/hooks/useGlobalNudge";
+import { usePendingCounts } from "@/hooks/usePendingCounts";
 import octarteLogo from "@/assets/octarte-logo.png";
 import octarteSidebarLogo from "@/assets/octarte-sidebar-logo.png";
 
@@ -57,6 +58,7 @@ export function AppSidebar() {
   const [currentStatus, setCurrentStatus] = useState<PresenceStatus>(getManualStatus());
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [chatShaking, setChatShaking] = useState(false);
+  const pendingCounts = usePendingCounts();
 
   // Listen for global nudge events to shake the Chat menu item
   useEffect(() => {
@@ -459,6 +461,11 @@ export function AppSidebar() {
                   {!collapsed && (
                     <>
                       <span className="flex-1 text-left truncate">{item.title}</span>
+                      {(pendingCounts[item.title] ?? 0) > 0 && (
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1 animate-pulse">
+                          {pendingCounts[item.title] > 99 ? "99+" : pendingCounts[item.title]}
+                        </span>
+                      )}
                       <ChevronDown
                         className={cn("h-3.5 w-3.5 text-[hsl(var(--sidebar-muted))] transition-transform duration-200", isOpen && "rotate-180")}
                       />
