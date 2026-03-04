@@ -29,6 +29,14 @@ export function useGlobalNudge() {
     } catch {}
   }, []);
 
+  const playMsnSound = useCallback(() => {
+    try {
+      const audio = new Audio("/sounds/msn-alert.mp3");
+      audio.volume = 0.6;
+      audio.play().catch(() => {});
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (!currentUser?.id) return;
 
@@ -39,7 +47,6 @@ export function useGlobalNudge() {
         { event: "INSERT", schema: "public", table: "chat_messages" },
         async (payload) => {
           const row = payload.new as any;
-          if (row.message_type !== "nudge") return;
           if (row.sender_id === currentUser.id) return;
 
           // Check if this user is a participant
@@ -52,8 +59,12 @@ export function useGlobalNudge() {
           if (!data) return;
           if (data.participant_1 !== currentUser.id && data.participant_2 !== currentUser.id) return;
 
-          playNudgeSound();
-          emitNudgeShake();
+          if (row.message_type === "nudge") {
+            playNudgeSound();
+            emitNudgeShake();
+          } else {
+            playMsnSound();
+          }
         }
       )
       .subscribe();
@@ -61,5 +72,5 @@ export function useGlobalNudge() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentUser?.id, playNudgeSound]);
+  }, [currentUser?.id, playNudgeSound, playMsnSound]);
 }
