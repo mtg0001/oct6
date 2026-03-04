@@ -201,26 +201,54 @@ const Chat = () => {
       toast.error("Aguarde, carregando seu usuário...");
       return;
     }
+
     setChatPartnerId(partnerId);
-    const p1 = [currentUser.id, partnerId].sort();
-    const existing = conversations.find(
-      (c) => [c.participant_1, c.participant_2].sort().join() === p1.join()
-    );
-    if (existing) { setActiveConversation(existing.id); return; }
+    const pair = [currentUser.id, partnerId].sort();
+    const findByPair = (list: Conversation[]) =>
+      list.find((c) => [c.participant_1, c.participant_2].sort().join() === pair.join());
+
+    const localConversation = findByPair(conversations);
+    if (localConversation) {
+      setActiveConversation(localConversation.id);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase
+      const orFilter = `and(participant_1.eq.${pair[0]},participant_2.eq.${pair[1]}),and(participant_1.eq.${pair[1]},participant_2.eq.${pair[0]})`;
+
+      const { data: existingRows, error: existingError } = await supabase
         .from("chat_conversations")
-        .insert({ participant_1: p1[0], participant_2: p1[1] })
+        .select("*")
+        .or(orFilter)
+        .order("updated_at", { ascending: false })
+        .limit(1);
+
+      if (existingError) throw existingError;
+
+      const existingFromDb = (existingRows?.[0] ?? null) as Conversation | null;
+      if (existingFromDb) {
+        setConversations((prev) =>
+          prev.some((c) => c.id === existingFromDb.id) ? prev : [existingFromDb, ...prev]
+        );
+        setActiveConversation(existingFromDb.id);
+        return;
+      }
+
+      const { data: newConversation, error: createError } = await supabase
+        .from("chat_conversations")
+        .insert({ participant_1: pair[0], participant_2: pair[1] })
         .select()
         .single();
-      if (error) throw error;
-      if (data) {
-        setConversations((prev) => [data as Conversation, ...prev]);
-        setActiveConversation(data.id);
+
+      if (createError) throw createError;
+
+      if (newConversation) {
+        setConversations((prev) => [newConversation as Conversation, ...prev]);
+        setActiveConversation(newConversation.id);
       }
     } catch (err: any) {
       console.error("Erro ao abrir conversa:", err);
-      toast.error("Erro ao abrir conversa");
+      toast.error("Não foi possível abrir a conversa.");
     }
   }, [currentUser?.id, conversations]);
 
@@ -509,77 +537,85 @@ const Chat = () => {
                 }}
               >
                 <div className="space-y-1 max-w-3xl mx-auto">
-                  {messages.map((msg) => {
-                    const isMine = msg.sender_id === currentUser?.id;
-                    if (msg.message_type === "nudge") {
+                  {messages.length === 0 ? (
+                    <div className="min-h-[50vh] flex items-center justify-center px-4">
+                      <p className="text-sm text-muted-foreground text-center">
+                        Nenhuma mensagem ainda com {partnerUser.nome.split(" ")[0]}. Envie a primeira mensagem abaixo.
+                      </p>
+                    </div>
+                  ) : (
+                    messages.map((msg) => {
+                      const isMine = msg.sender_id === currentUser?.id;
+                      if (msg.message_type === "nudge") {
+                        return (
+                          <div key={msg.id} className="flex justify-center py-1">
+                            <span className="text-[11px] text-amber-600 font-medium bg-amber-100/80 dark:bg-amber-900/30 dark:text-amber-400 px-4 py-1 rounded-lg shadow-sm">
+                              🫨 {isMine ? "Você chamou a atenção" : `${partnerUser?.nome?.split(" ")[0]} chamou sua atenção!`}
+                            </span>
+                          </div>
+                        );
+                      }
                       return (
-                        <div key={msg.id} className="flex justify-center py-1">
-                          <span className="text-[11px] text-amber-600 font-medium bg-amber-100/80 dark:bg-amber-900/30 dark:text-amber-400 px-4 py-1 rounded-lg shadow-sm">
-                            🫨 {isMine ? "Você chamou a atenção" : `${partnerUser?.nome?.split(" ")[0]} chamou sua atenção!`}
-                          </span>
+                        <div key={msg.id} className={cn("flex", isMine ? "justify-end" : "justify-start")}>
+                          <div className={cn(
+                            "relative max-w-[65%] rounded-lg px-3 py-1.5 shadow-sm",
+                            isMine
+                              ? "bg-[#d9fdd3] dark:bg-[#005c4b] text-foreground"
+                              : "bg-card text-foreground"
+                          )}
+                            style={{ borderRadius: isMine ? "8px 0 8px 8px" : "0 8px 8px 8px" }}
+                          >
+                            {/* WhatsApp-style tail */}
+                            <div className={cn(
+                              "absolute top-0 w-3 h-3 overflow-hidden",
+                              isMine ? "-right-2" : "-left-2"
+                            )}>
+                              <div className={cn(
+                                "w-4 h-4 rotate-45 origin-bottom-left",
+                                isMine
+                                  ? "bg-[#d9fdd3] dark:bg-[#005c4b]"
+                                  : "bg-card"
+                              )} />
+                            </div>
+
+                            {msg.message_type === "audio" && msg.file_url ? (
+                              <AudioPlayerWrapper fileUrl={msg.file_url} isMine={isMine} />
+                            ) : msg.message_type === "file" && msg.file_url ? (
+                              <button
+                                onClick={async () => {
+                                  const isPath = msg.file_url && !msg.file_url.startsWith("http");
+                                  if (isPath) {
+                                    const { data } = await supabase.storage.from("chat-attachments").createSignedUrl(msg.file_url!, 300);
+                                    if (data?.signedUrl) window.open(data.signedUrl, "_blank");
+                                    else toast.error("Erro ao abrir arquivo");
+                                  } else {
+                                    window.open(msg.file_url!, "_blank");
+                                  }
+                                }}
+                                className="flex items-center gap-2 text-xs underline cursor-pointer text-foreground"
+                              >
+                                <FileText className="h-4 w-4 shrink-0" />
+                                <span className="truncate">{msg.file_name || "Arquivo"}</span>
+                                <Download className="h-3 w-3 shrink-0" />
+                              </button>
+                            ) : (
+                              <p className="text-[13px] break-words whitespace-pre-wrap">{msg.content}</p>
+                            )}
+                            <div className="flex items-center justify-end gap-1 mt-0.5">
+                              <span className="text-[10px] opacity-50">
+                                {format(new Date(msg.created_at), "HH:mm")}
+                              </span>
+                              {isMine && (
+                                <span className={cn("text-[10px]", msg.read ? "text-blue-500" : "opacity-40")}>
+                                  ✓✓
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
-                    }
-                    return (
-                      <div key={msg.id} className={cn("flex", isMine ? "justify-end" : "justify-start")}>
-                        <div className={cn(
-                          "relative max-w-[65%] rounded-lg px-3 py-1.5 shadow-sm",
-                          isMine
-                            ? "bg-[#d9fdd3] dark:bg-[#005c4b] text-foreground"
-                            : "bg-card text-foreground"
-                        )}
-                          style={{ borderRadius: isMine ? "8px 0 8px 8px" : "0 8px 8px 8px" }}
-                        >
-                          {/* WhatsApp-style tail */}
-                          <div className={cn(
-                            "absolute top-0 w-3 h-3 overflow-hidden",
-                            isMine ? "-right-2" : "-left-2"
-                          )}>
-                            <div className={cn(
-                              "w-4 h-4 rotate-45 origin-bottom-left",
-                              isMine
-                                ? "bg-[#d9fdd3] dark:bg-[#005c4b]"
-                                : "bg-card"
-                            )} />
-                          </div>
-
-                          {msg.message_type === "audio" && msg.file_url ? (
-                            <AudioPlayerWrapper fileUrl={msg.file_url} isMine={isMine} />
-                          ) : msg.message_type === "file" && msg.file_url ? (
-                            <button
-                              onClick={async () => {
-                                const isPath = msg.file_url && !msg.file_url.startsWith("http");
-                                if (isPath) {
-                                  const { data } = await supabase.storage.from("chat-attachments").createSignedUrl(msg.file_url!, 300);
-                                  if (data?.signedUrl) window.open(data.signedUrl, "_blank");
-                                  else toast.error("Erro ao abrir arquivo");
-                                } else {
-                                  window.open(msg.file_url!, "_blank");
-                                }
-                              }}
-                              className="flex items-center gap-2 text-xs underline cursor-pointer text-foreground"
-                            >
-                              <FileText className="h-4 w-4 shrink-0" />
-                              <span className="truncate">{msg.file_name || "Arquivo"}</span>
-                              <Download className="h-3 w-3 shrink-0" />
-                            </button>
-                          ) : (
-                            <p className="text-[13px] break-words whitespace-pre-wrap">{msg.content}</p>
-                          )}
-                          <div className="flex items-center justify-end gap-1 mt-0.5">
-                            <span className="text-[10px] opacity-50">
-                              {format(new Date(msg.created_at), "HH:mm")}
-                            </span>
-                            {isMine && (
-                              <span className={cn("text-[10px]", msg.read ? "text-blue-500" : "opacity-40")}>
-                                ✓✓
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                    })
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               </div>
