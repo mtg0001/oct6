@@ -48,6 +48,8 @@ const statusLabel: Record<string, string> = {
   reprovado: "Reprovado",
   logistica_aprovado_dir: "Aprovado pela Diretoria",
   logistica_reprovado_dir: "Reprovado pela Diretoria",
+  rh_aprovado_escritorio: "Aprovado pela Diretoria",
+  rh_reprovado_escritorio: "Reprovado pela Diretoria",
 };
 
 const SolicitacaoServico = () => {
@@ -86,17 +88,23 @@ const SolicitacaoServico = () => {
   const isPendente = filtro === "pendentes" || isDiretoria;
   const isDiretoriaUniformes = isDiretoria && sol.setorAtual === 'diretoria_uniforme';
   const isDiretoriaLogistica = isDiretoria && sol.setorAtual === 'diretoria_logistica';
+  const isDiretoriaEscritorio = isDiretoria && sol.setorAtual === 'diretoria_escritorio';
   const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria && !isRH;
   // RH-specific logic
-  const isRHReprovado = sol.setorAtual === 'rh_reprovado_uniforme';
-  const isRHAprovado = sol.setorAtual === 'rh_aprovado_uniforme';
+  const isRHReprovado = sol.setorAtual === 'rh_reprovado_uniforme' || sol.setorAtual === 'rh_reprovado_escritorio';
+  const isRHAprovado = sol.setorAtual === 'rh_aprovado_uniforme' || sol.setorAtual === 'rh_aprovado_escritorio';
   const showRHConcluirCancelar = isRH && isPendente;
   const showRHEncaminharSoraya = isRH && isPendente && sol.tipo === 'Uniformes e EPI' && !isRHAprovado && !isRHReprovado;
+  // RH: Materiais de Escritório - show Enviar para dropdown (Diretoria Soraya + Logística)
+  const isMatEscritorio = sol.tipo === 'Materiais de Escritório';
+  const showRHMatEscritEncaminhar = isRH && isPendente && isMatEscritorio && !isRHAprovado && !isRHReprovado;
   // Expedition forwarding logic
   const isDevolvido = sol.setorAtual === 'expedicao_devolvido';
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
+  // Logística: hide concluir for Materiais de Escritório with setor 'logistica' (it arrives from RH)
+  const isMatEscritLogistica = isLogistica && isMatEscritorio && sol.setorAtual === 'logistica';
   // Logística: forwarding to diretoria and return badges
   const isLogisticaAprovadoDir = sol.setorAtual === 'logistica_aprovado_dir';
   const isLogisticaReprovadoDir = sol.setorAtual === 'logistica_reprovado_dir';
@@ -843,6 +851,29 @@ const SolicitacaoServico = () => {
                 </Button>
               </>
             )}
+            {/* Diretoria: Materiais de Escritório - approve/reject back to RH */}
+            {isDiretoriaEscritorio && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e enviado para RH`);
+                  await encaminharSolicitacao(sol.id, 'rh_aprovado_escritorio');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e enviar para RH
+                </Button>
+                <Button size="sm" variant="destructive" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e enviado para RH`);
+                  await encaminharSolicitacao(sol.id, 'rh_reprovado_escritorio');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Reprovar e enviar para RH
+                </Button>
+              </>
+            )}
             {/* Diretoria: forwarded expedition item (non-Uniformes, non-Logística) */}
             {showDiretoriaButtons && !isDiretoriaUniformes && (
               <>
@@ -918,7 +949,7 @@ const SolicitacaoServico = () => {
                 )}
               </>
             )}
-            {/* RH: Encaminhar para Diretoria (Soraya) */}
+            {/* RH: Encaminhar para Diretoria (Soraya) - Uniformes */}
             {showRHEncaminharSoraya && (
               <Button size="sm" variant="outline" className="border-purple-500 text-purple-600" onClick={async () => {
                 const nome = currentUser?.nome || "RH";
@@ -928,6 +959,52 @@ const SolicitacaoServico = () => {
               }}>
                 <Forward className="h-4 w-4 mr-1" />
                 Encaminhar para Diretoria (Soraya)
+              </Button>
+            )}
+            {/* RH: Materiais de Escritório - Enviar para dropdown */}
+            {showRHMatEscritEncaminhar && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline" className="border-purple-500 text-purple-600">
+                    <Forward className="h-4 w-4 mr-1" />
+                    Enviar para
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Diretoria Aprovação</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={async () => {
+                        const nome = currentUser?.nome || "RH";
+                        await addAndamento(sol.id, `[${nome}] 📋 Encaminhado para aprovação da Diretoria (Soraya)`);
+                        await encaminharSolicitacao(sol.id, 'diretoria_escritorio', 'Soraya');
+                        navigate(-1);
+                      }}>
+                        Soraya
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuItem onClick={async () => {
+                    const nome = currentUser?.nome || "RH";
+                    await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Logística & Compras`);
+                    await encaminharSolicitacao(sol.id, 'logistica');
+                    navigate(-1);
+                  }}>
+                    Logística
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {/* RH: Materiais de Escritório approved - show Enviar para Logística */}
+            {isRH && isPendente && isMatEscritorio && isRHAprovado && (
+              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={async () => {
+                const nome = currentUser?.nome || "RH";
+                await addAndamento(sol.id, `[${nome}] 📦 Encaminhado para Logística & Compras`);
+                await encaminharSolicitacao(sol.id, 'logistica');
+                navigate(-1);
+              }}>
+                <Forward className="h-4 w-4 mr-1" />
+                Enviar para Logística
               </Button>
             )}
             {/* RH: badges for diretoria result */}

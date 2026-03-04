@@ -164,7 +164,8 @@ export function getSolicitacoesByDiretor(diretor: string) {
     (s) => s.diretorArea.toLowerCase() === diretor.toLowerCase() && (
       validStatuses.includes(s.status) ||
       (s.setorAtual === 'diretoria_uniforme' && s.status === 'aprovado') ||
-      (s.setorAtual === 'diretoria_logistica' && (s.status === 'pendente' || s.status === 'aprovado'))
+      (s.setorAtual === 'diretoria_logistica' && (s.status === 'pendente' || s.status === 'aprovado')) ||
+      (s.setorAtual === 'diretoria_escritorio' && (s.status === 'pendente' || s.status === 'aprovado'))
     )
   );
 }
@@ -174,6 +175,9 @@ export function getSolicitacoesByStatus(status: string) { return solicitacoes.fi
 
 export function getSolicitacoesLogistica(status?: string) {
   return solicitacoes.filter((s) => {
+    // Materiais de Escritório with setor 'rh' or 'diretoria_escritorio' should NOT appear in Logística
+    const isMatEscritNotLogistica = s.tipo === 'Materiais de Escritório' && ['rh', 'diretoria_escritorio', 'rh_aprovado_escritorio', 'rh_reprovado_escritorio'].includes(s.setorAtual);
+    if (isMatEscritNotLogistica) return false;
     const isLogisticaOriginal = (LOGISTICA_SERVICES as readonly string[]).includes(s.tipo) && (s.setorAtual === '' || s.setorAtual === 'logistica');
     const isEncaminhado = s.setorAtual === 'logistica_encaminhado';
     const isRetornoDir = s.setorAtual === 'logistica_aprovado_dir' || s.setorAtual === 'logistica_reprovado_dir';
@@ -194,19 +198,24 @@ export function getSolicitacoesExpedicao(status?: string) {
   });
 }
 
-export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI"] as const;
+export const RH_SERVICES = ["Novo Colaborador", "Uniformes e EPI", "Materiais de Escritório"] as const;
 
 export function getSolicitacoesRH(status?: string) {
   return solicitacoes.filter((s) => {
-    const isRHOriginal = (RH_SERVICES as readonly string[]).includes(s.tipo) && s.setorAtual !== 'diretoria' && s.setorAtual !== 'logistica_encaminhado' && s.setorAtual !== 'diretoria_uniforme';
+    // Materiais de Escritório with setor_atual 'rh' or related RH states
+    const isMatEscritRH = s.tipo === 'Materiais de Escritório' && ['rh', 'rh_aprovado_escritorio', 'rh_reprovado_escritorio'].includes(s.setorAtual);
+    const isRHOriginal = (['Novo Colaborador', 'Uniformes e EPI'] as string[]).includes(s.tipo) && s.setorAtual !== 'diretoria' && s.setorAtual !== 'logistica_encaminhado' && s.setorAtual !== 'diretoria_uniforme';
     const isEncaminhado = s.setorAtual === 'rh_encaminhado';
     const isRetornoUniforme = s.setorAtual === 'rh_aprovado_uniforme' || s.setorAtual === 'rh_reprovado_uniforme';
-    const inQueue = isRHOriginal || isEncaminhado || isRetornoUniforme;
+    const inQueue = isRHOriginal || isEncaminhado || isRetornoUniforme || isMatEscritRH;
     if (!inQueue) return false;
     if (!status) return true;
     // Uniformes e EPI arrives with 'pendente' status (no director approval needed), treat as 'aprovado' for RH queue
     if (s.tipo === 'Uniformes e EPI' && status === 'aprovado' && s.status === 'pendente') return true;
     if (isRetornoUniforme && status === 'aprovado' && s.status === 'aprovado') return true;
+    // Materiais de Escritório with setor rh: treat pendente as 'aprovado' for RH queue
+    if (isMatEscritRH && status === 'aprovado' && s.status === 'pendente') return true;
+    if (isMatEscritRH && status === 'aprovado' && s.status === 'aprovado') return true;
     return s.status === status;
   });
 }
