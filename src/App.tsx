@@ -28,6 +28,8 @@ import ChamadoTINovo from "./pages/ChamadoTINovo";
 import ChamadosTILista from "./pages/ChamadosTILista";
 import ChamadoTIDetalhe from "./pages/ChamadoTIDetalhe";
 import DiretoriaChamadoTIDetalhe from "./pages/DiretoriaChamadoTIDetalhe";
+import ColaboradoresPJ from "./pages/ColaboradoresPJ";
+import ColaboradoresCLT from "./pages/ColaboradoresCLT";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,8 @@ const App = () => (
             <Route path="/diretoria/:diretor" element={<ProtectedRoute><DiretoriaAprovacao /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor/solicitacao/:id" element={<ProtectedRoute><DiretoriaSolicitacaoWrapper /></ProtectedRoute>} />
             <Route path="/diretoria/:diretor/chamado-ti/:id" element={<ProtectedRoute><DiretoriaChamadoTIDetalhe /></ProtectedRoute>} />
+            <Route path="/rh/colaboradores-pj" element={<ProtectedRoute><ColaboradoresPJ /></ProtectedRoute>} />
+            <Route path="/rh/colaboradores-clt" element={<ProtectedRoute><ColaboradoresCLT /></ProtectedRoute>} />
             <Route path="/rh/:filtro" element={<ProtectedRoute><RecursosHumanos /></ProtectedRoute>} />
             <Route path="/rh/:filtro/solicitacao/:id" element={<ProtectedRoute><RHSolicitacaoWrapper /></ProtectedRoute>} />
             <Route path="/logistica/:filtro" element={<ProtectedRoute><LogisticaCompras /></ProtectedRoute>} />
