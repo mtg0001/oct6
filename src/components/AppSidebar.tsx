@@ -59,7 +59,19 @@ export function AppSidebar() {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [chatShaking, setChatShaking] = useState(false);
   const pendingCounts = usePendingCounts();
-  const [seenCounts, setSeenCounts] = useState<Record<string, number>>({});
+  const [seenCounts, setSeenCounts] = useState<Record<string, number>>(() => {
+    try {
+      const stored = localStorage.getItem('sidebar_seen_counts');
+      return stored ? JSON.parse(stored) : {};
+    } catch { return {}; }
+  });
+
+  // Persist seenCounts to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('sidebar_seen_counts', JSON.stringify(seenCounts));
+    } catch { /* ignore */ }
+  }, [seenCounts]);
 
   // When user visits a route, mark that count as "seen"
   useEffect(() => {
