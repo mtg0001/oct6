@@ -163,7 +163,8 @@ export function getSolicitacoesByDiretor(diretor: string) {
   return solicitacoes.filter(
     (s) => s.diretorArea.toLowerCase() === diretor.toLowerCase() && (
       validStatuses.includes(s.status) ||
-      (s.setorAtual === 'diretoria_uniforme' && s.status === 'aprovado')
+      (s.setorAtual === 'diretoria_uniforme' && s.status === 'aprovado') ||
+      (s.setorAtual === 'diretoria_logistica' && (s.status === 'pendente' || s.status === 'aprovado'))
     )
   );
 }
@@ -175,8 +176,13 @@ export function getSolicitacoesLogistica(status?: string) {
   return solicitacoes.filter((s) => {
     const isLogisticaOriginal = (LOGISTICA_SERVICES as readonly string[]).includes(s.tipo) && (s.setorAtual === '' || s.setorAtual === 'logistica');
     const isEncaminhado = s.setorAtual === 'logistica_encaminhado';
-    const inQueue = isLogisticaOriginal || isEncaminhado;
-    return status ? inQueue && s.status === status : inQueue;
+    const isRetornoDir = s.setorAtual === 'logistica_aprovado_dir' || s.setorAtual === 'logistica_reprovado_dir';
+    const inQueue = isLogisticaOriginal || isEncaminhado || isRetornoDir;
+    if (!inQueue) return false;
+    if (!status) return true;
+    // Items returned from diretoria are still "pendente" status but show in pendentes
+    if (isRetornoDir && status === 'pendente' && s.status === 'pendente') return true;
+    return s.status === status;
   });
 }
 

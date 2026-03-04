@@ -21,8 +21,8 @@ const DiretoriaSolicitacaoWrapper = () => {
     );
   }
 
-  // If the item was forwarded from expedition or RH (uniforme), use the service form
-  if (sol.setorAtual === "diretoria" || sol.setorAtual === "diretoria_uniforme") {
+  // If the item was forwarded from expedition, RH (uniforme), or logística, use the service form
+  if (sol.setorAtual === "diretoria" || sol.setorAtual === "diretoria_uniforme" || sol.setorAtual === "diretoria_logistica") {
     return <SolicitacaoServico />;
   }
 
