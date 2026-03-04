@@ -180,10 +180,22 @@ const RHSolicitacaoDetalhe = () => {
             <Button variant="outline" className="border-primary text-primary" onClick={() => setShowAndamento(true)}>Andamento</Button>
           )}
           {isPendente && sol.setorAtual !== 'rh_reprovado_uniforme' && (
-            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => { await concluirSolicitacao(sol.id); navigate(-1); }}>Concluir</Button>
+            <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+              const nome = currentUser?.nome || "RH";
+              const agora = new Date().toLocaleString("pt-BR");
+              await addAndamento(sol.id, `[${nome}] ✅ Concluído em ${agora}`);
+              await concluirSolicitacao(sol.id);
+              navigate(-1);
+            }}>Concluir</Button>
           )}
           {isPendente && (
-            <Button variant="destructive" onClick={async () => { await cancelarSolicitacao(sol.id); navigate(-1); }}>Cancelar</Button>
+            <Button variant="destructive" onClick={async () => {
+              const nome = currentUser?.nome || "RH";
+              const agora = new Date().toLocaleString("pt-BR");
+              await addAndamento(sol.id, `[${nome}] ❌ Cancelado em ${agora}`);
+              await cancelarSolicitacao(sol.id);
+              navigate(-1);
+            }}>Cancelar</Button>
           )}
           {/* Uniformes e EPI: forward to Soraya */}
           {isPendente && sol.tipo === 'Uniformes e EPI' && sol.setorAtual !== 'rh_aprovado_uniforme' && sol.setorAtual !== 'rh_reprovado_uniforme' && (
