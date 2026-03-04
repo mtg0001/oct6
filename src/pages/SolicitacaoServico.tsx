@@ -115,9 +115,12 @@ const SolicitacaoServico = () => {
     try {
       const nome = currentUser?.nome || "Usuário";
       const obs = observacaoAcao.trim();
-      if (obs) {
-        await addAndamento(sol.id, `[${nome}] ${dialogAction === "concluir" ? "✅ Concluído" : "❌ Cancelado"}\nObservação: ${obs}`);
-      }
+      const agora = new Date().toLocaleString("pt-BR");
+      const statusText = dialogAction === "concluir" ? "✅ Concluído" : "❌ Cancelado";
+      const textoAndamento = obs
+        ? `[${nome}] ${statusText} em ${agora}\nObservação: ${obs}`
+        : `[${nome}] ${statusText} em ${agora}`;
+      await addAndamento(sol.id, textoAndamento);
       if (dialogAction === "concluir") {
         await concluirSolicitacao(sol.id);
       } else {
