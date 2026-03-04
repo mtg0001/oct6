@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -31,6 +31,7 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getManualStatus, setManualStatus, getStatusColor, getStatusLabel, type PresenceStatus } from "@/hooks/usePresence";
+import { onNudgeShake } from "@/hooks/useGlobalNudge";
 import octarteLogo from "@/assets/octarte-logo.png";
 import octarteSidebarLogo from "@/assets/octarte-sidebar-logo.png";
 
@@ -55,6 +56,15 @@ export function AppSidebar() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = useState<PresenceStatus>(getManualStatus());
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [chatShaking, setChatShaking] = useState(false);
+
+  // Listen for global nudge events to shake the Chat menu item
+  useEffect(() => {
+    return onNudgeShake(() => {
+      setChatShaking(true);
+      setTimeout(() => setChatShaking(false), 800);
+    });
+  }, []);
 
   // Load avatar
   React.useEffect(() => {
@@ -409,7 +419,8 @@ export function AppSidebar() {
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
                       isActive
                         ? "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] shadow-md shadow-[hsl(var(--sidebar-primary)/0.3)]"
-                        : "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
+                        : "text-[hsl(var(--sidebar-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]",
+                      item.title === "Chat" && chatShaking && "animate-sidebar-nudge"
                     )
                   }
                 >

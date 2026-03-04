@@ -191,3 +191,15 @@
 .animate-pulse-orange {
   animation: pulse-orange 1.5s ease-in-out infinite;
 }
+
+@keyframes sidebar-nudge-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+.animate-sidebar-nudge {
+  animation: sidebar-nudge-shake 0.4s ease-in-out 3;
+  background: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-foreground)) !important;
+}
