@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Pencil, Plus, X } from "lucide-react";
 
-type RowStatus = "ativo" | "inativo" | "editando";
+type RowStatus = "ativo" | "inativo" | "editando" | "pendente_ti";
 
 interface Parceiro {
   id: number;
@@ -29,7 +29,7 @@ const columnDefs = [
   { key: "nascimento", label: "DATA NASCIMENTO", type: "date" },
   { key: "rg", label: "RG", type: "rg" },
   { key: "cpf", label: "CPF", type: "cpf" },
-  { key: "office", label: "PACOTE OFFICE", type: "select", options: ["STANDARD", "BASIC", "NÃO SE APLICA"] },
+  { key: "office", label: "PACOTE OFFICE", type: "select", options: ["STANDARD", "BASIC", "NÃO SE APLICA", "PENDENTE"] },
   { key: "sistema", label: "SISTEMA DE SOLICITAÇÕES", type: "select_sistema", options: ["ACESSO CRIADO", "NÃO SE APLICA", "PENDENTE"] },
   { key: "broche", label: "ENTREGA DO BROCHE", type: "date" },
   { key: "moletom", label: "MOLETOM", type: "select", options: ["ENTREGUE", "NÃO SE APLICA"] },
@@ -43,7 +43,7 @@ const initialData: Parceiro[] = [
   { id: 2, nome: "ALINE CINTRA ANDRADE SANTOS", status: "ativo", dados: ["","COORDENADORA COMERCIAL","COMERCIAL","PJ","R$ 9.000,00","COMUNICADOR EXECUTOR","SÃO PAULO","JÉSSICA","11","98588-7911","02/10/81","27.747.025.0","290.174.418-44","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 3, nome: "BRUNO MAGNO MAGALHÃES", status: "ativo", dados: ["","COORDENADOR DE PROJETOS","PROJETOS","PJ","R$ 9.000,00","EXECUTOR COMUNICADOR","GOIÂNIA","JESSICA","62","99952-7475","04/07/83","4162225","003.183.751.41","BASIC","ACESSO CRIADO","","","h"] },
   { id: 4, nome: "CAMILLA PRADO RIGONATI SECCO", status: "ativo", dados: ["","ACCOUNT EXECUTIVE","COMERCIAL","PJ","R$ 5.500,00","ANALISTA COMUNICADOR","SÃO PAULO","ALINE","11","98825-9359","14/02/85","442397379","322.510.858-82","STANDARD","ACESSO CRIADO","","","m"] },
-  { id: 5, nome: "CARLOS JOSÉ DE ARANTES CANDIDO", status: "ativo", dados: ["02/12/26","ELETRICISTA","OPERACIONAL - SP","PJ","R$ 6.000,00","COMUNICADOR EXECUTOR","SÃO PAULO","INAYARA","11","998518959","12/10/68","175918592","078.385.158-82","xxx","ACESSO CRIADO","","","h"] },
+  { id: 5, nome: "CARLOS JOSÉ DE ARANTES CANDIDO", status: "ativo", dados: ["02/12/26","ELETRICISTA","OPERACIONAL - SP","PJ","R$ 6.000,00","COMUNICADOR EXECUTOR","SÃO PAULO","INAYARA","11","998518959","12/10/68","175918592","078.385.158-82","PENDENTE","ACESSO CRIADO","","","h"] },
   { id: 6, nome: "DANIELA MARIA PREVITAL DE ANDRADE", status: "ativo", dados: ["","BDR","COMERCIAL","PJ","R$ 3.000,00","","SÃO PAULO","ALINE","16","99235-6865","24/07/79","27.747.008-0","269.800.668-46","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 7, nome: "DANIELLE SANTOS", status: "ativo", dados: ["","HEAD DE OPERAÇÕES","DIRETORIA","PJ","R$ 24.000,00","","GOIÂNIA","OSÓRIO","62","991978077","19/12/85","414780310","345.614.348-60","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 8, nome: "DENIS DE OLIVEIRA FERREIRA", status: "ativo", dados: ["","COORDENADOR DE PRÉ PRODUÇÃO","OPS - PRÉ PRODUÇÃO","PJ","R$ 7.000,00","PLANEJADOR ANALISTA","SÃO PAULO","INAYARA","11","93145-4893","04/01/96","38195842","461.643.698-35","STANDARD","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
@@ -52,7 +52,7 @@ const initialData: Parceiro[] = [
   { id: 11, nome: "ÊMILE GOMES DE AGUIAR MELO", status: "ativo", dados: ["","LDR","COMERCIAL","PJ","R$ 3.000,00","","SÃO PAULO","ALINE","71","99285-5787","24/09/1992","1439739757","062.147.825-36","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 12, nome: "FERNANDA SILVA VIANA", status: "ativo", dados: ["","BDR","COMERCIAL","PJ","R$ 4.000,00","","SÃO PAULO","ALINE","11","91218-0109","01/09/80","","283.520.648-51","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 13, nome: "FERNANDO RAFAEL DE OLIVEIRA", status: "ativo", dados: ["","SUPERVISOR DE PRODUÇÃO PLENO","OPS - PRODUÇÃO","PJ","R$ 4.900,00","COMUNICADOR EXECUTOR","SÃO PAULO","ROMÁRIO","62","99833-4788","18/06/91","352403044","386.994.238-02","STANDARD","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
-  { id: 14, nome: "FILIPE ARAÚJO DE JESUS", status: "ativo", dados: ["","ENCARREGADO DE GALPÃO","OPERACIONAL - SP","PJ","R$ 5.500,00","EXECUTOR","SÃO PAULO","GABRIELLI","11","96418-8646","16/11/98","68344931","711.531.084-02","xxx","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
+  { id: 14, nome: "FILIPE ARAÚJO DE JESUS", status: "ativo", dados: ["","ENCARREGADO DE GALPÃO","OPERACIONAL - SP","PJ","R$ 5.500,00","EXECUTOR","SÃO PAULO","GABRIELLI","11","96418-8646","16/11/98","68344931","711.531.084-02","PENDENTE","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
   { id: 15, nome: "FILIPE GOBETTI", status: "ativo", dados: ["19/02/2026","ACCOUNT EXECUTIVE","COMERCIAL","PJ","R$ 4.200,00","","SÃO PAULO","ALINE","11","95762-3247","28/10/1988","","329.016.358-06","STANDARD","ACESSO CRIADO","","","h"] },
   { id: 16, nome: "FLAVIA BARBOSA ROCHA", status: "ativo", dados: ["","GERENTE DE RH","RECURSOS HUMANOS","PJ","R$ 8.500,00","","GOIÂNIA","DANIELLE","62","98201-1065","16/10/1975","3449897","819.099.001-25","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 17, nome: "GABRIELLI OLIVEIRA COELHO", status: "ativo", dados: ["","ALMOXARIFE","OPERACIONAL - SP","PJ","R$ 4.200,00","EXECUTOR COMUNICADOR","SÃO PAULO","INAYARA","11","97505-8993","09/04/91","47886523","398.239.948-38","STANDARD","ACESSO CRIADO","26/02/26","ENTREGUE","m"] },
@@ -65,11 +65,11 @@ const initialData: Parceiro[] = [
   { id: 24, nome: "LORAYNE PELEGRINO SPERANDIO", status: "ativo", dados: ["","CUSTOMER SUCCESS","OPS - CS","PJ","R$ 3.500,00","COMUNICADOR EXECUTOR","SÃO PAULO","INAYARA","11","95520-7297","02/02/01","","538.675.498-00","STANDARD","ACESSO CRIADO","26/02/26","","m"] },
   { id: 25, nome: "LUCAS VASCONCELOS DOS SANTOS", status: "ativo", dados: ["","SUPERVISOR DE COMUNICAÇÃO VISUAL","OPS - COMUNICAÇÃO VISUAL","PJ","R$ 4.000,00","ANALISTA PLANEJADOR","SÃO PAULO","MARCOS","11","97457-0507","07/05/96","39623688","472.737.878-76","STANDARD","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
   { id: 26, nome: "MARCOS KAIQUE DE OLIVEIRA", status: "ativo", dados: ["","COORDENADOR DE COMUNICAÇÃO VISUAL","OPS - COMUNICAÇÃO VISUAL","PJ","R$ 5.500,00","EXECUTOR PLANEJADOR","GOIÂNIA","INAYARA","62","99365-6334","12/10/92","5656140","044.568.871-84","STANDARD","ACESSO CRIADO","","","h"] },
-  { id: 27, nome: "MATEUS FILIPE GONÇALVES", status: "ativo", dados: ["","CONSULTOR","COMERCIAL","PJ","R$ 5.000,00","","BELO HORIZONTE","JESSICA","31","99394-4095","15/07/1991","12047850","101.050.836.90","BASIC","NÃO SE APLICA","NÃO SE APLICA","NÃO SE APLICA","h"] },
+  { id: 27, nome: "MATEUS FILIPE GONÇALVES", status: "ativo", dados: ["","CONSULTOR","COMERCIAL","PJ","R$ 5.000,00","","BELO HORIZONTE","JESSICA","31","99394-4095","15/07/1991","12047850","101.050.836.90","BASIC","NÃO SE APLICA","","NÃO SE APLICA","h"] },
   { id: 28, nome: "MIRELLA AMURATTI", status: "ativo", dados: ["23/02/2026","ACCOUNT EXECUTIVE","COMERCIAL","PJ","R$ 4.200,00","COMUNICADOR EXECUTOR","SÃO PAULO","ALINE","11","98508-7958","08/06/93","371337768","402.514.858-70","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 29, nome: "MOISES DE CAMARGO POLICARPO DA SILVA", status: "ativo", dados: ["","PROJETISTA DE PRÉ PRODUÇÃO","OPS - PRÉ PRODUÇÃO","PJ","R$ 4.000,00","PLANEJADOR","SÃO PAULO","DENIS","11","95540-7890","20/09/1999","","440.369.888-32","STANDARD","ACESSO CRIADO","26/02/26","","h"] },
   { id: 30, nome: "NATHALIA PEREIRA DE ARAUJO", status: "ativo", dados: ["","ANALISTA DE PROJETOS","PROJETOS","PJ","R$ 5.000,00","","GOIÂNIA","BRUNO","62","98630-0634","04/05/92","","037.402.511-82","STANDARD","ACESSO CRIADO","","","m"] },
-  { id: 31, nome: "OSÓRIO FERREIRA DUTRA NETO", status: "ativo", dados: ["","CEO","DIRETORIA","PROLABORE","R$ 24.000,00","","SÃO PAULO","XXX","62","98171-5981","22/07/1991","4379277","716.050.611-15","STANDARD","ACESSO CRIADO","","ENTREGUE","h"] },
+  { id: 31, nome: "OSÓRIO FERREIRA DUTRA NETO", status: "ativo", dados: ["","CEO","DIRETORIA","PROLABORE","R$ 24.000,00","","SÃO PAULO","NÃO SE APLICA","62","98171-5981","22/07/1991","4379277","716.050.611-15","STANDARD","ACESSO CRIADO","","ENTREGUE","h"] },
   { id: 32, nome: "PATRICIA DOS SANTOS ANDRADE", status: "ativo", dados: ["","PROJETISTA","PROJETOS","PJ","R$ 3.200,00","EXECUTOR COMUNICADOR","GOIÂNIA","BRUNO","62","98157-8442","13/07/96","5991892","701.035.021-30","BASIC","ACESSO CRIADO","","","m"] },
   { id: 33, nome: "RAFAEL EDILTO SANTOS DE SOUZA", status: "ativo", dados: ["","ALMOXARIFE","OPERACIONAL - GO","PJ","R$ 4.200,00","EXECUTOR","GOIÂNIA","GLEIBE","62","99640-3855","13/09/00","6638084","080.570.731-01","STANDARD","ACESSO CRIADO","","","h"] },
   { id: 34, nome: "ROMÁRIO RODRIGUES CORREIA", status: "ativo", dados: ["","COORDENADOR DE PRODUÇÃO","OPS - PRODUÇÃO","PJ","R$ 10.000,00","PLANEJADOR EXECUTOR","SÃO PAULO","INAYARA","11","96597-1377","26/03/94","434321679","420.417.648-80","STANDARD","ACESSO CRIADO","","ENTREGUE","h"] },
@@ -78,8 +78,8 @@ const initialData: Parceiro[] = [
   { id: 37, nome: "YURI HENRIQUE DE OLIVEIRA COELHO", status: "ativo", dados: ["","PROJETISTA DE PRÉ PRODUÇÃO JR","OPS - PRÉ PRODUÇÃO","PJ","R$ 4.000,00","","SÃO PAULO","DENIS","11","96410-8877","16/05/97","","474.176.588-14","STANDARD","ACESSO CRIADO","26/02/26","","h"] },
   { id: 38, nome: "ITAMAR SILVA LIMA", status: "ativo", dados: ["","SUPERVISOR DE MONTAGEM","OPERACIONAL - GO","PJ","R$ 6.500,00","","GOIÂNIA","GLEIBE","77","99103-3969","07/02/94","16648670","067.788.775-29","BASIC","ACESSO CRIADO","","","h"] },
   { id: 39, nome: "ZEULA PEREIRA DA SILVA MOURA", status: "ativo", dados: ["03/10/26","ACCOUNT EXECUTIVE","COMERCIAL - GO","PJ","R$ 5.000,00","","GOIÂNIA","ALINE","62","99113-3035","26/06/1985","4587310","007.124.441-73","","ACESSO CRIADO","FALTA FAZER","","m"] },
-  { id: 40, nome: "DIOGO COSTA BATISTA", status: "ativo", dados: ["","PROJETISTA","PROJETOS","PJ","R$ 5.600,00","COMUNICADOR ANALISTA","SÃO PAULO","BRUNO","11","97865-7585","24/05/1989","669709207","033.430.585-30","BASIC","NÃO SE APLICA","NÃO SE APLICA","NÃO SE APLICA","h"] },
-  { id: 41, nome: "SAMUEL CARDOSO DA ROCHA", status: "ativo", dados: ["","PROJETISTA","PROJETOS","PJ","R$ 2.400,00","PLANEJADOR ANALISTA","GOIÂNIA","BRUNO","62","9250-5745","20/03/2000","6626591","706.820.511-95","BASIC","NÃO SE APLICA","NÃO SE APLICA","NÃO SE APLICA","h"] },
+  { id: 40, nome: "DIOGO COSTA BATISTA", status: "ativo", dados: ["","PROJETISTA","PROJETOS","PJ","R$ 5.600,00","COMUNICADOR ANALISTA","SÃO PAULO","BRUNO","11","97865-7585","24/05/1989","669709207","033.430.585-30","BASIC","NÃO SE APLICA","","NÃO SE APLICA","h"] },
+  { id: 41, nome: "SAMUEL CARDOSO DA ROCHA", status: "ativo", dados: ["","PROJETISTA","PROJETOS","PJ","R$ 2.400,00","PLANEJADOR ANALISTA","GOIÂNIA","BRUNO","62","9250-5745","20/03/2000","6626591","706.820.511-95","BASIC","NÃO SE APLICA","","NÃO SE APLICA","h"] },
   { id: 42, nome: "MAURO ALVES DA SILVA", status: "ativo", dados: ["21/08/25","IMPRESSOR PLENO","OPS - COMUNICAÇÃO VISUAL","PJ","","ANALISTA PLANEJADOR","GOIÂNIA","MARCOS","62","98574-2510","01/08/78","31174522","770.600.831-20","STANDARD","ACESSO CRIADO","","","h"] },
 ];
 
@@ -119,11 +119,9 @@ const ColaboradoresPJ = () => {
       !busca || c.nome.toLowerCase().includes(busca.toLowerCase()) ||
       c.dados.some((d) => d.toLowerCase().includes(busca.toLowerCase()))
     );
-    // Inativos go to bottom
     return [...f].sort((a, b) => {
-      const aInativo = a.status === "inativo" ? 1 : 0;
-      const bInativo = b.status === "inativo" ? 1 : 0;
-      return aInativo - bInativo;
+      const order = (s: RowStatus) => s === "inativo" ? 2 : s === "pendente_ti" ? 0 : 1;
+      return order(a.status) - order(b.status);
     });
   }, [parceiros, busca]);
 
@@ -166,7 +164,7 @@ const ColaboradoresPJ = () => {
     const editable = isEditable(parceiro.status);
 
     if (!editable) {
-      if (col.type === "select_sistema" && value === "PENDENTE") {
+      if ((col.type === "select_sistema" || col.key === "office") && value === "PENDENTE") {
         return <span className="text-destructive font-semibold">{value}</span>;
       }
       return <span className="text-muted-foreground">{value || "—"}</span>;
@@ -309,8 +307,9 @@ const ColaboradoresPJ = () => {
               {sorted.map((c) => {
                 const editable = isEditable(c.status);
                 const isInativo = c.status === "inativo";
+                const isPendenteTI = c.status === "pendente_ti";
                 return (
-                  <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
+                  <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : isPendenteTI ? "bg-orange-500/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
                     <td className="sticky left-0 z-10 bg-card px-2 py-2 border-r border-border">
                       {editable ? (
                         <button
@@ -324,11 +323,13 @@ const ColaboradoresPJ = () => {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                              isInativo 
-                                ? "bg-destructive text-destructive-foreground" 
+                              isInativo
+                                ? "bg-destructive text-destructive-foreground"
+                                : isPendenteTI
+                                ? "bg-orange-500 text-white animate-pulse-orange"
                                 : "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]"
                             }`}>
-                              {isInativo ? "Inativo" : "Ativo"}
+                              {isInativo ? "Inativo" : isPendenteTI ? "Pendente TI" : "Ativo"}
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start" className="min-w-[140px]">
@@ -343,6 +344,10 @@ const ColaboradoresPJ = () => {
                             <DropdownMenuItem onClick={() => updateStatus(c.id, "inativo")} className="gap-2 text-destructive">
                               <div className="w-3.5 h-3.5 rounded-full bg-destructive" />
                               Inativo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(c.id, "pendente_ti")} className="gap-2 text-orange-500">
+                              <div className="w-3.5 h-3.5 rounded-full bg-orange-500 animate-pulse" />
+                              Pendente TI
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
