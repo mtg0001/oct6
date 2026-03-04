@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Pencil, Plus, X } from "lucide-react";
+import { Pencil, Plus, X, Check } from "lucide-react";
 
 type RowStatus = "ativo" | "inativo" | "editando" | "pendente_ti";
 
@@ -13,6 +13,10 @@ interface Colaborador {
   nome: string;
   dados: string[];
   status: RowStatus;
+  isNew?: boolean;
+  previousStatus?: RowStatus;
+  originalNome?: string;
+  originalDados?: string[];
 }
 
 const columnDefs = [
@@ -148,7 +152,32 @@ const ColaboradoresCLT = () => {
   }, [colaboradores, busca]);
 
   const updateStatus = (id: number, newStatus: RowStatus) => {
-    setColaboradores(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+    setColaboradores(prev => prev.map(p => {
+      if (p.id !== id) return p;
+      if (newStatus === "editando") {
+        return { ...p, status: newStatus, previousStatus: p.status, originalNome: p.nome, originalDados: [...p.dados] };
+      }
+      return { ...p, status: newStatus, previousStatus: undefined, originalNome: undefined, originalDados: undefined };
+    }));
+  };
+
+  const saveRow = (id: number) => {
+    setColaboradores(prev => prev.map(p => {
+      if (p.id !== id) return p;
+      return { ...p, status: "ativo", isNew: false, previousStatus: undefined, originalNome: undefined, originalDados: undefined };
+    }));
+  };
+
+  const cancelEdit = (id: number) => {
+    setColaboradores(prev => {
+      const row = prev.find(p => p.id === id);
+      if (!row) return prev;
+      if (row.isNew) return prev.filter(p => p.id !== id);
+      return prev.map(p => {
+        if (p.id !== id) return p;
+        return { ...p, status: p.previousStatus || "ativo", nome: p.originalNome || p.nome, dados: p.originalDados || p.dados, previousStatus: undefined, originalNome: undefined, originalDados: undefined };
+      });
+    });
   };
 
   const updateField = (id: number, colIndex: number, value: string) => {
@@ -171,13 +200,10 @@ const ColaboradoresCLT = () => {
       id: nextId++,
       nome: "",
       status: "editando",
+      isNew: true,
       dados: columnDefs.map(() => ""),
     };
     setColaboradores(prev => [newC, ...prev]);
-  };
-
-  const removeRow = (id: number) => {
-    setColaboradores(prev => prev.filter(p => p.id !== id));
   };
 
   const isEditable = (status: RowStatus) => status === "editando";
@@ -333,13 +359,22 @@ const ColaboradoresCLT = () => {
                   <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : isPendenteTI ? "bg-orange-500/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
                     <td className="sticky left-0 z-10 bg-card px-2 py-2 border-r border-border">
                       {editable ? (
-                        <button
-                          onClick={() => removeRow(c.id)}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity bg-destructive text-destructive-foreground"
-                        >
-                          <X className="w-3 h-3" />
-                          Cancelar
-                        </button>
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => saveRow(c.id)}
+                            className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]"
+                          >
+                            <Check className="w-3 h-3" />
+                            Salvar
+                          </button>
+                          <button
+                            onClick={() => cancelEdit(c.id)}
+                            className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity bg-destructive text-destructive-foreground"
+                          >
+                            <X className="w-3 h-3" />
+                            Cancelar
+                          </button>
+                        </div>
                       ) : (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
