@@ -59,6 +59,38 @@ export function AppSidebar() {
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [chatShaking, setChatShaking] = useState(false);
   const pendingCounts = usePendingCounts();
+  const [seenCounts, setSeenCounts] = useState<Record<string, number>>({});
+
+  // When user visits a route, mark that count as "seen"
+  useEffect(() => {
+    const path = location.pathname;
+    if (pendingCounts[path] !== undefined) {
+      setSeenCounts((prev) => ({ ...prev, [path]: pendingCounts[path] }));
+    }
+    // Also mark parent menu as seen by matching prefix
+    const parentPaths: Record<string, string[]> = {
+      "Logística & Compras": ["/logistica/"],
+      "Expedição": ["/expedicao/"],
+      "CS": ["/cs/"],
+      "Recursos Humanos": ["/rh/"],
+      "Tecnologia da Informação": ["/ti/chamados/"],
+      "Diretoria Aprovação": ["/diretoria/"],
+    };
+    for (const [parentKey, prefixes] of Object.entries(parentPaths)) {
+      if (prefixes.some((p) => path.startsWith(p)) && pendingCounts[parentKey] !== undefined) {
+        setSeenCounts((prev) => ({ ...prev, [parentKey]: pendingCounts[parentKey] }));
+      }
+    }
+  }, [location.pathname, pendingCounts]);
+
+  // Helper: returns the "unseen" count (new items since last visit)
+  const getUnseenCount = (key: string) => {
+    const current = pendingCounts[key] ?? 0;
+    const seen = seenCounts[key];
+    if (seen === undefined) return current; // never visited = show all
+    const diff = current - seen;
+    return diff > 0 ? diff : 0;
+  };
 
   // Listen for global nudge events to shake the Chat menu item
   useEffect(() => {
@@ -461,9 +493,9 @@ export function AppSidebar() {
                   {!collapsed && (
                     <>
                       <span className="flex-1 text-left truncate">{item.title}</span>
-                      {(pendingCounts[item.title] ?? 0) > 0 && (
+                      {getUnseenCount(item.title) > 0 && (
                         <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1 animate-pulse">
-                          {pendingCounts[item.title] > 99 ? "99+" : pendingCounts[item.title]}
+                          {getUnseenCount(item.title) > 99 ? "99+" : getUnseenCount(item.title)}
                         </span>
                       )}
                       <ChevronDown
@@ -501,9 +533,9 @@ export function AppSidebar() {
                           }
                         >
                           <span>{child.title}</span>
-                          {(pendingCounts[child.path] ?? 0) > 0 && (
+                          {getUnseenCount(child.path) > 0 && (
                             <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-1 animate-pulse">
-                              {pendingCounts[child.path] > 99 ? "99+" : pendingCounts[child.path]}
+                              {getUnseenCount(child.path) > 99 ? "99+" : getUnseenCount(child.path)}
                             </span>
                           )}
                         </NavLink>
