@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, X } from "lucide-react";
 
 type RowStatus = "ativo" | "inativo" | "editando";
 
@@ -154,6 +154,10 @@ const ColaboradoresPJ = () => {
     setParceiros(prev => [newP, ...prev]);
   };
 
+  const removeRow = (id: number) => {
+    setParceiros(prev => prev.filter(p => p.id !== id));
+  };
+
   const isEditable = (status: RowStatus) => status === "editando";
 
   const renderCell = (parceiro: Parceiro, colIndex: number) => {
@@ -256,32 +260,41 @@ const ColaboradoresPJ = () => {
                 return (
                   <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
                     <td className="sticky left-0 z-10 bg-card px-2 py-2 border-r border-border">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
-                            isInativo 
-                              ? "bg-destructive text-destructive-foreground" 
-                              : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]"
-                          }`}>
-                            {editable && <Pencil className="w-3 h-3" />}
-                            {editable ? "Editando" : isInativo ? "Inativo" : "Ativo"}
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="min-w-[140px]">
-                          <DropdownMenuItem onClick={() => updateStatus(c.id, "editando")} className="gap-2">
-                            <Pencil className="w-3.5 h-3.5" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateStatus(c.id, "ativo")} className="gap-2">
-                            <div className="w-3.5 h-3.5 rounded-full bg-[hsl(var(--sidebar-primary))]" />
-                            Ativo
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateStatus(c.id, "inativo")} className="gap-2 text-destructive">
-                            <div className="w-3.5 h-3.5 rounded-full bg-destructive" />
-                            Inativo
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {editable ? (
+                        <button
+                          onClick={() => removeRow(c.id)}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity bg-destructive text-destructive-foreground"
+                        >
+                          <X className="w-3 h-3" />
+                          Cancelar
+                        </button>
+                      ) : (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
+                              isInativo 
+                                ? "bg-destructive text-destructive-foreground" 
+                                : "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]"
+                            }`}>
+                              {isInativo ? "Inativo" : "Ativo"}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="min-w-[140px]">
+                            <DropdownMenuItem onClick={() => updateStatus(c.id, "editando")} className="gap-2">
+                              <Pencil className="w-3.5 h-3.5" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(c.id, "ativo")} className="gap-2">
+                              <div className="w-3.5 h-3.5 rounded-full bg-[hsl(var(--success))]" />
+                              Ativo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(c.id, "inativo")} className="gap-2 text-destructive">
+                              <div className="w-3.5 h-3.5 rounded-full bg-destructive" />
+                              Inativo
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </td>
                     <td className="sticky left-[90px] z-10 bg-card px-3 py-2 whitespace-nowrap border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       {editable ? (
