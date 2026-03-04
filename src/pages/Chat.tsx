@@ -497,7 +497,7 @@ const Chat = () => {
         </div>
 
         {/* ─── RIGHT: Chat Area with WhatsApp wallpaper ─── */}
-        <div className="flex flex-col min-h-0 overflow-hidden bg-card">
+        <div className="relative flex flex-col min-h-0 overflow-hidden bg-card">
           {activeConversation && partnerUser ? (
             <>
               {/* Chat header - WhatsApp style */}
@@ -534,7 +534,7 @@ const Chat = () => {
               {/* Messages area with WhatsApp wallpaper */}
               <div
                 ref={messagesContainerRef}
-                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-12 lg:px-16 py-4"
+                className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-12 lg:px-16 pt-4 pb-24"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                   backgroundColor: "hsl(var(--muted) / 0.3)",
@@ -626,7 +626,7 @@ const Chat = () => {
 
               {/* Emoji picker */}
               {showEmojis && (
-                <div className="shrink-0 border-t border-border p-2 bg-card">
+                <div className="absolute bottom-14 left-0 right-0 z-30 border-t border-border p-2 bg-card">
                   <div className="flex flex-wrap gap-1 max-w-3xl mx-auto">
                     {EMOJI_LIST.map((emoji) => (
                       <button
@@ -642,7 +642,7 @@ const Chat = () => {
               )}
 
               {/* Input area - WhatsApp style */}
-              <div className="shrink-0 px-4 py-2 flex items-center gap-2" style={{ backgroundColor: "hsl(var(--muted) / 0.4)" }}>
+              <div className="absolute bottom-0 left-0 right-0 z-40 px-4 py-2 flex items-center gap-2 border-t border-border" style={{ backgroundColor: "hsl(var(--muted) / 0.92)" }}>
                 {isRecording ? (
                   <>
                     <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0 text-destructive" onClick={cancelRecording}>
