@@ -125,6 +125,7 @@ const Chat = () => {
   const [showEmojis, setShowEmojis] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [nudging, setNudging] = useState(false);
+  const [unreadPerUser, setUnreadPerUser] = useState<Record<string, number>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,6 +137,28 @@ const Chat = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ─── Load unread counts per user ───
+  const loadUnreadCounts = useCallback(async () => {
+    if (!currentUser?.id) return;
+    const { data: convos } = await supabase
+      .from("chat_conversations")
+      .select("id, participant_1, participant_2")
+      .or(`participant_1.eq.${currentUser.id},participant_2.eq.${currentUser.id}`);
+    if (!convos || convos.length === 0) { setUnreadPerUser({}); return; }
+    const counts: Record<string, number> = {};
+    for (const c of convos) {
+      const partnerId = c.participant_1 === currentUser.id ? c.participant_2 : c.participant_1;
+      const { count } = await supabase
+        .from("chat_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("conversation_id", c.id)
+        .neq("sender_id", currentUser.id)
+        .eq("read", false);
+      if (count && count > 0) counts[partnerId] = count;
+    }
+    setUnreadPerUser(counts);
+  }, [currentUser?.id]);
 
   // ─── Load conversations ───
   useEffect(() => {
@@ -149,7 +172,18 @@ const Chat = () => {
       if (data) setConversations(data as Conversation[]);
     };
     load();
-  }, [currentUser?.id]);
+    loadUnreadCounts();
+
+    // Subscribe to new messages for unread badge updates
+    const unreadChannel = supabase
+      .channel("unread-per-user")
+      .on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, () => {
+        loadUnreadCounts();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(unreadChannel); };
+  }, [currentUser?.id, loadUnreadCounts]);
 
   // ─── Load messages for active conversation ───
   useEffect(() => {
@@ -206,6 +240,7 @@ const Chat = () => {
     }
 
     setChatPartnerId(partnerId);
+    setUnreadPerUser(prev => { const next = { ...prev }; delete next[partnerId]; return next; });
     const pair = [currentUser.id, partnerId].sort();
     const findByPair = (list: Conversation[]) =>
       list.find((c) => [c.participant_1, c.participant_2].sort().join() === pair.join());
@@ -441,9 +476,16 @@ const Chat = () => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium text-foreground truncate">{u.nome}</p>
-                      <span className="text-[10px] text-muted-foreground shrink-0">
-                        {formatLastSeen(u.id) ? format(new Date(getLastSeen(u.id)!), "HH:mm") : ""}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] text-muted-foreground">
+                          {formatLastSeen(u.id) ? format(new Date(getLastSeen(u.id)!), "HH:mm") : ""}
+                        </span>
+                        {unreadPerUser[u.id] > 0 && (
+                          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                            {unreadPerUser[u.id]}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">
                       {getStatusLabel(getStatus(u.id))}
@@ -482,9 +524,16 @@ const Chat = () => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium text-foreground truncate">{u.nome}</p>
-                      <span className="text-[10px] text-muted-foreground shrink-0">
-                        {formatLastSeen(u.id) ? format(new Date(getLastSeen(u.id)!), "HH:mm") : ""}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] text-muted-foreground">
+                          {formatLastSeen(u.id) ? format(new Date(getLastSeen(u.id)!), "HH:mm") : ""}
+                        </span>
+                        {unreadPerUser[u.id] > 0 && (
+                          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+                            {unreadPerUser[u.id]}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">
                       Visto por último: {formatLastSeen(u.id) || "—"}
