@@ -98,7 +98,7 @@ export function useRealtimeNotifications() {
                   .eq("id", senderId)
                   .single();
                 const senderName = senderData?.nome || "Alguém";
-                const msgPreview = row.message_type === "nudge" ? "te enviou um nudge! 💥" : (row.content?.substring(0, 50) || "Nova mensagem");
+                const msgPreview = row.message_type === "nudge" ? "Chamou sua atenção! 🫨" : (row.content?.substring(0, 50) || "Nova mensagem");
                 showNotification(senderName, msgPreview);
               }
             });
