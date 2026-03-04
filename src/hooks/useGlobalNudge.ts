@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 
@@ -14,12 +14,22 @@ function emitNudgeShake() {
   nudgeListeners.forEach((cb) => cb());
 }
 
+function showBrowserNotification(title: string, body: string) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  try {
+    new Notification(title, { body, icon: "/favicon.ico", tag: `${title}-${Date.now()}` });
+  } catch {}
+}
+
 /**
- * Global listener: plays nudge sound and emits shake event
+ * Global listener: plays sounds and notifications
  * regardless of which page the user is on.
  */
 export function useGlobalNudge() {
   const currentUser = useCurrentUser();
+  const userRef = useRef(currentUser);
+  userRef.current = currentUser;
 
   const playNudgeSound = useCallback(() => {
     try {
@@ -37,10 +47,19 @@ export function useGlobalNudge() {
     } catch {}
   }, []);
 
+  const playMsnOnlineSound = useCallback(() => {
+    try {
+      const audio = new Audio("/sounds/msn-online.mp3");
+      audio.volume = 0.7;
+      audio.play().catch(() => {});
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    const channel = supabase
+    // Chat messages listener
+    const chatChannel = supabase
       .channel("global-nudge-listener")
       .on(
         "postgres_changes",
@@ -49,7 +68,6 @@ export function useGlobalNudge() {
           const row = payload.new as any;
           if (row.sender_id === currentUser.id) return;
 
-          // Check if this user is a participant
           const { data } = await supabase
             .from("chat_conversations")
             .select("participant_1, participant_2")
@@ -69,8 +87,57 @@ export function useGlobalNudge() {
       )
       .subscribe();
 
+    // Solicitações listener – sound + notification
+    const solChannel = supabase
+      .channel("global-sol-sound")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "solicitacoes" },
+        (payload) => {
+          const row = payload.new as any;
+          const u = userRef.current;
+          if (!u) return;
+          if (row.solicitante_id === u.id) return;
+
+          const isAdmin = u.administrador;
+          const isDirector = u.diretoria?.length > 0 && row.diretor_area && u.diretoria.some((d: string) => d.toLowerCase() === row.diretor_area?.toLowerCase());
+          const isLogistica = u.resolveLogisticaComprasGo || u.resolveLogisticaComprasSp;
+          const isExpedicao = u.resolveExpedicaoGo || u.resolveExpedicaoSp;
+          const isRH = u.resolveRecursosHumanosGo || u.resolveRecursosHumanosSp;
+          const isCS = u.resolveCs;
+
+          if (isAdmin || isDirector || isLogistica || isExpedicao || isRH || isCS) {
+            playMsnOnlineSound();
+            showBrowserNotification("Nova Solicitação", "Você recebeu uma nova Solicitação!!");
+          }
+        }
+      )
+      .subscribe();
+
+    // Chamados TI listener – sound + notification
+    const tiChannel = supabase
+      .channel("global-ti-sound")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chamados_ti" },
+        (payload) => {
+          const row = payload.new as any;
+          const u = userRef.current;
+          if (!u) return;
+          if (row.solicitante_id === u.id) return;
+
+          if (u.administrador) {
+            playMsnOnlineSound();
+            showBrowserNotification("Novo Chamado de TI", "Você recebeu uma nova Solicitação!!");
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(chatChannel);
+      supabase.removeChannel(solChannel);
+      supabase.removeChannel(tiChannel);
     };
-  }, [currentUser?.id, playNudgeSound, playMsnSound]);
+  }, [currentUser?.id, playNudgeSound, playMsnSound, playMsnOnlineSound]);
 }
