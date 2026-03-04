@@ -380,7 +380,7 @@ const Chat = () => {
         nudging && "animate-nudge"
       )}>
         {/* ─── LEFT: WhatsApp-style contact panel ─── */}
-        <div className="bg-card flex flex-col border-r border-border">
+        <div className={cn("bg-card flex-col border-r border-border", activeConversation ? "hidden lg:flex" : "flex")}>
           {/* Header */}
           <div className="h-14 px-4 flex items-center justify-between" style={{ backgroundColor: "hsl(var(--primary) / 0.08)" }}>
             <div className="flex items-center gap-3">
@@ -497,7 +497,7 @@ const Chat = () => {
         </div>
 
         {/* ─── RIGHT: Chat Area with WhatsApp wallpaper ─── */}
-        <div className="relative flex flex-col min-h-0 overflow-hidden bg-card">
+        <div className={cn("relative flex-col min-h-0 overflow-hidden bg-card", activeConversation ? "flex" : "hidden lg:flex")}>
           {activeConversation && partnerUser ? (
             <>
               {/* Chat header - WhatsApp style */}
