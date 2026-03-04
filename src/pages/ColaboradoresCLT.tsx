@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Pencil, Plus, X } from "lucide-react";
 
-type RowStatus = "ativo" | "inativo" | "editando";
+type RowStatus = "ativo" | "inativo" | "editando" | "pendente_ti";
 
 interface Colaborador {
   id: number;
@@ -37,48 +37,48 @@ const columnDefs = [
   { key: "nascimento", label: "DATA NASCIMENTO", type: "date" },
   { key: "rg", label: "RG", type: "rg" },
   { key: "cpf", label: "CPF", type: "cpf" },
-  { key: "office", label: "PACOTE OFFICE", type: "select", options: ["STANDARD", "BASIC", "NÃO SE APLICA", "xxx"] },
+  { key: "office", label: "PACOTE OFFICE", type: "select", options: ["STANDARD", "BASIC", "NÃO SE APLICA", "PENDENTE"] },
   { key: "sistema", label: "SISTEMA DE SOLICITAÇÕES", type: "select_sistema", options: ["ACESSO CRIADO", "NÃO SE APLICA", "PENDENTE"] },
   { key: "broche", label: "BROCHE", type: "date" },
   { key: "moletom", label: "MOLETOM", type: "select", options: ["ENTREGUE", "NÃO SE APLICA"] },
   { key: "obs", label: "OBS", type: "text" },
 ];
 
-// Indices for cost calculation: salario=4, fgts=7, ferias=8, decimo=9, alimentacao=10, mobilidade=11, custo_total=12
-const COST_INDICES = { salario: 4, fgts: 7, ferias: 8, decimo: 9, alimentacao: 10, mobilidade: 11, custoTotal: 12 };
+// Indices for cost calculation: salario=4, periculosidade=5, gratificacao=6, fgts=7, ferias=8, decimo=9, alimentacao=10, mobilidade=11, custo_total=12
+const COST_INDICES = { salario: 4, periculosidade: 5, gratificacao: 6, fgts: 7, ferias: 8, decimo: 9, alimentacao: 10, mobilidade: 11, custoTotal: 12 };
 
 let nextId = 200;
 
 const initialData: Colaborador[] = [
-  { id: 1, nome: "ADRIANO DOS SANTOS OLIVEIRA", status: "ativo", dados: ["02/12/25","MARCENEIRO","OPERACIONAL - SP","CLT","R$ 3.522,65","","","R$ 281,81","R$ 97,85","R$ 293,55","R$ 704,00","R$ 623,30","R$ 5.523,17","COMUNICADOR PLANEJADOR","SÃO PAULO","DOUGLAS","11","93218-7174","28/01/1984","","333.016.838-27","xxx","NÃO SE APLICA","NÃO SE APLICA","NÃO SE APLICA","AFASTADO"] },
-  { id: 2, nome: "ALISSON BIZERRA DE SOUZA", status: "ativo", dados: ["12/01/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - GO","CLT","R$ 2.347,90","","","R$ 187,83","R$ 65,22","R$ 195,66","R$ 704,00","R$ 300,00","R$ 3.800,61","","GOIÂNIA","DORISMAR","64","99951-5838","09/01/95","658190453","134.476.756-75","xxx","ACESSO CRIADO","","","h"] },
+  { id: 1, nome: "ADRIANO DOS SANTOS OLIVEIRA", status: "ativo", dados: ["02/12/25","MARCENEIRO","OPERACIONAL - SP","CLT","R$ 3.522,65","","","R$ 281,81","R$ 97,85","R$ 293,55","R$ 704,00","R$ 623,30","R$ 5.523,17","COMUNICADOR PLANEJADOR","SÃO PAULO","DOUGLAS","11","93218-7174","28/01/1984","","333.016.838-27","PENDENTE","NÃO SE APLICA","","NÃO SE APLICA","AFASTADO"] },
+  { id: 2, nome: "ALISSON BIZERRA DE SOUZA", status: "ativo", dados: ["12/01/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - GO","CLT","R$ 2.347,90","","","R$ 187,83","R$ 65,22","R$ 195,66","R$ 704,00","R$ 300,00","R$ 3.800,61","","GOIÂNIA","DORISMAR","64","99951-5838","09/01/95","658190453","134.476.756-75","PENDENTE","ACESSO CRIADO","","","h"] },
   { id: 3, nome: "AMELIO MIRANDA DE MOREIRA NETO", status: "ativo", dados: ["19/12/22","ANALISTA DE LICITAÇÕES","LICITAÇÕES","CLT","R$ 2.348,43","","","R$ 187,87","R$ 65,23","R$ 195,70","R$ 704,00","R$ 300,00","R$ 3.801,24","PLANEJADOR COMUNICADOR","GOIÂNIA","OSÓRIO","62","99327-0076","29/09/75","1979854","659.599.571-91","STANDARD","ACESSO CRIADO","","","h"] },
-  { id: 4, nome: "DANIEL SOARES DA SILVA", status: "ativo", dados: ["09/01/24","SERRALHEIRO PLENO","OPERACIONAL - GO","CLT","R$ 3.710,00","","","R$ 296,80","R$ 103,06","R$ 309,17","R$ 704,00","R$ 300,00","R$ 5.423,02","","GOIÂNIA","GLEIBE","62","9350-5655","16/08/76","3166407","807.765.901-20","xxx","ACESSO CRIADO","","","h"] },
-  { id: 5, nome: "DIEGO LEMOS PEREIRA", status: "ativo", dados: ["19/08/25","PINTOR","OPERACIONAL - SP","CLT","R$ 2.831,79","","","R$ 226,54","R$ 78,66","R$ 235,98","R$ 1.204,00","R$ 432,00","R$ 5.008,98","","SÃO PAULO","INAYARA","","","","","","xxx","ACESSO CRIADO","26/02/26","","h"] },
+  { id: 4, nome: "DANIEL SOARES DA SILVA", status: "ativo", dados: ["09/01/24","SERRALHEIRO PLENO","OPERACIONAL - GO","CLT","R$ 3.710,00","","","R$ 296,80","R$ 103,06","R$ 309,17","R$ 704,00","R$ 300,00","R$ 5.423,02","","GOIÂNIA","GLEIBE","62","9350-5655","16/08/76","3166407","807.765.901-20","PENDENTE","ACESSO CRIADO","","","h"] },
+  { id: 5, nome: "DIEGO LEMOS PEREIRA", status: "ativo", dados: ["19/08/25","PINTOR","OPERACIONAL - SP","CLT","R$ 2.831,79","","","R$ 226,54","R$ 78,66","R$ 235,98","R$ 1.204,00","R$ 432,00","R$ 5.008,98","","SÃO PAULO","INAYARA","","","","","","PENDENTE","ACESSO CRIADO","26/02/26","","h"] },
   { id: 6, nome: "DJALMA GABRIEL CARVALHO SILVA", status: "ativo", dados: ["10/04/25","AUXILIAR DE IMPRESSÃO","OPS - COMUNICAÇÃO VISUAL","CLT","R$ 1.912,24","","","R$ 152,98","R$ 53,12","R$ 159,35","R$ 704,00","R$ 300,00","R$ 3.281,69","PLANEJADOR ANALISTA","GOIÂNIA","MARCOS","62","9180-5922","25/05/2007","2363805089","118.422.935-08","STANDARD","ACESSO CRIADO","","","h"] },
-  { id: 7, nome: "DORISMAR PEREIRA DE SANTANA", status: "ativo", dados: ["14/12/22","ENCARREGADO DE GALPÃO","OPERACIONAL - GO","CLT","R$ 3.180,00","","R$ 1.272,00","R$ 356,16","R$ 123,67","R$ 371,00","R$ 1.204,00","R$ 300,00","R$ 6.806,83","COMUNICADOR PLANEJADOR","GOIÂNIA","RAFAEL","62","99133-4604","18/08/71","2281918","597.365.421-49","xxx","ACESSO CRIADO","","","h"] },
+  { id: 7, nome: "DORISMAR PEREIRA DE SANTANA", status: "ativo", dados: ["14/12/22","ENCARREGADO DE GALPÃO","OPERACIONAL - GO","CLT","R$ 3.180,00","","R$ 1.272,00","R$ 356,16","R$ 123,67","R$ 371,00","R$ 1.204,00","R$ 300,00","R$ 6.806,83","COMUNICADOR PLANEJADOR","GOIÂNIA","RAFAEL","62","99133-4604","18/08/71","2281918","597.365.421-49","PENDENTE","ACESSO CRIADO","","","h"] },
   { id: 8, nome: "EDSON HENRIQUE BORGES DE SOUZA", status: "ativo", dados: ["26/11/25","ASSISTENTE DE LOGÍSTICA E COMPRAS","LOGÍSTICA E COMPRAS","CLT","R$ 2.120,00","","","R$ 169,60","R$ 58,89","R$ 176,67","R$ 704,00","R$ 300,00","R$ 3.529,16","","GOIÂNIA","THAÍS","62","98291-8821","27/09/96","6210330","008.252.301-01","STANDARD","ACESSO CRIADO","","","h"] },
-  { id: 9, nome: "EDSON ROBERTO GONÇALVES DE LIMA", status: "ativo", dados: ["09/08/22","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - SP","CLT","R$ 2.348,43","","","R$ 187,87","R$ 65,23","R$ 195,70","R$ 704,00","R$ 300,00","R$ 3.801,24","EXECUTOR COMUNICADOR","SÃO PAULO","FILIPE","11","95272-4776","17/08/81","368325521","300.484.748-51","xxx","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
-  { id: 10, nome: "EDUARDO CONCEIÇÃO MARINHO", status: "ativo", dados: ["07/07/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - GO","CLT","R$ 2.348,43","","","R$ 187,87","R$ 65,23","R$ 195,70","R$ 704,00","R$ 300,00","R$ 3.801,24","","GOIÂNIA","DORISMAR","62","","27/05/1991","","035.000.351-32","xxx","ACESSO CRIADO","","","h"] },
-  { id: 11, nome: "EZAÚ DOS SANTOS DE ARAÚJO", status: "ativo", dados: ["24/11/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - SP","CLT","R$ 2.347,90","","","R$ 187,83","R$ 65,22","R$ 195,66","R$ 704,00","R$ 300,00","R$ 3.800,61","","SÃO PAULO","FILIPE","","","","","","xxx","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
+  { id: 9, nome: "EDSON ROBERTO GONÇALVES DE LIMA", status: "ativo", dados: ["09/08/22","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - SP","CLT","R$ 2.348,43","","","R$ 187,87","R$ 65,23","R$ 195,70","R$ 704,00","R$ 300,00","R$ 3.801,24","EXECUTOR COMUNICADOR","SÃO PAULO","FILIPE","11","95272-4776","17/08/81","368325521","300.484.748-51","PENDENTE","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
+  { id: 10, nome: "EDUARDO CONCEIÇÃO MARINHO", status: "ativo", dados: ["07/07/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - GO","CLT","R$ 2.348,43","","","R$ 187,87","R$ 65,23","R$ 195,70","R$ 704,00","R$ 300,00","R$ 3.801,24","","GOIÂNIA","DORISMAR","62","","27/05/1991","","035.000.351-32","PENDENTE","ACESSO CRIADO","","","h"] },
+  { id: 11, nome: "EZAÚ DOS SANTOS DE ARAÚJO", status: "ativo", dados: ["24/11/25","AUXILIAR DE ALMOXARIFADO","OPERACIONAL - SP","CLT","R$ 2.347,90","","","R$ 187,83","R$ 65,22","R$ 195,66","R$ 704,00","R$ 300,00","R$ 3.800,61","","SÃO PAULO","FILIPE","","","","","","PENDENTE","ACESSO CRIADO","26/02/26","ENTREGUE","h"] },
   { id: 12, nome: "FELIPE SANTOS NASCIMENTO", status: "ativo", dados: ["19/06/23","IMPRESSOR PLENO","OPS - COMUNICAÇÃO VISUAL","CLT","R$ 3.180,00","","","R$ 254,40","R$ 88,33","R$ 265,00","R$ 704,00","R$ 300,00","R$ 4.791,73","COMUNICADOR","SÃO PAULO","LUCAS","11","95268-5387","19/02/00","541069421","496.152.498-07","STANDARD","ACESSO CRIADO","26/02/26","","h"] },
   { id: 13, nome: "GABRIELA ALVES PEREIRA PEIXOTO", status: "ativo", dados: ["01/01/24","CUSTOMER SUCCESS","OPS - CS","CLT","R$ 2.795,75","","","R$ 223,66","R$ 77,66","R$ 232,98","R$ 704,00","R$ 300,00","R$ 4.334,05","EXECUTOR","GOIÂNIA","INAYARA","62","99121-1375","26/01/99","5563147","039.492.741.97","STANDARD","ACESSO CRIADO","","","LICENÇA MATERNIDADE"] },
-  { id: 14, nome: "GILIEL PIRES DA SILVA", status: "ativo", dados: ["12/06/25","SERRALHEIRO","OPERACIONAL - SP","CLT","R$ 3.297,02","","","R$ 263,76","R$ 91,58","R$ 274,75","R$ 704,00","R$ 300,00","R$ 4.931,12","","SÃO PAULO","GIULIAN","11","97402-9161","18/10/1999","659332450","102.277.885-40","xxx","ACESSO CRIADO","26/02/26","","h"] },
+  { id: 14, nome: "GILIEL PIRES DA SILVA", status: "ativo", dados: ["12/06/25","SERRALHEIRO","OPERACIONAL - SP","CLT","R$ 3.297,02","","","R$ 263,76","R$ 91,58","R$ 274,75","R$ 704,00","R$ 300,00","R$ 4.931,12","","SÃO PAULO","GIULIAN","11","97402-9161","18/10/1999","659332450","102.277.885-40","PENDENTE","ACESSO CRIADO","26/02/26","","h"] },
   { id: 15, nome: "GIULIAN PIRES DA SILVA", status: "ativo", dados: ["28/05/24","SUPERVISOR DE SERRALHERIA","OPERACIONAL - SP","CLT","R$ 3.634,32","","R$ 1.453,72","R$ 407,04","R$ 141,33","R$ 424,00","R$ 704,00","R$ 300,00","R$ 7.064,42","PLANEJADOR EXECUTOR ANALISTA","SÃO PAULO","DENIS","11","91455-9604","28/10/2004","2208876407","866.981.485-47","STANDARD","ACESSO CRIADO","26/02/26","","h"] },
   { id: 16, nome: "IZABELLY ISAAC BARBOSA CAVALCANTE", status: "ativo", dados: ["19/12/22","ORÇAMENTISTA","COMERCIAL","CLT","R$ 3.369,00","","","R$ 269,52","R$ 93,58","R$ 280,75","R$ 2.184,00","R$ 300,00","R$ 6.496,85","COMUNICADOR ANALISTA","GOIÂNIA","JESSICA","62","99187-4889","16/03/85","4707898","013.319.501-55","STANDARD","ACESSO CRIADO","","","m"] },
-  { id: 17, nome: "JADSON MIRANDA DINIZ", status: "ativo", dados: ["09/05/24","MOTORISTA CARRETEIRO","OPERACIONAL - GO","CLT","R$ 4.415,32","","","R$ 353,23","R$ 122,65","R$ 367,94","R$ 704,00","R$ 300,00","R$ 6.263,14","ANALISTA EXECUTOR","GOIÂNIA","GLEIBE","62","99137-8808","23/01/1989","5428494","039.418.221-95","xxx","ACESSO CRIADO","","","h"] },
+  { id: 17, nome: "JADSON MIRANDA DINIZ", status: "ativo", dados: ["09/05/24","MOTORISTA CARRETEIRO","OPERACIONAL - GO","CLT","R$ 4.415,32","","","R$ 353,23","R$ 122,65","R$ 367,94","R$ 704,00","R$ 300,00","R$ 6.263,14","ANALISTA EXECUTOR","GOIÂNIA","GLEIBE","62","99137-8808","23/01/1989","5428494","039.418.221-95","PENDENTE","ACESSO CRIADO","","","h"] },
   { id: 18, nome: "JESSICA SANTANA DE FREITAS", status: "ativo", dados: ["05/01/26","ANALISTA DE CONTAS A RECEBER","FINANCEIRO","CLT","R$ 2.650,00","","","R$ 212,00","R$ 73,61","R$ 220,83","R$ 704,00","R$ 300,00","R$ 4.160,44","","GOIÂNIA","NÚBIA","62","9353-8438","16/09/94","","043.276.181-01","STANDARD","ACESSO CRIADO","","","m"] },
-  { id: 19, nome: "LEONARDO DA SILVA SOARES", status: "ativo", dados: ["26/02/24","IMPRESSOR JUNIOR","OPS - COMUNICAÇÃO VISUAL","CLT","R$ 2.544,00","","","R$ 203,52","R$ 70,67","R$ 212,00","R$ 704,00","R$ 300,00","R$ 4.034,19","COMUNICADOR EXECUTOR","SÃO PAULO","LUCAS","11","93259-8827","21/08/2006","649452264","554.762.268-00","STANDARD","ACESSO CRIADO","NÃO SE APLICA","NÃO SE APLICA","h"] },
-  { id: 20, nome: "LUCIA DO NASCIMENTO PEREIRA", status: "ativo", dados: ["27/02/24","AUXILIAR DE SERVIÇOS GERAIS SÊNIOR","SERVIÇOS GERAIS","CLT","R$ 2.188,26","","","R$ 175,06","R$ 60,79","R$ 182,36","R$ 704,00","R$ 300,00","R$ 3.610,46","","GOIÂNIA","DANIELLE","62","99638-4246","07/09/79","3539933","878.141.371-87","xxx","ACESSO CRIADO","","","m"] },
-  { id: 21, nome: "MARIA DE JESUS ALVES DOS REIS", status: "ativo", dados: ["20/03/25","AUXILIAR DE SERVIÇOS GERAIS PLENO","SERVIÇOS GERAIS","CLT","R$ 2.039,97","","","R$ 163,20","R$ 56,67","R$ 170,00","R$ 704,00","R$ 300,00","R$ 3.433,83","PLANEJADOR","SÃO PAULO","JESSICA","11","99742-9401","19/09/1972","281132528","179.802.228-14","xxx","ACESSO CRIADO","","","m"] },
-  { id: 22, nome: "NAJARA DOS SANTOS ALMEIDA", status: "ativo", dados: ["21/07/22","AUXILIAR DE SERVIÇOS GERAIS PLENO","SERVIÇOS GERAIS","CLT","R$ 2.039,97","","","R$ 163,20","R$ 56,67","R$ 170,00","R$ 704,00","R$ 300,00","R$ 3.433,83","COMUNICADOR","SÃO PAULO","NILVA","11","93006-6771","19/04/90","1447246420","416.602.368-35","xxx","ACESSO CRIADO","26/02/26","","m"] },
+  { id: 19, nome: "LEONARDO DA SILVA SOARES", status: "ativo", dados: ["26/02/24","IMPRESSOR JUNIOR","OPS - COMUNICAÇÃO VISUAL","CLT","R$ 2.544,00","","","R$ 203,52","R$ 70,67","R$ 212,00","R$ 704,00","R$ 300,00","R$ 4.034,19","COMUNICADOR EXECUTOR","SÃO PAULO","LUCAS","11","93259-8827","21/08/2006","649452264","554.762.268-00","STANDARD","ACESSO CRIADO","","NÃO SE APLICA","h"] },
+  { id: 20, nome: "LUCIA DO NASCIMENTO PEREIRA", status: "ativo", dados: ["27/02/24","AUXILIAR DE SERVIÇOS GERAIS SÊNIOR","SERVIÇOS GERAIS","CLT","R$ 2.188,26","","","R$ 175,06","R$ 60,79","R$ 182,36","R$ 704,00","R$ 300,00","R$ 3.610,46","","GOIÂNIA","DANIELLE","62","99638-4246","07/09/79","3539933","878.141.371-87","PENDENTE","ACESSO CRIADO","","","m"] },
+  { id: 21, nome: "MARIA DE JESUS ALVES DOS REIS", status: "ativo", dados: ["20/03/25","AUXILIAR DE SERVIÇOS GERAIS PLENO","SERVIÇOS GERAIS","CLT","R$ 2.039,97","","","R$ 163,20","R$ 56,67","R$ 170,00","R$ 704,00","R$ 300,00","R$ 3.433,83","PLANEJADOR","SÃO PAULO","JESSICA","11","99742-9401","19/09/1972","281132528","179.802.228-14","PENDENTE","ACESSO CRIADO","","","m"] },
+  { id: 22, nome: "NAJARA DOS SANTOS ALMEIDA", status: "ativo", dados: ["21/07/22","AUXILIAR DE SERVIÇOS GERAIS PLENO","SERVIÇOS GERAIS","CLT","R$ 2.039,97","","","R$ 163,20","R$ 56,67","R$ 170,00","R$ 704,00","R$ 300,00","R$ 3.433,83","COMUNICADOR","SÃO PAULO","NILVA","11","93006-6771","19/04/90","1447246420","416.602.368-35","PENDENTE","ACESSO CRIADO","26/02/26","","m"] },
   { id: 23, nome: "NAYARA COSTA DE OLIVEIRA VIANA", status: "ativo", dados: ["29/09/25","ANALISTA DE RECURSOS HUMANOS","RECURSOS HUMANOS","CLT","R$ 3.286,00","","","R$ 262,88","R$ 91,28","R$ 273,83","R$ 704,00","R$ 300,00","R$ 4.917,99","ANALISTA EXECUTOR","GOIÂNIA","FLÁVIA","62","99408-1350","01/07/91","5220244","023.112.861-45","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 24, nome: "NILVA DUCA DE LIMA", status: "ativo", dados: ["01/12/19","SUPERVISORA DE LOGÍSTICA E COMPRAS","LOGÍSTICA E COMPRAS","PROLABORE","R$ 10.000,00","","","","R$ 277,78","R$ 833,33","R$ 704,00","R$ 300,00","R$ 12.115,11","","SÃO PAULO","DANIELLE","62","98111-0065","06/05/68","2249144","499.192.611-49","STANDARD","ACESSO CRIADO","26/02/26","ENTREGUE","m"] },
   { id: 25, nome: "NUBIA CRISTINA DA SILVA", status: "ativo", dados: ["25/01/24","COORDENADORA DO FINANCEIRO","FINANCEIRO","CLT","R$ 3.180,00","","R$ 1.272,00","R$ 356,16","R$ 123,67","R$ 371,00","R$ 704,00","R$ 300,00","R$ 6.306,83","EXECUTOR PLANEJADOR COMUNICADOR","GOIÂNIA","DANIELLE","62","98145-7014","26/09/83","42897152","003.560.021-79","STANDARD","ACESSO CRIADO","","","m"] },
   { id: 26, nome: "RAFAEL FERREIRA ESTEVES", status: "ativo", dados: ["25/03/25","AUXILIAR DE IMPRESSÃO","OPS - COMUNICAÇÃO VISUAL","CLT","R$ 1.912,24","","","R$ 152,98","R$ 53,12","R$ 159,35","R$ 704,00","R$ 300,00","R$ 3.281,69","PLANEJADOR EXECUTOR COMUNICADOR","SÃO PAULO","LUCAS","11","91188-0804","04/08/99","","472.904.588-26","STANDARD","ACESSO CRIADO","26/02/26","","h"] },
   { id: 27, nome: "RANIELE PEREIRA SILVA SANTOS", status: "ativo", dados: ["13/11/24","ANALISTA DE LOGÍSTICA E COMPRAS JR","LOGÍSTICA E COMPRAS","CLT","R$ 2.795,75","","","R$ 223,66","R$ 77,66","R$ 232,98","R$ 704,00","R$ 300,00","R$ 4.334,05","EXECUTOR ANALISTA","SÃO PAULO","NILVA","11","97118-3544","01/12/94","452884482","427.167.288-28","STANDARD","ACESSO CRIADO","26/02/26","","m"] },
-  { id: 28, nome: "SERGIO DIAS DA ROCHA", status: "ativo", dados: ["10/05/24","MOTORISTA","OPERACIONAL - SP","CLT","R$ 3.311,65","","","R$ 264,93","R$ 91,99","R$ 275,97","R$ 1.704,00","R$ 650,00","R$ 6.298,54","EXECUTOR PLANEJADOR","SÃO PAULO","INAYARA","11","96041-9938","07/04/93","40856359","403.438.258-99","xxx","ACESSO CRIADO","26/02/26","","h"] },
-  { id: 29, nome: "THAYS MORAES DOS SANTOS", status: "ativo", dados: ["29/05/23","ANALISTA DE LOGÍSTICA E COMPRAS JR","LOGÍSTICA E COMPRAS","CLT","R$ 2.795,75","","","R$ 223,66","R$ 77,66","R$ 232,98","R$ 704,00","R$ 300,00","R$ 4.334,05","EXECUTOR COMUNICADOR","GOIÂNIA","DANIELLE","62","98130-9155","23/07/93","5536843","756.864.061-20","STANDARD","NÃO SE APLICA","NÃO SE APLICA","NÃO SE APLICA","m"] },
+  { id: 28, nome: "SERGIO DIAS DA ROCHA", status: "ativo", dados: ["10/05/24","MOTORISTA","OPERACIONAL - SP","CLT","R$ 3.311,65","","","R$ 264,93","R$ 91,99","R$ 275,97","R$ 1.704,00","R$ 650,00","R$ 6.298,54","EXECUTOR PLANEJADOR","SÃO PAULO","INAYARA","11","96041-9938","07/04/93","40856359","403.438.258-99","PENDENTE","ACESSO CRIADO","26/02/26","","h"] },
+  { id: 29, nome: "THAYS MORAES DOS SANTOS", status: "ativo", dados: ["29/05/23","ANALISTA DE LOGÍSTICA E COMPRAS JR","LOGÍSTICA E COMPRAS","CLT","R$ 2.795,75","","","R$ 223,66","R$ 77,66","R$ 232,98","R$ 704,00","R$ 300,00","R$ 4.334,05","EXECUTOR COMUNICADOR","GOIÂNIA","DANIELLE","62","98130-9155","23/07/93","5536843","756.864.061-20","STANDARD","NÃO SE APLICA","","NÃO SE APLICA","m"] },
 ];
 
 function maskDate(v: string): string {
@@ -121,12 +121,14 @@ function formatCurrency(n: number): string {
 
 function computeCustoTotal(dados: string[]): string {
   const salario = parseCurrency(dados[4]);
+  const periculosidade = parseCurrency(dados[5]);
+  const gratificacao = parseCurrency(dados[6]);
   const fgts = parseCurrency(dados[7]);
   const ferias = parseCurrency(dados[8]);
   const decimo = parseCurrency(dados[9]);
   const alimentacao = parseCurrency(dados[10]);
   const mobilidade = parseCurrency(dados[11]);
-  const total = salario + fgts + ferias + decimo + alimentacao + mobilidade;
+  const total = salario + periculosidade + gratificacao + fgts + ferias + decimo + alimentacao + mobilidade;
   return formatCurrency(total);
 }
 
@@ -140,9 +142,8 @@ const ColaboradoresCLT = () => {
       c.dados.some((d) => d.toLowerCase().includes(busca.toLowerCase()))
     );
     return [...f].sort((a, b) => {
-      const aI = a.status === "inativo" ? 1 : 0;
-      const bI = b.status === "inativo" ? 1 : 0;
-      return aI - bI;
+      const order = (s: RowStatus) => s === "inativo" ? 2 : s === "pendente_ti" ? 0 : 1;
+      return order(a.status) - order(b.status);
     });
   }, [colaboradores, busca]);
 
@@ -230,7 +231,7 @@ const ColaboradoresCLT = () => {
     }
 
     if (!editable) {
-      if (col.type === "select_sistema" && value === "PENDENTE") {
+      if ((col.type === "select_sistema" || col.key === "office") && value === "PENDENTE") {
         return <span className="text-destructive font-semibold">{value}</span>;
       }
       return <span className="text-muted-foreground">{value || "—"}</span>;
@@ -327,8 +328,9 @@ const ColaboradoresCLT = () => {
               {sorted.map((c) => {
                 const editable = isEditable(c.status);
                 const isInativo = c.status === "inativo";
+                const isPendenteTI = c.status === "pendente_ti";
                 return (
-                  <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
+                  <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : isPendenteTI ? "bg-orange-500/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
                     <td className="sticky left-0 z-10 bg-card px-2 py-2 border-r border-border">
                       {editable ? (
                         <button
@@ -344,9 +346,11 @@ const ColaboradoresCLT = () => {
                             <button className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity ${
                               isInativo
                                 ? "bg-destructive text-destructive-foreground"
+                                : isPendenteTI
+                                ? "bg-orange-500 text-white animate-pulse-orange"
                                 : "bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]"
                             }`}>
-                              {isInativo ? "Inativo" : "Ativo"}
+                              {isInativo ? "Inativo" : isPendenteTI ? "Pendente TI" : "Ativo"}
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start" className="min-w-[140px]">
@@ -361,6 +365,10 @@ const ColaboradoresCLT = () => {
                             <DropdownMenuItem onClick={() => updateStatus(c.id, "inativo")} className="gap-2 text-destructive">
                               <div className="w-3.5 h-3.5 rounded-full bg-destructive" />
                               Inativo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => updateStatus(c.id, "pendente_ti")} className="gap-2 text-orange-500">
+                              <div className="w-3.5 h-3.5 rounded-full bg-orange-500 animate-pulse" />
+                              Pendente TI
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
