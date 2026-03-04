@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getPrioridadeLabel } from "@/components/forms/PrioridadeSelect";
 import { AppLayout } from "@/components/AppLayout";
 import { useSolicitacao } from "@/hooks/useSolicitacoes";
-import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao } from "@/stores/solicitacoesStore";
+import { addAndamento, concluirSolicitacao, cancelarSolicitacao, encaminharSolicitacao, LOGISTICA_SERVICES } from "@/stores/solicitacoesStore";
 import { DIRETORES } from "@/stores/usuariosStore";
 import { useCurrentUser } from "@/hooks/useUsuarios";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,8 @@ const statusLabel: Record<string, string> = {
   resolvido: "Resolvido",
   cancelado: "Cancelado",
   reprovado: "Reprovado",
+  logistica_aprovado_dir: "Aprovado pela Diretoria",
+  logistica_reprovado_dir: "Reprovado pela Diretoria",
 };
 
 const SolicitacaoServico = () => {
@@ -83,6 +85,7 @@ const SolicitacaoServico = () => {
   const siglaUni = siglaUnidade(sol.unidade);
   const isPendente = filtro === "pendentes" || isDiretoria;
   const isDiretoriaUniformes = isDiretoria && sol.setorAtual === 'diretoria_uniforme';
+  const isDiretoriaLogistica = isDiretoria && sol.setorAtual === 'diretoria_logistica';
   const showConcluirCancelar = isPendente && !(isMinhasSolicitacoes && !isAdmin) && !isDiretoria && !isRH;
   // RH-specific logic
   const isRHReprovado = sol.setorAtual === 'rh_reprovado_uniforme';
@@ -94,6 +97,11 @@ const SolicitacaoServico = () => {
   const showEncaminharExpedicao = isExpedicao && isPendente && !isDevolvido;
   const showEncaminharLogistica = isLogistica && sol.setorAtual === 'logistica_encaminhado' && isPendente;
   const showDiretoriaButtons = isDiretoria && sol.setorAtual === 'diretoria';
+  // Logística: forwarding to diretoria and return badges
+  const isLogisticaAprovadoDir = sol.setorAtual === 'logistica_aprovado_dir';
+  const isLogisticaReprovadoDir = sol.setorAtual === 'logistica_reprovado_dir';
+  const isLogisticaOriginal = isLogistica && isPendente && sol.setorAtual !== 'logistica_encaminhado' && !isLogisticaAprovadoDir && !isLogisticaReprovadoDir;
+  const showEncaminharDiretoriaLogistica = isLogisticaOriginal && (LOGISTICA_SERVICES as readonly string[]).includes(sol.tipo);
   const nomeDir = diretor ? diretor.charAt(0).toUpperCase() + diretor.slice(1) : "";
   const parsed = parseJustificativa(sol.justificativa);
   const openActionDialog = (action: "cancelar" | "concluir") => {
@@ -711,16 +719,24 @@ const SolicitacaoServico = () => {
                 </Button>
               </>
             )}
-            {/* Normal Concluir/Cancelar (not for returned expedition items) */}
-            {showConcluirCancelar && !(isExpedicao && isDevolvido) && (
+            {/* Normal Concluir/Cancelar (not for returned expedition items, not for logística reprovado) */}
+            {showConcluirCancelar && !(isExpedicao && isDevolvido) && !isLogisticaReprovadoDir && (
               <>
                 <Button size="sm" variant="destructive" disabled={!!actionLoading} onClick={() => openActionDialog("cancelar")}>
                   {actionLoading === "cancelar" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Cancelando...</> : "Cancelar"}
                 </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={!!actionLoading} onClick={() => openActionDialog("concluir")}>
-                  {actionLoading === "concluir" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Concluindo...</> : "Concluir"}
-                </Button>
+                {!isLogisticaReprovadoDir && (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={!!actionLoading} onClick={() => openActionDialog("concluir")}>
+                    {actionLoading === "concluir" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Concluindo...</> : "Concluir"}
+                  </Button>
+                )}
               </>
+            )}
+            {/* Logística: reprovado pela diretoria - only andamento + cancelar */}
+            {isLogistica && isPendente && isLogisticaReprovadoDir && (
+              <Button size="sm" variant="destructive" disabled={!!actionLoading} onClick={() => openActionDialog("cancelar")}>
+                {actionLoading === "cancelar" ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Cancelando...</> : "Cancelar"}
+              </Button>
             )}
             {/* Expedition: Encaminhar para dropdown */}
             {showEncaminharExpedicao && (
@@ -801,7 +817,30 @@ const SolicitacaoServico = () => {
                 </Button>
               </>
             )}
-            {/* Diretoria: forwarded expedition item (non-Uniformes) */}
+            {/* Diretoria: forwarded from Logística - approve/reject back to Logística */}
+            {isDiretoriaLogistica && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ✅ Aprovado por ${nome} e enviado para Logística & Compras`);
+                  await encaminharSolicitacao(sol.id, 'logistica_aprovado_dir');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Aprovar e enviar para Logística
+                </Button>
+                <Button size="sm" variant="destructive" onClick={async () => {
+                  const nome = currentUser?.nome || nomeDir;
+                  await addAndamento(sol.id, `[${nome}] ❌ Reprovado por ${nome} e enviado para Logística & Compras`);
+                  await encaminharSolicitacao(sol.id, 'logistica_reprovado_dir');
+                  navigate(-1);
+                }}>
+                  <Forward className="h-4 w-4 mr-1" />
+                  Reprovar e enviar para Logística
+                </Button>
+              </>
+            )}
+            {/* Diretoria: forwarded expedition item (non-Uniformes, non-Logística) */}
             {showDiretoriaButtons && !isDiretoriaUniformes && (
               <>
                 <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={async () => {
@@ -832,6 +871,36 @@ const SolicitacaoServico = () => {
                   Reprovar e devolver para Expedição
                 </Button>
               </>
+            )}
+            {/* Logística: Encaminhar para Diretoria */}
+            {showEncaminharDiretoriaLogistica && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline" className="border-purple-500 text-purple-600">
+                    <Forward className="h-4 w-4 mr-1" />
+                    Enviar para Diretoria
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {(["Soraya", "Osorio", "Danielle"] as const).map((dir) => (
+                    <DropdownMenuItem key={dir} onClick={async () => {
+                      const nome = currentUser?.nome || "Logística";
+                      await addAndamento(sol.id, `[${nome}] 📋 Encaminhado para aprovação da Diretoria — ${dir}`);
+                      await encaminharSolicitacao(sol.id, 'diretoria_logistica', dir);
+                      navigate(-1);
+                    }}>
+                      {dir}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {/* Logística: badges for diretoria result */}
+            {isLogistica && isLogisticaReprovadoDir && (
+              <Badge variant="destructive" className="text-xs">Reprovado pela Diretoria</Badge>
+            )}
+            {isLogistica && isLogisticaAprovadoDir && (
+              <Badge className="bg-green-600 text-white text-xs">Aprovado pela Diretoria</Badge>
             )}
             {/* RH: Concluir + Cancelar */}
             {showRHConcluirCancelar && (
