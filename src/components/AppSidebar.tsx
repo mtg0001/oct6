@@ -38,7 +38,7 @@ interface MenuItem {
   title: string;
   icon?: React.ElementType;
   path?: string;
-  children?: { title: string; path: string }[];
+  children?: { title: string; path: string; variant?: 'red' | 'pink' }[];
   variant?: 'red' | 'pink';
 }
 
@@ -178,6 +178,8 @@ export function AppSidebar() {
         title: "Recursos Humanos",
         icon: Users,
         children: [
+          { title: "Colaboradores PJ", path: "/rh/colaboradores-pj", variant: 'red' as const },
+          { title: "Colaboradores CLT", path: "/rh/colaboradores-clt", variant: 'red' as const },
           { title: "Pendentes", path: "/rh/pendentes" },
           { title: "Resolvidos", path: "/rh/resolvidos" },
           { title: "Cancelados", path: "/rh/cancelados" },
@@ -456,6 +458,8 @@ export function AppSidebar() {
                   <div className={cn("ml-5 border-l-2 pl-3 mt-1 mb-1 space-y-0.5", isRed ? "border-destructive/40" : isPink ? "border-[hsl(330,70%,75%)]/40" : "border-[hsl(var(--sidebar-border))]")}>
                     {item.children.map((child) => {
                       const isAlwaysHighlighted = child.title === "Abrir novo chamado";
+                      const childIsRed = child.variant === 'red' || isRed;
+                      const childIsPink = child.variant === 'pink' || isPink;
                       return (
                         <NavLink
                           key={child.path}
@@ -468,9 +472,9 @@ export function AppSidebar() {
                                 : cn(
                                     "py-1.5",
                                     isActive
-                                      ? isRed
+                                      ? childIsRed
                                         ? "bg-destructive text-destructive-foreground font-semibold shadow-sm"
-                                        : isPink
+                                        : childIsPink
                                           ? "bg-[hsl(330,70%,55%)] text-white font-semibold shadow-sm"
                                           : "bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))] font-semibold shadow-sm"
                                       : "text-[hsl(var(--sidebar-muted))] hover:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))]"
