@@ -203,43 +203,24 @@ const Chat = () => {
     }
     setChatPartnerId(partnerId);
     const p1 = [currentUser.id, partnerId].sort();
-    
-    // First check local state
     const existing = conversations.find(
       (c) => [c.participant_1, c.participant_2].sort().join() === p1.join()
     );
     if (existing) { setActiveConversation(existing.id); return; }
-    
-    // If not in local state, check DB directly (might not have loaded yet)
-    const { data: dbConvo } = await supabase
-      .from("chat_conversations")
-      .select("*")
-      .or(`and(participant_1.eq.${p1[0]},participant_2.eq.${p1[1]}),and(participant_1.eq.${p1[1]},participant_2.eq.${p1[0]})`)
-      .maybeSingle();
-    
-    if (dbConvo) {
-      const conv = dbConvo as Conversation;
-      setConversations((prev) => {
-        if (prev.find(c => c.id === conv.id)) return prev;
-        return [conv, ...prev];
-      });
-      setActiveConversation(conv.id);
-      return;
-    }
-    
-    // Create new conversation
-    const { data, error } = await supabase
-      .from("chat_conversations")
-      .insert({ participant_1: p1[0], participant_2: p1[1] })
-      .select()
-      .single();
-    if (data) {
-      setConversations((prev) => [data as Conversation, ...prev]);
-      setActiveConversation(data.id);
-    }
-    if (error) {
-      console.error("Erro ao abrir conversa:", error);
-      toast.error("Erro ao abrir conversa: " + (error.message || "desconhecido"));
+    try {
+      const { data, error } = await supabase
+        .from("chat_conversations")
+        .insert({ participant_1: p1[0], participant_2: p1[1] })
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) {
+        setConversations((prev) => [data as Conversation, ...prev]);
+        setActiveConversation(data.id);
+      }
+    } catch (err: any) {
+      console.error("Erro ao abrir conversa:", err);
+      toast.error("Erro ao abrir conversa");
     }
   }, [currentUser?.id, conversations]);
 
