@@ -87,11 +87,19 @@ export function useRealtimeNotifications() {
             .select("participant_1, participant_2")
             .eq("id", row.conversation_id)
             .single()
-            .then(({ data }) => {
+            .then(async ({ data }) => {
               if (!data) return;
               if (data.participant_1 === u.id || data.participant_2 === u.id) {
+                // Fetch sender name
+                const senderId = row.sender_id;
+                const { data: senderData } = await supabase
+                  .from("usuarios")
+                  .select("nome")
+                  .eq("id", senderId)
+                  .single();
+                const senderName = senderData?.nome || "Alguém";
                 const msgPreview = row.message_type === "nudge" ? "te enviou um nudge! 💥" : (row.content?.substring(0, 50) || "Nova mensagem");
-                showNotification("Nova Mensagem", msgPreview);
+                showNotification(senderName, msgPreview);
               }
             });
         }
