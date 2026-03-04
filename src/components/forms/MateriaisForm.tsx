@@ -138,6 +138,9 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
 
       const caracteristicas: Record<string, any> = { itens: itensTexto };
 
+      // "Materiais de Escritório" goes to RH first; others go to default (logística/expedição)
+      const setorAtual = tipo === "Materiais de Escritório" ? "rh" : undefined;
+
       await addSolicitacao({
         tipo,
         solicitanteId: currentUser?.id || "",
@@ -166,6 +169,7 @@ const MateriaisForm = ({ open, onOpenChange, unidade, tipo }: MateriaisFormProps
         horarioAte: "",
         caracteristicas,
         observacoes,
+        ...(setorAtual ? { setorAtual } : {}),
       });
       if (file && storedAnexo && dateFolder) {
         uploadAttachmentToSharePoint({ file, unidade, servico: tipo, userName: currentUser?.nome || "Desconhecido", datePasta: dateFolder }).catch(() => {});
