@@ -392,7 +392,7 @@ export default function ChamadoTIDetalhe() {
                       texto={a.texto}
                       data={new Date(a.created_at).toLocaleString("pt-BR")}
                       anexos={a.anexos}
-                      unidade={chamado?.departamento || "ti"}
+                      unidade="Chamados TI"
                       servico="Chamados TI"
                       userName={chamado?.solicitanteNome || nomeUsuario}
                     />
