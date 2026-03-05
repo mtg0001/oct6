@@ -46,10 +46,24 @@ export function useGlobalPresence() {
     };
   }, []);
 
+  // Upsert immediately when status changes
+  useEffect(() => {
+    if (!currentUser?.id) return;
+    supabase.from("user_presence").upsert(
+      {
+        usuario_id: currentUser.id,
+        status: _manualStatus,
+        last_seen: new Date().toISOString(),
+      },
+      { onConflict: "usuario_id" }
+    );
+  }, [currentUser?.id, myStatus]);
+
+  // Heartbeat + offline on unmount (separate effect so status change doesn't trigger offline)
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    const upsert = async () => {
+    const heartbeat = async () => {
       await supabase.from("user_presence").upsert(
         {
           usuario_id: currentUser.id,
@@ -60,8 +74,7 @@ export function useGlobalPresence() {
       );
     };
 
-    upsert();
-    const interval = setInterval(upsert, HEARTBEAT_INTERVAL);
+    const interval = setInterval(heartbeat, HEARTBEAT_INTERVAL);
 
     return () => {
       clearInterval(interval);
@@ -74,7 +87,7 @@ export function useGlobalPresence() {
         { onConflict: "usuario_id" }
       );
     };
-  }, [currentUser?.id, myStatus]);
+  }, [currentUser?.id]);
 
   return myStatus;
 }
