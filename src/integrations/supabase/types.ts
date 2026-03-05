@@ -254,6 +254,60 @@ export type Database = {
           },
         ]
       }
+      colaboradores_clt: {
+        Row: {
+          created_at: string
+          dados: string[]
+          id: string
+          nome: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dados?: string[]
+          id?: string
+          nome?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dados?: string[]
+          id?: string
+          nome?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      colaboradores_pj: {
+        Row: {
+          created_at: string
+          dados: string[]
+          id: string
+          nome: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dados?: string[]
+          id?: string
+          nome?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dados?: string[]
+          id?: string
+          nome?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       solicitacoes: {
         Row: {
           caracteristicas: Json
