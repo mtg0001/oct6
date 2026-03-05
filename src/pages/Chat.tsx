@@ -193,7 +193,8 @@ const Chat = () => {
         .from("chat_messages")
         .select("*")
         .eq("conversation_id", activeConversation)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(5000);
       if (data) setMessages(data as Message[]);
     };
     load();
@@ -258,10 +259,35 @@ const Chat = () => {
         .from("chat_conversations")
         .select("*")
         .or(orFilter)
-        .order("updated_at", { ascending: false })
-        .limit(1);
+        .order("updated_at", { ascending: false });
 
       if (existingError) throw existingError;
+
+      // If there are duplicate conversations, merge messages into the first one
+      if (existingRows && existingRows.length > 1) {
+        const primary = existingRows[0] as Conversation;
+        const duplicateIds = existingRows.slice(1).map((c: any) => c.id);
+        
+        // Move messages from duplicate conversations to the primary one
+        for (const dupId of duplicateIds) {
+          await supabase
+            .from("chat_messages")
+            .update({ conversation_id: primary.id })
+            .eq("conversation_id", dupId);
+          // Delete the duplicate conversation
+          await supabase
+            .from("chat_conversations")
+            .delete()
+            .eq("id", dupId);
+        }
+        
+        setConversations((prev) => {
+          const filtered = prev.filter((c) => !duplicateIds.includes(c.id));
+          return filtered.some((c) => c.id === primary.id) ? filtered : [primary, ...filtered];
+        });
+        setActiveConversation(primary.id);
+        return;
+      }
 
       const existingFromDb = (existingRows?.[0] ?? null) as Conversation | null;
       if (existingFromDb) {
