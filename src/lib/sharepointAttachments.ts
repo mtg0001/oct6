@@ -220,10 +220,14 @@ export async function getSharePointDownloadLink({
       actualFileName = fileName.substring(slashIdx + 1);
     }
 
-    const basePath = `${getRootFolder()}/${toSharePointUnidade(unidade)}/${toSharePointServico(servico)}/${userName}`;
+    const mappedUnidade = toSharePointUnidade(unidade);
+    const mappedServico = toSharePointServico(servico);
+    const basePath = `${getRootFolder()}/${mappedUnidade}/${mappedServico}/${userName}`;
     const filePath = datePart
       ? `${basePath}/${datePart}/${actualFileName}`
       : `${basePath}/${actualFileName}`;
+
+    console.log("[SharePoint Download] Tentando baixar:", { filePath, unidade: mappedUnidade, servico: mappedServico, userName, fileName });
 
     const { data, error } = await supabase.functions.invoke("sharepoint-manager", {
       body: {
@@ -232,9 +236,19 @@ export async function getSharePointDownloadLink({
       },
     });
 
-    if (error || !data?.downloadUrl) return null;
+    if (error) {
+      console.error("[SharePoint Download] Erro na edge function:", error);
+      return null;
+    }
+    
+    if (!data?.downloadUrl) {
+      console.warn("[SharePoint Download] Nenhum downloadUrl retornado. Resposta:", data);
+      return null;
+    }
+    
     return data.downloadUrl;
-  } catch {
+  } catch (err) {
+    console.error("[SharePoint Download] Erro inesperado:", err);
     return null;
   }
 }

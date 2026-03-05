@@ -358,6 +358,8 @@ Deno.serve(async (req) => {
         );
       }
 
+      console.log("[get-download-link] filePath:", filePath);
+
       const encodedPath = encodeURIComponent(filePath).replace(/%2F/g, "/");
       const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}:/content`;
 
@@ -369,7 +371,16 @@ Deno.serve(async (req) => {
 
       const downloadUrl = res.headers.get("Location") || "";
 
-      return new Response(JSON.stringify({ success: true, downloadUrl }), {
+      if (!downloadUrl) {
+        console.error("[get-download-link] No redirect Location. Status:", res.status, "filePath:", filePath);
+        // Try to read error body for more info
+        try {
+          const errorBody = await res.text();
+          console.error("[get-download-link] Response body:", errorBody.substring(0, 500));
+        } catch {}
+      }
+
+      return new Response(JSON.stringify({ success: !!downloadUrl, downloadUrl }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

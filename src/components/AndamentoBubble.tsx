@@ -23,7 +23,11 @@ export function AndamentoBubble({ texto, data, anexos, unidade, servico, userNam
   const [downloadingIdx, setDownloadingIdx] = useState<number | null>(null);
 
   const handleDownload = async (fileName: string, idx: number) => {
-    if (!unidade || !servico || !userName) return;
+    if (!unidade || !servico || !userName) {
+      console.warn("[AndamentoBubble] Dados insuficientes para download:", { unidade, servico, userName, fileName });
+      alert("Dados insuficientes para baixar o anexo. Tente recarregar a página.");
+      return;
+    }
     setDownloadingIdx(idx);
     try {
       const link = await getSharePointDownloadLink({
@@ -35,9 +39,10 @@ export function AndamentoBubble({ texto, data, anexos, unidade, servico, userNam
       if (link) {
         window.open(link, "_blank");
       } else {
-        alert("Não foi possível obter o link de download do anexo.");
+        alert("Não foi possível obter o link de download do anexo. Verifique se o arquivo ainda existe no SharePoint.");
       }
-    } catch {
+    } catch (err) {
+      console.error("[AndamentoBubble] Erro ao buscar anexo:", err);
       alert("Erro ao buscar anexo no SharePoint.");
     } finally {
       setDownloadingIdx(null);
