@@ -335,7 +335,7 @@ const ColaboradoresPJ = () => {
                 const isPendenteTI = c.status === "pendente_ti";
                 return (
                   <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : isPendenteTI ? "bg-orange-500/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
-                    <td className="sticky left-0 z-10 bg-card px-2 py-2 border-r border-border">
+                    <td className="sticky left-0 z-10 px-2 py-2 border-r border-border" style={{ backgroundColor: 'hsl(var(--card))' }}>
                       {editable ? (
                         <div className="flex flex-col gap-1">
                           <button
@@ -387,7 +387,7 @@ const ColaboradoresPJ = () => {
                         </DropdownMenu>
                       )}
                     </td>
-                    <td className="sticky left-[90px] z-10 bg-card px-3 py-2 whitespace-nowrap border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                    <td className="sticky left-[90px] z-10 px-3 py-2 whitespace-nowrap border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]" style={{ backgroundColor: 'hsl(var(--card))' }}>
                       {editable ? (
                         <input
                           className="h-7 px-1.5 text-xs rounded border border-primary/30 bg-background text-foreground font-semibold w-full min-w-[200px] focus:outline-none focus:ring-1 focus:ring-primary"
