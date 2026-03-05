@@ -249,14 +249,23 @@ const ColaboradoresPJ = () => {
   const syncing = useRef(false);
 
   useEffect(() => {
-    if (tableRef.current && topDummyRef.current) {
-      const ro = new ResizeObserver(() => {
-        if (tableRef.current && topDummyRef.current) {
-          topDummyRef.current.style.width = `${tableRef.current.scrollWidth}px`;
-        }
-      });
+    const updateTopScrollWidth = () => {
+      if (topDummyRef.current && tableScrollRef.current) {
+        topDummyRef.current.style.width = `${tableScrollRef.current.scrollWidth}px`;
+      }
+    };
+
+    updateTopScrollWidth();
+
+    if (tableRef.current && tableScrollRef.current) {
+      const ro = new ResizeObserver(updateTopScrollWidth);
       ro.observe(tableRef.current);
-      return () => ro.disconnect();
+      ro.observe(tableScrollRef.current);
+      window.addEventListener("resize", updateTopScrollWidth);
+      return () => {
+        ro.disconnect();
+        window.removeEventListener("resize", updateTopScrollWidth);
+      };
     }
   }, [sorted]);
 
@@ -276,6 +285,24 @@ const ColaboradoresPJ = () => {
       topScrollRef.current.scrollLeft = tableScrollRef.current.scrollLeft;
     }
     requestAnimationFrame(() => { syncing.current = false; });
+  }, []);
+
+  const handleHorizontalKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!topScrollRef.current || !tableScrollRef.current) return;
+
+    const currentLeft = tableScrollRef.current.scrollLeft;
+    const step = 120;
+    let nextLeft = currentLeft;
+
+    if (e.key === "ArrowRight") nextLeft = currentLeft + step;
+    else if (e.key === "ArrowLeft") nextLeft = currentLeft - step;
+    else if (e.key === "Home") nextLeft = 0;
+    else if (e.key === "End") nextLeft = tableScrollRef.current.scrollWidth;
+    else return;
+
+    e.preventDefault();
+    topScrollRef.current.scrollLeft = nextLeft;
+    tableScrollRef.current.scrollLeft = nextLeft;
   }, []);
 
   if (loading) {
@@ -306,12 +333,19 @@ const ColaboradoresPJ = () => {
         </Button>
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <div ref={topScrollRef} onScroll={handleTopScroll} className="overflow-x-auto" style={{ scrollbarWidth: "auto" }}>
+      <div className="border border-border rounded-lg overflow-hidden max-w-full">
+        <div
+          ref={topScrollRef}
+          onScroll={handleTopScroll}
+          onKeyDown={handleHorizontalKeyDown}
+          tabIndex={0}
+          className="overflow-x-auto"
+          style={{ scrollbarWidth: "auto" }}
+        >
           <div ref={topDummyRef} style={{ height: 1 }} />
         </div>
 
-        <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto">
+        <div ref={tableScrollRef} onScroll={handleTableScroll} onKeyDown={handleHorizontalKeyDown} tabIndex={0} className="overflow-x-auto">
           <table ref={tableRef} className="w-max min-w-full text-xs" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr className="bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]">
