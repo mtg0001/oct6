@@ -30,6 +30,7 @@ import ChamadoTIDetalhe from "./pages/ChamadoTIDetalhe";
 import DiretoriaChamadoTIDetalhe from "./pages/DiretoriaChamadoTIDetalhe";
 import ColaboradoresPJ from "./pages/ColaboradoresPJ";
 import ColaboradoresCLT from "./pages/ColaboradoresCLT";
+import HistoricoChats from "./pages/HistoricoChats";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,7 @@ const App = () => (
             <Route path="/chamado-ti/:filtro/chamado/:id" element={<ProtectedRoute><ChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="/ti/chamados/:filtro" element={<ProtectedRoute><ChamadosTILista contexto="ti" /></ProtectedRoute>} />
             <Route path="/ti/chamados/:filtro/chamado/:id" element={<ProtectedRoute><ChamadoTIDetalhe /></ProtectedRoute>} />
+            <Route path="/ti/historico-chats" element={<ProtectedRoute><HistoricoChats /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

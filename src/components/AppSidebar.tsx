@@ -303,6 +303,7 @@ export function AppSidebar() {
           { title: "Chamados Pendentes", path: "/ti/chamados/pendentes" },
           { title: "Chamados Resolvidos", path: "/ti/chamados/resolvidos" },
           { title: "Chamados Cancelados", path: "/ti/chamados/cancelados" },
+          { title: "Histórico de Chats", path: "/ti/historico-chats" },
           { title: "GLPI", path: "/ti/glpi" },
         ],
       });
