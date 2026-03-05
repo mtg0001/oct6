@@ -192,6 +192,13 @@ const ColaboradoresCLT = () => {
       if (r.id !== id) return r;
       const newDados = [...r.dados];
       newDados[colIndex] = value;
+      // Auto-calculate FGTS, 1/3 Férias, 13º when salary changes
+      if (colIndex === 4) {
+        const salario = parseCurrency(value);
+        newDados[7] = formatCurrency(salario * 0.08);        // FGTS = 8% do salário
+        newDados[8] = formatCurrency(salario / 3 / 12);      // 1/3 Férias = salário / 3 / 12
+        newDados[9] = formatCurrency(salario / 12);           // 13º = salário / 12
+      }
       newDados[12] = computeCustoTotal(newDados);
       return { ...r, dados: newDados };
     }));
@@ -286,6 +293,11 @@ const ColaboradoresCLT = () => {
     if (col.type === "computed") {
       const computed = computeCustoTotal(row.dados);
       return <span className="text-foreground font-semibold">{computed || "—"}</span>;
+    }
+
+    // FGTS, 1/3 Férias, 13º are auto-calculated from salary — show as read-only
+    if (editable && (col.key === "fgts" || col.key === "ferias" || col.key === "decimo")) {
+      return <span className="text-foreground font-semibold">{value || "—"}</span>;
     }
 
     if (!editable) {
