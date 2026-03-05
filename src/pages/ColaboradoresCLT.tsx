@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Pencil, Plus, X, Check } from "lucide-react";
+import { Pencil, Plus, X, Check, Percent } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   type Colaborador, type RowStatus,
@@ -105,6 +106,8 @@ const ColaboradoresCLT = () => {
   const [busca, setBusca] = useState("");
   const [rows, setRows] = useState<UIRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ajusteOpen, setAjusteOpen] = useState(false);
+  const [ajustePercent, setAjustePercent] = useState("");
 
   useEffect(() => {
     ensureCLTLoaded().then(() => {
@@ -206,6 +209,34 @@ const ColaboradoresCLT = () => {
 
   const updateNome = (id: string, newNome: string) => {
     setRows(prev => prev.map(r => r.id === id ? { ...r, nome: newNome } : r));
+  };
+
+  const applyAjusteSalarial = async () => {
+    const pct = parseFloat(ajustePercent.replace(",", "."));
+    if (!pct || pct <= 0) {
+      toast.error("Informe uma porcentagem válida.");
+      return;
+    }
+    try {
+      const ativos = rows.filter(r => !r.isNew && r.status !== "inativo");
+      for (const row of ativos) {
+        const salarioAtual = parseCurrency(row.dados[4]);
+        if (salarioAtual <= 0) continue;
+        const novoSalario = salarioAtual * (1 + pct / 100);
+        const newDados = [...row.dados];
+        newDados[4] = formatCurrency(novoSalario);
+        newDados[7] = formatCurrency(novoSalario * 0.08);
+        newDados[8] = formatCurrency(novoSalario / 3 / 12);
+        newDados[9] = formatCurrency(novoSalario / 12);
+        newDados[12] = computeCustoTotal(newDados);
+        await updateCLT(row.id, { dados: newDados });
+      }
+      toast.success(`Ajuste de ${pct}% aplicado a ${ativos.length} colaborador(es)!`);
+      setAjusteOpen(false);
+      setAjustePercent("");
+    } catch (e: any) {
+      toast.error("Erro ao aplicar ajuste: " + e.message);
+    }
   };
 
   const addNew = () => {
@@ -402,7 +433,18 @@ const ColaboradoresCLT = () => {
                 </th>
                 {columnDefs.map((col) => (
                   <th key={col.key} className="px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 last:border-r-0">
-                    {col.label}
+                    {col.key === "salario" ? (
+                      <span className="flex items-center gap-1">
+                        {col.label}
+                        <button
+                          onClick={() => setAjusteOpen(true)}
+                          className="ml-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
+                          title="Ajuste salarial em massa"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ) : col.label}
                   </th>
                 ))}
               </tr>
@@ -495,6 +537,35 @@ const ColaboradoresCLT = () => {
           </table>
         </div>
       </div>
+
+      <Dialog open={ajusteOpen} onOpenChange={setAjusteOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Ajuste Salarial</DialogTitle>
+            <DialogDescription>
+              Insira a porcentagem de reajuste a ser aplicada no salário de todos os colaboradores CLT ativos.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center gap-2 py-4">
+            <Input
+              placeholder="Ex: 6"
+              value={ajustePercent}
+              onChange={(e) => setAjustePercent(e.target.value.replace(/[^0-9.,]/g, ""))}
+              className="flex-1"
+              autoFocus
+            />
+            <Percent className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAjusteOpen(false); setAjustePercent(""); }}>
+              Cancelar
+            </Button>
+            <Button onClick={applyAjusteSalarial} className="bg-[hsl(var(--sidebar-primary))] hover:bg-[hsl(var(--sidebar-primary))]/90 text-[hsl(var(--sidebar-primary-foreground))]">
+              Aplicar reajuste
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 };
