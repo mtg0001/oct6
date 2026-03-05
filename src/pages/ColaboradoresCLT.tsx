@@ -345,13 +345,13 @@ const ColaboradoresCLT = () => {
         </div>
 
         <div ref={tableScrollRef} onScroll={handleTableScroll} className="overflow-x-auto">
-          <table ref={tableRef} className="w-max min-w-full text-xs">
+          <table ref={tableRef} className="w-max min-w-full text-xs" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr className="bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]">
-                <th className="sticky left-0 z-20 bg-[hsl(var(--sidebar-primary))] px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 min-w-[90px]">
+                <th className="sticky left-0 z-20 px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 w-[100px] min-w-[100px] max-w-[100px]" style={{ backgroundColor: 'hsl(var(--sidebar-primary))' }}>
                   STATUS
                 </th>
-                <th className="sticky left-[90px] z-20 bg-[hsl(var(--sidebar-primary))] px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 min-w-[220px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]">
+                <th className="sticky left-[100px] z-20 px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 w-[250px] min-w-[250px] max-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]" style={{ backgroundColor: 'hsl(var(--sidebar-primary))' }}>
                   COLABORADOR
                 </th>
                 {columnDefs.map((col) => (
@@ -368,7 +368,7 @@ const ColaboradoresCLT = () => {
                 const isPendenteTI = c.status === "pendente_ti";
                 return (
                   <tr key={c.id} className={`border-t border-border hover:bg-muted/30 transition-colors ${isInativo ? "bg-destructive/5" : isPendenteTI ? "bg-orange-500/5" : editable ? "bg-[hsl(var(--sidebar-primary))]/5" : ""}`}>
-                    <td className="sticky left-0 z-10 px-2 py-2 border-r border-border" style={{ backgroundColor: 'hsl(var(--card))' }}>
+                    <td className="sticky left-0 z-10 px-2 py-2 border-r border-border w-[100px] min-w-[100px] max-w-[100px]" style={{ backgroundColor: 'hsl(var(--card))' }}>
                       {editable ? (
                         <div className="flex flex-col gap-1">
                           <button
@@ -420,7 +420,7 @@ const ColaboradoresCLT = () => {
                         </DropdownMenu>
                       )}
                     </td>
-                    <td className="sticky left-[90px] z-10 px-3 py-2 whitespace-nowrap border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]" style={{ backgroundColor: 'hsl(var(--card))' }}>
+                    <td className="sticky left-[100px] z-10 px-3 py-2 whitespace-nowrap border-r border-border w-[250px] min-w-[250px] max-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]" style={{ backgroundColor: 'hsl(var(--card))' }}>
                       {editable ? (
                         <input
                           className="h-7 px-1.5 text-xs rounded border border-primary/30 bg-background text-foreground font-semibold w-full min-w-[200px] focus:outline-none focus:ring-1 focus:ring-primary"
