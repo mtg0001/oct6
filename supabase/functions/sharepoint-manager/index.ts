@@ -312,9 +312,9 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Sanitize path inputs to prevent traversal
-      const userName = String(rawUserName).replace(/[\\\/\.\.]/g, "_").substring(0, 255);
-      const fileName = String(rawFileName).replace(/[\\\/\.\.]/g, "_").substring(0, 255);
+      // Sanitize path inputs to prevent traversal (keep dots for file extensions)
+      const userName = String(rawUserName).replace(/[\\\/]/g, "_").replace(/\.\./g, "_").substring(0, 255);
+      const fileName = String(rawFileName).replace(/[\\\/]/g, "_").replace(/\.\./g, "_").substring(0, 255);
 
       const parentPath = `${rootFolder}/${toSharePointUnidade(unidade)}/${toSharePointServico(servico)}`;
       // Create user folder (parent path is fixed/pre-existing)
@@ -360,24 +360,37 @@ Deno.serve(async (req) => {
 
       console.log("[get-download-link] filePath:", filePath);
 
-      const encodedPath = encodeURIComponent(filePath).replace(/%2F/g, "/");
-      const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}:/content`;
+      async function tryDownload(path: string): Promise<string | null> {
+        const encodedPath = encodeURIComponent(path).replace(/%2F/g, "/");
+        const url = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${encodedPath}:/content`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+          redirect: "manual",
+        });
+        const loc = res.headers.get("Location") || "";
+        if (loc) return loc;
+        console.warn("[get-download-link] No redirect for path:", path, "Status:", res.status);
+        return null;
+      }
 
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-        redirect: "manual",
-      });
+      // Try original path first
+      let downloadUrl = await tryDownload(filePath);
 
-      const downloadUrl = res.headers.get("Location") || "";
+      // Fallback: try with dots replaced by underscores in filename (legacy upload bug)
+      if (!downloadUrl && filePath.includes(".")) {
+        const lastSlash = filePath.lastIndexOf("/");
+        const dir = filePath.substring(0, lastSlash + 1);
+        const fname = filePath.substring(lastSlash + 1);
+        const legacyFname = fname.replace(/\./g, "_");
+        if (legacyFname !== fname) {
+          console.log("[get-download-link] Trying legacy fallback:", dir + legacyFname);
+          downloadUrl = await tryDownload(dir + legacyFname);
+        }
+      }
 
       if (!downloadUrl) {
-        console.error("[get-download-link] No redirect Location. Status:", res.status, "filePath:", filePath);
-        // Try to read error body for more info
-        try {
-          const errorBody = await res.text();
-          console.error("[get-download-link] Response body:", errorBody.substring(0, 500));
-        } catch {}
+        console.error("[get-download-link] All attempts failed for:", filePath);
       }
 
       return new Response(JSON.stringify({ success: !!downloadUrl, downloadUrl }), {
