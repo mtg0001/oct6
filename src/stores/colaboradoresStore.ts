@@ -42,8 +42,8 @@ export async function loadPJ() {
   }
 }
 
-export function ensurePJLoaded() {
-  if (pjLoaded) return Promise.resolve();
+export function ensurePJLoaded(forceReload = false) {
+  if (pjLoaded && !forceReload) return Promise.resolve();
   if (!pjLoading) pjLoading = loadPJ().finally(() => { pjLoading = null; });
   return pjLoading;
 }
@@ -103,8 +103,8 @@ export async function loadCLT() {
   }
 }
 
-export function ensureCLTLoaded() {
-  if (cltLoaded) return Promise.resolve();
+export function ensureCLTLoaded(forceReload = false) {
+  if (cltLoaded && !forceReload) return Promise.resolve();
   if (!cltLoading) cltLoading = loadCLT().finally(() => { cltLoading = null; });
   return cltLoading;
 }
