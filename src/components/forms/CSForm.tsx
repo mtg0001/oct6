@@ -135,9 +135,12 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
   const [razaoSocial, setRazaoSocial] = useState("");
   const [eventoOrcamento, setEventoOrcamento] = useState("");
   const [local, setLocal] = useState("");
-  const [dataRealizacao, setDataRealizacao] = useState("");
-  const [dataRealizacaoCalendarOpen, setDataRealizacaoCalendarOpen] = useState(false);
-  const [dataRealizacaoCalendarDate, setDataRealizacaoCalendarDate] = useState<Date | undefined>();
+  const [dataRealizacaoDe, setDataRealizacaoDe] = useState("");
+  const [dataRealizacaoDeCalendarOpen, setDataRealizacaoDeCalendarOpen] = useState(false);
+  const [dataRealizacaoDeCalendarDate, setDataRealizacaoDeCalendarDate] = useState<Date | undefined>();
+  const [dataRealizacaoAte, setDataRealizacaoAte] = useState("");
+  const [dataRealizacaoAteCalendarOpen, setDataRealizacaoAteCalendarOpen] = useState(false);
+  const [dataRealizacaoAteCalendarDate, setDataRealizacaoAteCalendarDate] = useState<Date | undefined>();
 
   // Descrição (itens repetíveis)
   const [itens, setItens] = useState<ItemDescricao[]>([
@@ -195,7 +198,8 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
   const resetForm = () => {
     setEvento(""); setPrioridade("");
     setCliente(""); setCnpj(""); setRazaoSocial(""); setEventoOrcamento(""); setLocal("");
-    setDataRealizacao(""); setDataRealizacaoCalendarDate(undefined);
+    setDataRealizacaoDe(""); setDataRealizacaoDeCalendarDate(undefined);
+    setDataRealizacaoAte(""); setDataRealizacaoAteCalendarDate(undefined);
     setItens([{ id: itemIdCounter++, quantidade: "", unidadeMedida: "", item: "", obs: "" }]);
     setCsResponsavel(""); setNumeroProposta(""); setDataProposta(""); setDataPropostaCalendarDate(undefined);
     setObservacoes(""); setAnexoNome(null);
@@ -210,7 +214,8 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
     if (!razaoSocial.trim()) { toast({ title: "Informe a Razão Social", variant: "destructive" }); return false; }
     if (!eventoOrcamento.trim()) { toast({ title: "Informe o Evento do orçamento", variant: "destructive" }); return false; }
     if (!local.trim()) { toast({ title: "Informe o Local", variant: "destructive" }); return false; }
-    if (dataRealizacao.length < 10) { toast({ title: "Data de realização inválida", variant: "destructive" }); return false; }
+    if (dataRealizacaoDe.length < 10) { toast({ title: "Data de realização (início) inválida", variant: "destructive" }); return false; }
+    if (dataRealizacaoAte.length < 10) { toast({ title: "Data de realização (fim) inválida", variant: "destructive" }); return false; }
     for (let i = 0; i < itens.length; i++) {
       const it = itens[i];
       if (!it.quantidade.trim()) { toast({ title: `Item ${i + 1}: informe a quantidade`, variant: "destructive" }); return false; }
@@ -262,7 +267,7 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
           `Razão Social: ${razaoSocial}`,
           `Evento: ${eventoOrcamento}`,
           `Local: ${local}`,
-          `Data Realização: ${dataRealizacao}`,
+          `Data Realização: ${dataRealizacaoDe} a ${dataRealizacaoAte}`,
           `Itens: ${itensTexto}`,
           `CS Responsável: ${csResponsavel}`,
           `Nº Proposta: ${numeroProposta}`,
@@ -283,7 +288,8 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
           razaoSocial,
           eventoOrcamento,
           local,
-          dataRealizacao,
+          dataRealizacaoDe,
+          dataRealizacaoAte,
           itens: itensTexto,
           csResponsavel,
           numeroProposta,
@@ -372,15 +378,26 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                   <Input value={local} onChange={(e) => setLocal(e.target.value)} className="mt-1" />
                 </div>
               </div>
-              <DateInputField
-                label="Data de Realização *"
-                value={dataRealizacao}
-                onChange={setDataRealizacao}
-                calendarOpen={dataRealizacaoCalendarOpen}
-                setCalendarOpen={setDataRealizacaoCalendarOpen}
-                calendarDate={dataRealizacaoCalendarDate}
-                onCalendarSelect={handleCalendarSelect(setDataRealizacao, setDataRealizacaoCalendarDate, setDataRealizacaoCalendarOpen)}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DateInputField
+                  label="Data de Realização (Início) *"
+                  value={dataRealizacaoDe}
+                  onChange={setDataRealizacaoDe}
+                  calendarOpen={dataRealizacaoDeCalendarOpen}
+                  setCalendarOpen={setDataRealizacaoDeCalendarOpen}
+                  calendarDate={dataRealizacaoDeCalendarDate}
+                  onCalendarSelect={handleCalendarSelect(setDataRealizacaoDe, setDataRealizacaoDeCalendarDate, setDataRealizacaoDeCalendarOpen)}
+                />
+                <DateInputField
+                  label="Data de Realização (Fim) *"
+                  value={dataRealizacaoAte}
+                  onChange={setDataRealizacaoAte}
+                  calendarOpen={dataRealizacaoAteCalendarOpen}
+                  setCalendarOpen={setDataRealizacaoAteCalendarOpen}
+                  calendarDate={dataRealizacaoAteCalendarDate}
+                  onCalendarSelect={handleCalendarSelect(setDataRealizacaoAte, setDataRealizacaoAteCalendarDate, setDataRealizacaoAteCalendarOpen)}
+                />
+              </div>
             </div>
           </fieldset>
 
