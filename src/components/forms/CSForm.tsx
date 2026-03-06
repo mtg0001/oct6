@@ -414,10 +414,8 @@ const CSForm = ({ open, onOpenChange, unidade }: CSFormProps) => {
                       <Label className="text-xs font-bold">Quantidade *</Label>
                       <Input
                         value={it.quantidade}
-                        onChange={(e) => updateItem(it.id, "quantidade", e.target.value.replace(/\D/g, ""))}
+                        onChange={(e) => updateItem(it.id, "quantidade", e.target.value)}
                         className="mt-1"
-                        inputMode="numeric"
-                        
                       />
                     </div>
                     <div>
