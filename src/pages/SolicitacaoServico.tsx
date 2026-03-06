@@ -491,7 +491,7 @@ const SolicitacaoServico = () => {
       { campo: "Razão Social", valor: chars.razaoSocial || parsed["Razão Social"] || "" },
       { campo: "Evento", valor: chars.eventoOrcamento || parsed["Evento"] || "" },
       { campo: "Local", valor: chars.local || parsed["Local"] || "" },
-      { campo: "Data de Realização", valor: chars.dataRealizacao || parsed["Data Realização"] || "" },
+      { campo: "Data de Realização", valor: chars.dataRealizacaoDe && chars.dataRealizacaoAte ? `${chars.dataRealizacaoDe} a ${chars.dataRealizacaoAte}` : chars.dataRealizacao || parsed["Data Realização"] || "" },
       ...((() => {
         const itensRaw = chars.itens || parsed["Itens"] || "";
         if (!itensRaw) return [];
