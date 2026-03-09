@@ -165,21 +165,21 @@ const Index = () => {
 
       {/* Charts Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <TiltCard maxTilt={6}>
+        <TiltCard>
           <DonutChart title="Geral" pendente={totaisGeral.pendente} resolvido={totaisGeral.resolvido} cancelado={totaisGeral.cancelado} />
         </TiltCard>
         {showGO && (
-          <TiltCard maxTilt={6}>
+          <TiltCard>
             <DonutChart title="Goiânia" pendente={totaisGO.pendente} resolvido={totaisGO.resolvido} cancelado={totaisGO.cancelado} />
           </TiltCard>
         )}
         {showMairipora && (
-          <TiltCard maxTilt={6}>
+          <TiltCard>
             <DonutChart title="Mairiporã" pendente={totaisMairipora.pendente} resolvido={totaisMairipora.resolvido} cancelado={totaisMairipora.cancelado} />
           </TiltCard>
         )}
         {showPinheiros && (
-          <TiltCard maxTilt={6}>
+          <TiltCard>
             <DonutChart title="Pinheiros" pendente={totaisPinheiros.pendente} resolvido={totaisPinheiros.resolvido} cancelado={totaisPinheiros.cancelado} />
           </TiltCard>
         )}
@@ -239,7 +239,7 @@ const Index = () => {
             </div>
           </TiltCard>
 
-          <TiltCard maxTilt={6}>
+          <TiltCard>
             <DonutChart title="Chamados" pendente={tiTotais.pendente} resolvido={tiTotais.resolvido} cancelado={tiTotais.cancelado} variant="ti" />
           </TiltCard>
         </div>
@@ -247,19 +247,19 @@ const Index = () => {
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="grid grid-cols-1 grid-rows-2 gap-3">
-          <TiltCard maxTilt={4}>
+        <div className="flex flex-col gap-3">
+          <TiltCard className="flex-1">
             <ActivityChart solicitacoes={todas} chamadosTI={isAdmin ? chamadosTI : undefined} />
           </TiltCard>
-          <TiltCard maxTilt={4}>
+          <TiltCard className="flex-1">
             <RecentChamadosTI />
           </TiltCard>
         </div>
-        <div className="grid grid-cols-1 grid-rows-2 gap-3">
-          <TiltCard maxTilt={4}>
+        <div className="flex flex-col gap-3">
+          <TiltCard className="flex-1">
             <ServiceBreakdown solicitacoes={todas} chamadosTI={isAdmin ? chamadosTI : undefined} />
           </TiltCard>
-          <TiltCard maxTilt={4}>
+          <TiltCard className="flex-1">
             <RecentActivity solicitacoes={todas} />
           </TiltCard>
         </div>
