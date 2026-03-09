@@ -126,6 +126,7 @@ export default function ChamadoTINovo() {
   const showSiteSuspeitoField = categoria === "Lentidão na internet" && subOpcoes.includes("Site Suspeito");
   const showAprovadoGestor = categoria === "Permissões de equipes Teams (SharePoint)" && subOpcoes.length > 0;
   const showNomeCargoColaborador = categoria === "Criação de Usuário";
+  const showAssinaturaEmail = categoria === "Assinatura de email";
 
   const toggleSubOpcao = (opt: string) => {
     setSubOpcoes(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
