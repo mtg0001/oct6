@@ -80,6 +80,8 @@ export default function ChamadoTINovo() {
     setDataInicio(undefined);
     setAprovadoGestor("");
     setAnydesk("");
+    setTelefoneComercial("");
+    setCargoAssinatura("");
   };
 
   const handleCategoriaChange = (val: string) => {
