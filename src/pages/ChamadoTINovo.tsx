@@ -35,6 +35,7 @@ const CATEGORIAS = [
   "Criação de Usuário",
   "Desativar Usuário",
   "Solicitação de Smartphone",
+  "Assinatura de email",
   "Outros",
 ] as const;
 
