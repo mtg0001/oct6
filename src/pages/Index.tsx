@@ -114,7 +114,7 @@ const Index = () => {
               <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-success/20 to-success/5 flex items-center justify-center shrink-0">
                 <ArrowDownToLine className="h-4 w-4 text-success" />
               </div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chamados Hoje</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Hoje</p>
             </div>
             <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{entradasHoje}</p>
             <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">aberturas registradas</p>
