@@ -255,7 +255,7 @@ const GlpiPage = () => {
   };
 
   const handleCategoryChange = (cat: string) => {
-    const defaultType = cat === "ativos" ? "Computer" : cat === "gerencia" ? "SoftwareLicense" : "User";
+    const defaultType = cat === "ativos" ? "Computer" : cat === "gerencia" ? "Contract" : "User";
     setSearchParams({ cat, type: defaultType });
     setSearchText("");
   };
