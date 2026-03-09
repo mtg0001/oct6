@@ -477,68 +477,96 @@ const GlpiPage = () => {
           </Button>
         </div>
 
-        {/* Table */}
-        <div className="rounded-xl border bg-card shadow-sm overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-16">ID</TableHead>
-                {columns.map((col) => (
-                  <TableHead key={col}>{COLUMN_LABELS[col] || col}</TableHead>
-                ))}
-                <TableHead className="w-28 text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-8" /></TableCell>
-                    {columns.map((col) => (
-                      <TableCell key={col}><Skeleton className="h-4 w-24" /></TableCell>
-                    ))}
-                    <TableCell><Skeleton className="h-4 w-20 ml-auto" /></TableCell>
-                  </TableRow>
-                ))
-              ) : items.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length + 2} className="text-center py-8 text-muted-foreground">
-                    Nenhum item encontrado
-                  </TableCell>
-                </TableRow>
-              ) : (
-                items.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => handleViewItem(item)}>
-                    <TableCell className="font-mono text-xs text-muted-foreground">{item.id}</TableCell>
-                    {columns.map((col) => (
-                      <TableCell key={col} className="text-sm max-w-[200px] truncate">
-                        {col === "is_active" || col === "is_helpdesk_visible" || col === "is_requester" || col === "is_assign" || col === "is_default" ? (
-                          <Badge variant={item[col] ? "default" : "secondary"} className="text-[10px]">
-                            {item[col] ? "Sim" : "Não"}
-                          </Badge>
-                        ) : (
-                          renderCellValue(item[col])
-                        )}
-                      </TableCell>
-                    ))}
-                    <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewItem(item)}>
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { handleViewItem(item).then(() => setEditMode(true)); setEditData({ ...item }); }}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(item)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        {/* Table with dual scrollbar */}
+        <div className="rounded-xl border bg-card shadow-sm overflow-hidden max-w-full">
+          <div
+            ref={topScrollRef}
+            onScroll={handleTopScroll}
+            onKeyDown={handleHorizontalKeyDown}
+            tabIndex={0}
+            className="overflow-x-auto"
+            style={{ scrollbarWidth: "auto" }}
+          >
+            <div ref={topDummyRef} style={{ height: 1 }} />
+          </div>
+
+          <div ref={tableScrollRef} onScroll={handleTableScroll} onKeyDown={handleHorizontalKeyDown} tabIndex={0} className="overflow-x-auto">
+            <table ref={tableRef} className="w-max min-w-full text-sm" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead>
+                <tr className="bg-[hsl(var(--sidebar-primary))] text-[hsl(var(--sidebar-primary-foreground))]">
+                  <th className="sticky left-0 z-20 px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 w-[60px] min-w-[60px] max-w-[60px]" style={{ backgroundColor: 'hsl(var(--sidebar-primary))' }}>
+                    ID
+                  </th>
+                  <th className="sticky left-[60px] z-20 px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 min-w-[200px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]" style={{ backgroundColor: 'hsl(var(--sidebar-primary))' }}>
+                    {COLUMN_LABELS[columns[0]] || columns[0]}
+                  </th>
+                  {columns.slice(1).map((col) => (
+                    <th key={col} className="px-3 py-2.5 text-left font-semibold whitespace-nowrap border-r border-white/20 last:border-r-0">
+                      {COLUMN_LABELS[col] || col}
+                    </th>
+                  ))}
+                  <th className="px-3 py-2.5 text-right font-semibold whitespace-nowrap w-[100px] min-w-[100px]">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <tr key={i} className="border-b border-border">
+                      <td className="sticky left-0 z-10 px-3 py-2" style={{ backgroundColor: 'hsl(var(--card))' }}><Skeleton className="h-4 w-8" /></td>
+                      <td className="sticky left-[60px] z-10 px-3 py-2 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]" style={{ backgroundColor: 'hsl(var(--card))' }}><Skeleton className="h-4 w-24" /></td>
+                      {columns.slice(1).map((col) => (
+                        <td key={col} className="px-3 py-2"><Skeleton className="h-4 w-24" /></td>
+                      ))}
+                      <td className="px-3 py-2"><Skeleton className="h-4 w-20 ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : items.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length + 2} className="text-center py-8 text-muted-foreground">
+                      Nenhum item encontrado
+                    </td>
+                  </tr>
+                ) : (
+                  items.map((item) => (
+                    <tr key={item.id} className="border-b border-border hover:bg-muted/30 cursor-pointer" onClick={() => handleViewItem(item)}>
+                      <td className="sticky left-0 z-10 px-3 py-2 font-mono text-xs text-muted-foreground border-r border-border" style={{ backgroundColor: 'hsl(var(--card))' }}>
+                        {item.id}
+                      </td>
+                      <td className="sticky left-[60px] z-10 px-3 py-2 whitespace-nowrap border-r border-border shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]" style={{ backgroundColor: 'hsl(var(--card))' }}>
+                        {renderCellValue(item[columns[0]])}
+                      </td>
+                      {columns.slice(1).map((col) => (
+                        <td key={col} className="px-3 py-2 whitespace-nowrap max-w-[200px] truncate">
+                          {col === "is_active" || col === "is_helpdesk_visible" || col === "is_requester" || col === "is_assign" || col === "is_default" ? (
+                            <Badge variant={item[col] ? "default" : "secondary"} className="text-[10px]">
+                              {item[col] ? "Sim" : "Não"}
+                            </Badge>
+                          ) : (
+                            renderCellValue(item[col])
+                          )}
+                        </td>
+                      ))}
+                      <td className="px-3 py-2 text-right">
+                        <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewItem(item)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { handleViewItem(item).then(() => setEditMode(true)); setEditData({ ...item }); }}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(item)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Pagination */}
