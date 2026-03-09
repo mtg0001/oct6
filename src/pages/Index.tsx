@@ -222,14 +222,14 @@ const Index = () => {
           </div>
 
           <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
-            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">TI</span>
+            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-destructive/60 group-hover:text-destructive transition-colors duration-300">TI</span>
             <div className="absolute top-0 left-0 w-16 h-16 bg-destructive/5 rounded-full -translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2.5">
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
                   <TrendingUp className="h-4 w-4 text-destructive" />
                 </div>
-                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">TI Total</p>
+                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">Total</p>
               </div>
               <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{tiTotais.pendente + tiTotais.resolvido + tiTotais.cancelado}</p>
               <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">chamados no sistema</p>
