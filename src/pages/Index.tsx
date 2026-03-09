@@ -192,14 +192,14 @@ const Index = () => {
       {isAdmin && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
-            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">TI</span>
+            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-destructive/60 group-hover:text-destructive transition-colors duration-300">TI</span>
             <div className="absolute top-0 right-0 w-20 h-20 bg-destructive/5 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-500" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2.5">
                 <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
                   <Monitor className="h-4 w-4 text-destructive" />
                 </div>
-                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">TI Hoje</p>
+                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">Hoje</p>
               </div>
               <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{tiHoje.length}</p>
               <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">aberturas registradas</p>
