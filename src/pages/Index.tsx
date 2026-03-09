@@ -5,8 +5,14 @@ import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
-import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp } from "lucide-react";
+import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import {
+  getChamadosTI,
+  ensureChamadosTILoaded,
+  subscribeChamadosTI,
+} from "@/stores/chamadosTIStore";
 import {
   useSolicitacoesHoje,
   useSolicitacoes,
