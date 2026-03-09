@@ -107,6 +107,7 @@ const Index = () => {
 
         {/* Entradas Hoje */}
         <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-primary transition-colors duration-300">Hoje</span>
           <div className="absolute bottom-0 left-0 w-16 h-16 bg-success/5 rounded-full translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2.5">
@@ -122,6 +123,7 @@ const Index = () => {
 
         {/* Saídas Hoje */}
         <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">Resolv./Canc.</span>
           <div className="absolute top-0 left-0 w-16 h-16 bg-destructive/5 rounded-full -translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2.5">
@@ -137,6 +139,7 @@ const Index = () => {
 
         {/* Total */}
         <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-accent transition-colors duration-300">Total</span>
           <div className="absolute bottom-0 right-0 w-16 h-16 bg-accent/5 rounded-full translate-y-6 translate-x-6 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2.5">
@@ -189,6 +192,7 @@ const Index = () => {
       {isAdmin && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">TI</span>
             <div className="absolute top-0 right-0 w-20 h-20 bg-destructive/5 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-500" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2.5">
@@ -203,6 +207,7 @@ const Index = () => {
           </div>
 
           <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">TI</span>
             <div className="absolute bottom-0 left-0 w-16 h-16 bg-destructive/5 rounded-full translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2.5">
@@ -217,6 +222,7 @@ const Index = () => {
           </div>
 
           <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-destructive transition-colors duration-300">TI</span>
             <div className="absolute top-0 left-0 w-16 h-16 bg-destructive/5 rounded-full -translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2.5">
