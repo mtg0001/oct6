@@ -65,34 +65,19 @@ const ATIVOS_TYPES = [
   { key: "Monitor", label: "Monitores", icon: Monitor },
   { key: "Printer", label: "Impressoras", icon: Printer },
   { key: "NetworkEquipment", label: "Equipamentos de Rede", icon: Network },
-  { key: "Peripheral", label: "Periféricos", icon: HardDrive },
   { key: "Phone", label: "Telefones", icon: Smartphone },
-  { key: "Software", label: "Softwares", icon: AppWindow },
-  { key: "Rack", label: "Racks", icon: Server },
 ];
 
 const ADMIN_TYPES = [
   { key: "User", label: "Usuários", icon: Users },
   { key: "Group", label: "Grupos", icon: Users },
-  { key: "Entity", label: "Entidades", icon: Building2 },
-  { key: "Profile", label: "Perfis", icon: ShieldCheck },
-  { key: "Rule", label: "Regras", icon: FolderCog },
 ];
 
 const GERENCIA_TYPES = [
-  { key: "SoftwareLicense", label: "Licenças", icon: FileCheck },
-  { key: "Budget", label: "Orçamentos", icon: DollarSign },
-  { key: "Supplier", label: "Fornecedores", icon: Truck },
-  { key: "Contact", label: "Contatos", icon: Contact },
   { key: "Contract", label: "Contratos", icon: ScrollText },
   { key: "Document", label: "Documentos", icon: FileText },
-  { key: "Line", label: "Linhas", icon: Cable },
   { key: "Certificate", label: "Certificados", icon: Award },
-  { key: "Datacenter", label: "Data centers", icon: Warehouse },
-  { key: "Cluster", label: "Clusters", icon: Boxes },
-  { key: "Domain", label: "Domínios", icon: Globe },
-  { key: "Appliance", label: "Appliances", icon: Container },
-  { key: "DatabaseInstance", label: "Bancos de dados", icon: Database },
+  { key: "Contact", label: "Contatos", icon: Contact },
 ];
 
 // Columns to display for each type (key fields)
@@ -161,7 +146,7 @@ const DASHBOARD_CARDS = [
 const GlpiPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "ativos";
-  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "SoftwareLicense" : "User");
+  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "Contract" : "User");
 
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState<GlpiItem | null>(null);
@@ -270,7 +255,7 @@ const GlpiPage = () => {
   };
 
   const handleCategoryChange = (cat: string) => {
-    const defaultType = cat === "ativos" ? "Computer" : cat === "gerencia" ? "SoftwareLicense" : "User";
+    const defaultType = cat === "ativos" ? "Computer" : cat === "gerencia" ? "Contract" : "User";
     setSearchParams({ cat, type: defaultType });
     setSearchText("");
   };
