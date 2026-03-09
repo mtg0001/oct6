@@ -171,6 +171,13 @@ const GlpiPage = () => {
   const [createMode, setCreateMode] = useState(false);
   const [assetCounts, setAssetCounts] = useState<Record<string, number | null>>({});
 
+  // Dual scrollbar refs
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const topDummyRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+  const syncing = useRef(false);
+
   const { items, loading, page, fetchItems, getItem, createItem, updateItem, deleteItem } = useGlpi({
     itemtype: activeType,
   });
