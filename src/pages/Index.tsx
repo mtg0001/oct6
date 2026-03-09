@@ -137,6 +137,40 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 mb-4">
+        <DonutChart
+          title="Geral"
+          pendente={totaisGeral.pendente}
+          resolvido={totaisGeral.resolvido}
+          cancelado={totaisGeral.cancelado}
+        />
+        {showGO && (
+          <DonutChart
+            title="Goiânia"
+            pendente={totaisGO.pendente}
+            resolvido={totaisGO.resolvido}
+            cancelado={totaisGO.cancelado}
+          />
+        )}
+        {showMairipora && (
+          <DonutChart
+            title="Mairiporã"
+            pendente={totaisMairipora.pendente}
+            resolvido={totaisMairipora.resolvido}
+            cancelado={totaisMairipora.cancelado}
+          />
+        )}
+        {showPinheiros && (
+          <DonutChart
+            title="Pinheiros"
+            pendente={totaisPinheiros.pendente}
+            resolvido={totaisPinheiros.resolvido}
+            cancelado={totaisPinheiros.cancelado}
+          />
+        )}
+      </div>
+
       {/* TI KPI Cards - Admin only */}
       {isAdmin && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
@@ -185,40 +219,6 @@ const Index = () => {
           />
         </div>
       )}
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 mb-4">
-        <DonutChart
-          title="Geral"
-          pendente={totaisGeral.pendente}
-          resolvido={totaisGeral.resolvido}
-          cancelado={totaisGeral.cancelado}
-        />
-        {showGO && (
-          <DonutChart
-            title="Goiânia"
-            pendente={totaisGO.pendente}
-            resolvido={totaisGO.resolvido}
-            cancelado={totaisGO.cancelado}
-          />
-        )}
-        {showMairipora && (
-          <DonutChart
-            title="Mairiporã"
-            pendente={totaisMairipora.pendente}
-            resolvido={totaisMairipora.resolvido}
-            cancelado={totaisMairipora.cancelado}
-          />
-        )}
-        {showPinheiros && (
-          <DonutChart
-            title="Pinheiros"
-            pendente={totaisPinheiros.pendente}
-            resolvido={totaisPinheiros.resolvido}
-            cancelado={totaisPinheiros.cancelado}
-          />
-        )}
-      </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
