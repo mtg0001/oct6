@@ -249,7 +249,7 @@ const Index = () => {
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <div className="grid grid-cols-1 grid-rows-2 gap-3">
-          <ActivityChart solicitacoes={todas} />
+          <ActivityChart solicitacoes={todas} chamadosTI={isAdmin ? chamadosTI : undefined} />
           <RecentChamadosTI />
         </div>
         <div className="grid grid-cols-1 grid-rows-2 gap-3">
