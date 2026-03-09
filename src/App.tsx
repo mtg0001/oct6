@@ -31,6 +31,7 @@ import DiretoriaChamadoTIDetalhe from "./pages/DiretoriaChamadoTIDetalhe";
 import ColaboradoresPJ from "./pages/ColaboradoresPJ";
 import ColaboradoresCLT from "./pages/ColaboradoresCLT";
 import HistoricoChats from "./pages/HistoricoChats";
+import GlpiPage from "./pages/GlpiPage";
 
 const queryClient = new QueryClient();
 
