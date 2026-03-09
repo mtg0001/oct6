@@ -5,7 +5,7 @@ import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
-import { ServiceStatusCard } from "@/components/dashboard/ServiceStatusCard";
+
 import { TiltCard } from "@/components/dashboard/TiltCard";
 import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
