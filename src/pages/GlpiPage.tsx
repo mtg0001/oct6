@@ -75,7 +75,7 @@ const TYPE_COLUMNS: Record<string, string[]> = {
   Phone: ["name", "serial", "states_id", "manufacturers_id"],
   Software: ["name", "manufacturers_id", "is_helpdesk_visible"],
   Rack: ["name", "locations_id", "serial"],
-  User: ["name", "realname", "firstname", "phone", "is_active"],
+  User: ["username", "realname", "is_active", "locations_id", "email", "title", "groups", "responsible", "comment", "usercategories_id"],
   Group: ["name", "completename", "is_requester", "is_assign"],
   Entity: ["name", "completename", "level"],
   Profile: ["name", "is_default"],
