@@ -143,6 +143,8 @@ const COLUMN_LABELS: Record<string, string> = {
   is_requester: "Requerente",
   is_assign: "Atribuído",
   level: "Nível",
+  phonetypes_id: "Tipo",
+  phonemodels_id: "Modelo",
   is_default: "Padrão",
   description: "Descrição",
 };
