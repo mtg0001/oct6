@@ -307,7 +307,7 @@ const GlpiPage = () => {
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border bg-card shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
