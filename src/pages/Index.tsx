@@ -253,7 +253,7 @@ const Index = () => {
           <RecentChamadosTI />
         </div>
         <div className="grid grid-cols-1 grid-rows-2 gap-3">
-          <ServiceBreakdown solicitacoes={todas} />
+          <ServiceBreakdown solicitacoes={todas} chamadosTI={isAdmin ? chamadosTI : undefined} />
           <RecentActivity solicitacoes={todas} />
         </div>
       </div>
