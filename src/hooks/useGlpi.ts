@@ -31,8 +31,6 @@ export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
             itemtype,
             params: {
               range: `${start}-${end}`,
-              sort: "1",
-              order: "DESC",
               ...(searchText ? { searchText } : {}),
             },
           },
