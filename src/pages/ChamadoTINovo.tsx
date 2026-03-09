@@ -387,7 +387,45 @@ export default function ChamadoTINovo() {
                 </div>
               )}
 
-              {/* Urgência */}
+              {/* Assinatura de email fields */}
+              {showAssinaturaEmail && (
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium">Telefone comercial <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={telefoneComercial}
+                        onChange={e => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                          const masked = v.length > 6
+                            ? `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`
+                            : v.length > 2
+                            ? `(${v.slice(0,2)}) ${v.slice(2)}`
+                            : v.length > 0
+                            ? `(${v}`
+                            : "";
+                          setTelefoneComercial(masked);
+                        }}
+                        placeholder="(00) 00000-0000"
+                        className="mt-1.5"
+                        maxLength={15}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Cargo <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={cargoAssinatura}
+                        onChange={e => setCargoAssinatura(e.target.value)}
+                        placeholder="Cargo do colaborador"
+                        className="mt-1.5"
+                        maxLength={200}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
               <div>
                 <Label className="text-sm font-medium">Urgência <span className="text-destructive">*</span></Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
