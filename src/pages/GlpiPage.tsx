@@ -146,7 +146,7 @@ const DASHBOARD_CARDS = [
 const GlpiPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "ativos";
-  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "SoftwareLicense" : "User");
+  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "Contract" : "User");
 
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState<GlpiItem | null>(null);
