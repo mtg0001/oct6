@@ -186,7 +186,6 @@ export default function ChamadoTINovo() {
           : observacoes,
         anydesk,
         urgencia,
-        observacoes,
         anexos: storedFileNames,
         sharepointPasta: dateFolder || "",
         ...(isTeams ? { status: "aguardando_diretoria", diretorAprovacao: "soraya" } : {}),
