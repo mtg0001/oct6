@@ -5,7 +5,7 @@ import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
-import { ServiceStatusCard } from "@/components/dashboard/ServiceStatusCard";
+
 import { TiltCard } from "@/components/dashboard/TiltCard";
 import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -247,7 +247,7 @@ const Index = () => {
       )}
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3" style={{ gridAutoRows: "1fr" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3" style={{ gridAutoRows: "1fr" }}>
         <div className="grid grid-rows-2 gap-3">
           <TiltCard className="min-h-0">
             <ActivityChart solicitacoes={todas} chamadosTI={isAdmin ? chamadosTI : undefined} />
@@ -262,11 +262,6 @@ const Index = () => {
           </TiltCard>
           <TiltCard className="min-h-0">
             <RecentActivity solicitacoes={todas} />
-          </TiltCard>
-        </div>
-        <div className="lg:row-span-1">
-          <TiltCard className="h-full">
-            <ServiceStatusCard />
           </TiltCard>
         </div>
       </div>
