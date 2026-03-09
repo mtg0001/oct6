@@ -36,15 +36,28 @@ export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Try to read error details from the response
+          console.error("GLPI fetch error:", error);
+          toast.error("Erro ao buscar dados do GLPI");
+          setItems([]);
+          setTotalCount(0);
+          return;
+        }
 
         if (Array.isArray(data)) {
           setItems(data);
-          // Try to parse total from content-range (won't be available via invoke though)
           setTotalCount(data.length < pageSize ? start + data.length : start + pageSize + 1);
+        } else if (data && typeof data === "object" && !data.error) {
+          // Some GLPI responses return objects with data arrays
+          setItems([]);
+          setTotalCount(0);
         } else {
           setItems([]);
           setTotalCount(0);
+          if (data?.error) {
+            console.warn("GLPI API error:", data.error);
+          }
         }
         setPage(pageNum);
       } catch (err: any) {
