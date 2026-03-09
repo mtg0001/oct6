@@ -146,7 +146,7 @@ const Index = () => {
               <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center shrink-0">
                 <TrendingUp className="h-4 w-4 text-accent" />
               </div>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Geral</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total</p>
             </div>
             <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{total}</p>
             <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">solicitações no sistema</p>
