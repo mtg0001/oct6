@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.check-services-status]
 verify_jwt = false
+
+[functions.glpi-proxy]
+verify_jwt = false

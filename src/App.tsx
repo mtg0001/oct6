@@ -83,6 +83,7 @@ const App = () => (
             <Route path="/ti/chamados/:filtro" element={<ProtectedRoute><ChamadosTILista contexto="ti" /></ProtectedRoute>} />
             <Route path="/ti/chamados/:filtro/chamado/:id" element={<ProtectedRoute><ChamadoTIDetalhe /></ProtectedRoute>} />
             <Route path="/ti/historico-chats" element={<ProtectedRoute><HistoricoChats /></ProtectedRoute>} />
+            <Route path="/ti/glpi" element={<ProtectedRoute><GlpiPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
