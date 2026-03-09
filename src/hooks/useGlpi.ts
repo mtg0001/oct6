@@ -32,11 +32,10 @@ const SEARCH_CONFIG: Record<string, { options: number[]; fieldMap: Record<number
     },
   },
   User: {
-    options: [2, 1, 34, 8, 3, 5, 11, 71, 12, 16, 13],
+    options: [2, 1, 34, 8, 3, 5, 16, 13],
     fieldMap: {
       2: "id", 1: "username", 34: "realname", 8: "is_active",
-      3: "locations_id", 5: "email", 11: "title", 71: "groups",
-      12: "responsible", 16: "comment", 13: "usercategories_id",
+      3: "locations_id", 5: "email", 16: "comment", 13: "usercategories_id",
     },
   },
 };
