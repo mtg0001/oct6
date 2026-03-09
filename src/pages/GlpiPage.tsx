@@ -295,6 +295,15 @@ const GlpiPage = () => {
             <Users className="h-4 w-4" />
             Administração
           </Button>
+          <Button
+            variant={activeCategory === "gerencia" ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleCategoryChange("gerencia")}
+            className="gap-1.5"
+          >
+            <FolderCog className="h-4 w-4" />
+            Gerência
+          </Button>
         </div>
 
         {/* Sub-type chips */}
