@@ -265,7 +265,7 @@ const GlpiPage = () => {
             <div>
               <h1 className="text-xl font-bold text-foreground">GLPI</h1>
               <p className="text-xs text-muted-foreground">
-                Gestão de {activeCategory === "ativos" ? "Ativos" : "Administração"}
+                Gestão de {activeCategory === "ativos" ? "Ativos" : activeCategory === "gerencia" ? "Gerência" : "Administração"}
               </p>
             </div>
           </div>
