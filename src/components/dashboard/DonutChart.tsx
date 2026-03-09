@@ -5,26 +5,27 @@ interface DonutChartProps {
   pendente: number;
   resolvido: number;
   cancelado: number;
+  variant?: "default" | "ti";
 }
 
 const COLORS = [
-  "hsl(45, 90%, 52%)",  // pendente - amber
-  "hsl(142, 50%, 45%)", // resolvido - green
-  "hsl(0, 65%, 55%)",   // cancelado - red
+  "hsl(45, 90%, 52%)",
+  "hsl(142, 50%, 45%)",
+  "hsl(0, 65%, 55%)",
 ];
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover border border-border rounded px-3 py-1.5 text-sm shadow">
-        <p className="font-medium text-foreground">{payload[0].name}: {payload[0].value}</p>
+      <div className="bg-popover border border-border rounded-lg px-3 py-1.5 text-xs shadow-lg backdrop-blur-sm">
+        <p className="font-semibold text-foreground">{payload[0].name}: <span className="text-primary">{payload[0].value}</span></p>
       </div>
     );
   }
   return null;
 };
 
-export function DonutChart({ title, pendente, resolvido, cancelado }: DonutChartProps) {
+export function DonutChart({ title, pendente, resolvido, cancelado, variant = "default" }: DonutChartProps) {
   const total = pendente + resolvido + cancelado;
   const data = [
     { name: "Pendentes", value: pendente },
@@ -32,21 +33,24 @@ export function DonutChart({ title, pendente, resolvido, cancelado }: DonutChart
     { name: "Cancelados", value: cancelado },
   ];
 
+  const isTI = variant === "ti";
+
   return (
-    <div className="bg-card rounded-lg p-4 shadow-sm border border-border">
-      <p className="text-xs font-semibold text-muted-foreground uppercase mb-3">{title}</p>
-      <div className="flex items-center gap-4">
-        <div className="w-24 h-24 relative">
+    <div className={`bg-card rounded-2xl p-4 shadow-sm border hover:shadow-lg transition-all duration-300 ${isTI ? "border-destructive/20" : "border-border"}`}>
+      <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${isTI ? "text-destructive/70" : "text-muted-foreground"}`}>{title}</p>
+      <div className="flex items-center gap-3">
+        <div className="w-[80px] h-[80px] relative shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={28}
-                outerRadius={42}
+                innerRadius={24}
+                outerRadius={38}
                 dataKey="value"
-                stroke="none"
+                stroke="hsl(var(--card))"
+                strokeWidth={2}
               >
                 {data.map((_, i) => (
                   <Cell key={i} fill={COLORS[i]} />
@@ -56,25 +60,21 @@ export function DonutChart({ title, pendente, resolvido, cancelado }: DonutChart
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-lg font-bold text-foreground">{total}</span>
+            <span className="text-base font-extrabold text-foreground">{total}</span>
           </div>
         </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORS[0] }} />
-            <span className="text-muted-foreground">Pendentes</span>
-            <span className="font-semibold text-foreground ml-auto">{pendente}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORS[1] }} />
-            <span className="text-muted-foreground">Resolvidos</span>
-            <span className="font-semibold text-foreground ml-auto">{resolvido}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: COLORS[2] }} />
-            <span className="text-muted-foreground">Cancelados</span>
-            <span className="font-semibold text-foreground ml-auto">{cancelado}</span>
-          </div>
+        <div className="space-y-1.5 min-w-0">
+          {[
+            { label: "Pendentes", value: pendente, color: COLORS[0] },
+            { label: "Resolvidos", value: resolvido, color: COLORS[1] },
+            { label: "Cancelados", value: cancelado, color: COLORS[2] },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-2 text-[11px]">
+              <span className="h-2 w-2 rounded-full shrink-0" style={{ background: item.color }} />
+              <span className="text-muted-foreground">{item.label}</span>
+              <span className="font-bold text-foreground ml-auto tabular-nums">{item.value}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
