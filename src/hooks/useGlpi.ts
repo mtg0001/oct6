@@ -31,6 +31,14 @@ const SEARCH_CONFIG: Record<string, { options: number[]; fieldMap: Record<number
       19: "date_mod", 70: "users_id",
     },
   },
+  User: {
+    options: [2, 1, 34, 8, 3, 5, 11, 71, 12, 21, 79],
+    fieldMap: {
+      2: "id", 1: "username", 34: "realname", 8: "is_active",
+      3: "locations_id", 5: "email", 11: "title", 71: "groups",
+      12: "responsible", 21: "comment", 79: "usercategories_id",
+    },
+  },
 };
 
 export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
