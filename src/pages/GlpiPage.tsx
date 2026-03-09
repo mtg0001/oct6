@@ -67,7 +67,7 @@ const ADMIN_TYPES = [
 
 // Columns to display for each type (key fields)
 const TYPE_COLUMNS: Record<string, string[]> = {
-  Computer: ["name", "serial", "otherserial", "states_id", "locations_id", "manufacturers_id", "computermodels_id"],
+  Computer: ["name", "users_id", "states_id", "manufacturers_id", "computertypes_id", "computermodels_id", "operatingsystems_id", "locations_id", "date_mod", "processor"],
   Monitor: ["name", "serial", "otherserial", "states_id", "manufacturers_id"],
   Printer: ["name", "serial", "states_id", "locations_id"],
   NetworkEquipment: ["name", "serial", "states_id", "locations_id", "manufacturers_id"],
@@ -89,7 +89,12 @@ const COLUMN_LABELS: Record<string, string> = {
   states_id: "Status",
   locations_id: "Localização",
   manufacturers_id: "Fabricante",
+  computertypes_id: "Tipo",
   computermodels_id: "Modelo",
+  operatingsystems_id: "Sistema Operacional",
+  processor: "Processador",
+  date_mod: "Última Atualização",
+  users_id: "Usuário",
   is_helpdesk_visible: "Visível Helpdesk",
   realname: "Sobrenome",
   firstname: "Nome",
@@ -302,7 +307,7 @@ const GlpiPage = () => {
         </div>
 
         {/* Table */}
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border bg-card shadow-sm overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
