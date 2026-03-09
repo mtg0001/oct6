@@ -237,7 +237,7 @@ const Index = () => {
           </div>
 
           <DonutChart
-            title="Chamados TI"
+            title="Chamados"
             pendente={tiTotais.pendente}
             resolvido={tiTotais.resolvido}
             cancelado={tiTotais.cancelado}

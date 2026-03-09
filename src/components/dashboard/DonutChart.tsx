@@ -39,7 +39,7 @@ export function DonutChart({ title, pendente, resolvido, cancelado, variant = "d
 
   return (
     <div className={`relative bg-card rounded-2xl p-4 shadow-sm border hover:shadow-lg transition-all duration-300 group ${isTI ? "border-destructive/20" : "border-border"}`}>
-      <span className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 ${hoverColor} transition-colors duration-300`}>
+      <span className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest ${isTI ? "text-destructive/60" : "text-primary/50"} ${hoverColor} transition-colors duration-300`}>
         {isTI ? "TI" : "Serviços"}
       </span>
       <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${isTI ? "text-destructive/70" : "text-muted-foreground"}`}>{title}</p>
