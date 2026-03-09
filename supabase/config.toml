@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.generate-solicitacao-pdf]
 verify_jwt = false
+
+[functions.check-services-status]
+verify_jwt = false
