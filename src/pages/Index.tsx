@@ -107,6 +107,7 @@ const Index = () => {
 
         {/* Entradas Hoje */}
         <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <span className="absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 group-hover:text-primary transition-colors duration-300">Hoje</span>
           <div className="absolute bottom-0 left-0 w-16 h-16 bg-success/5 rounded-full translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2.5">
