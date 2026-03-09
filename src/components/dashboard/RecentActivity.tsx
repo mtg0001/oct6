@@ -21,7 +21,7 @@ export function RecentActivity({ solicitacoes }: Props) {
   }, [solicitacoes]);
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border h-full">
       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Últimas Solicitações</p>
       {recent.length === 0 ? (
         <p className="text-xs text-muted-foreground">Nenhuma solicitação encontrada</p>

@@ -91,7 +91,7 @@ export function ActivityChart({ solicitacoes, chamadosTI }: Props) {
   const showTI = !!tiData;
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border h-full">
       {/* Serviços Chart */}
       <div className={showTI ? "mb-4" : ""}>
         <div className="flex items-center justify-between mb-3">

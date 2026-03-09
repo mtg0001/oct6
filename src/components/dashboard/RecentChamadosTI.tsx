@@ -33,7 +33,7 @@ export function RecentChamadosTI() {
   }, [chamados, currentUser]);
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border h-full">
       <div className="flex items-center gap-2 mb-3">
         <Monitor className="h-3.5 w-3.5 text-destructive" />
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Últimos Chamados TI</p>

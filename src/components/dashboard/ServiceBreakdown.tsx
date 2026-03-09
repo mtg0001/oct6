@@ -50,7 +50,7 @@ export function ServiceBreakdown({ solicitacoes, chamadosTI }: Props) {
   const showTI = !!tiBreakdown;
 
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300">
+    <div className="bg-card rounded-2xl p-4 shadow-sm border border-border h-full">
       {/* Serviços */}
       <div className={showTI ? "mb-4" : ""}>
         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
