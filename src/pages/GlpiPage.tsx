@@ -215,7 +215,57 @@ const GlpiPage = () => {
     fetchItems(0);
   }, [activeType, fetchItems]);
 
-  const handleSearch = () => {
+  // Sync dual scrollbars
+  useEffect(() => {
+    const updateTopScrollWidth = () => {
+      if (topDummyRef.current && tableScrollRef.current) {
+        topDummyRef.current.style.width = `${tableScrollRef.current.scrollWidth}px`;
+      }
+    };
+    updateTopScrollWidth();
+    if (tableRef.current && tableScrollRef.current) {
+      const ro = new ResizeObserver(updateTopScrollWidth);
+      ro.observe(tableRef.current);
+      ro.observe(tableScrollRef.current);
+      window.addEventListener("resize", updateTopScrollWidth);
+      return () => { ro.disconnect(); window.removeEventListener("resize", updateTopScrollWidth); };
+    }
+  }, [items, columns]);
+
+  const handleTopScroll = useCallback(() => {
+    if (syncing.current) return;
+    syncing.current = true;
+    if (topScrollRef.current && tableScrollRef.current) {
+      tableScrollRef.current.scrollLeft = topScrollRef.current.scrollLeft;
+    }
+    requestAnimationFrame(() => { syncing.current = false; });
+  }, []);
+
+  const handleTableScroll = useCallback(() => {
+    if (syncing.current) return;
+    syncing.current = true;
+    if (topScrollRef.current && tableScrollRef.current) {
+      topScrollRef.current.scrollLeft = tableScrollRef.current.scrollLeft;
+    }
+    requestAnimationFrame(() => { syncing.current = false; });
+  }, []);
+
+  const handleHorizontalKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!topScrollRef.current || !tableScrollRef.current) return;
+    const currentLeft = tableScrollRef.current.scrollLeft;
+    const step = 120;
+    let nextLeft = currentLeft;
+    if (e.key === "ArrowRight") nextLeft = currentLeft + step;
+    else if (e.key === "ArrowLeft") nextLeft = currentLeft - step;
+    else if (e.key === "Home") nextLeft = 0;
+    else if (e.key === "End") nextLeft = tableScrollRef.current.scrollWidth;
+    else return;
+    e.preventDefault();
+    topScrollRef.current.scrollLeft = nextLeft;
+    tableScrollRef.current.scrollLeft = nextLeft;
+  }, []);
+
+
     fetchItems(0, searchText || undefined);
   };
 
