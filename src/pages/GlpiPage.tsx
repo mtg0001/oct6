@@ -102,7 +102,7 @@ const TYPE_COLUMNS: Record<string, string[]> = {
   Printer: ["name", "serial", "states_id", "locations_id"],
   NetworkEquipment: ["name", "serial", "states_id", "locations_id", "manufacturers_id"],
   Peripheral: ["name", "serial", "states_id", "manufacturers_id"],
-  Phone: ["name", "serial", "states_id", "manufacturers_id"],
+  Phone: ["name", "states_id", "users_id", "locations_id", "manufacturers_id", "phonetypes_id", "phonemodels_id"],
   Software: ["name", "manufacturers_id", "is_helpdesk_visible"],
   Rack: ["name", "locations_id", "serial"],
   User: ["username", "realname", "is_active", "locations_id", "email", "comment", "usercategories_id"],

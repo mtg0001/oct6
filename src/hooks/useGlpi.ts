@@ -31,6 +31,13 @@ const SEARCH_CONFIG: Record<string, { options: number[]; fieldMap: Record<number
       19: "date_mod", 70: "users_id",
     },
   },
+  Phone: {
+    options: [2, 1, 31, 70, 3, 23, 4, 40],
+    fieldMap: {
+      2: "id", 1: "name", 31: "states_id", 70: "users_id",
+      3: "locations_id", 23: "manufacturers_id", 4: "phonetypes_id", 40: "phonemodels_id",
+    },
+  },
   User: {
     options: [2, 1, 34, 8, 3, 5, 16, 13],
     fieldMap: {
