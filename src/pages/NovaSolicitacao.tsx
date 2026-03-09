@@ -135,46 +135,66 @@ const NovaSolicitacao = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
-        {solicitacoes.map((item) => {
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        {solicitacoes.map((item, index) => {
           const isPink = item.variant === 'pink';
           return (
             <button
               key={item.title}
               disabled={!item.available}
               onClick={() => handleSelecionar(item.title)}
-              className={`bg-card rounded-xl p-3 shadow-sm border text-left flex flex-col gap-2 group transition-all duration-200 ${
+              className={`relative bg-card rounded-2xl p-4 border text-left flex flex-col gap-3 group transition-all duration-300 overflow-hidden ${
                 isPink
-                  ? "border-[hsl(330,70%,80%)] hover:shadow-md hover:border-[hsl(330,70%,60%)] active:scale-[0.98]"
+                  ? "border-[hsl(330,70%,80%)] hover:shadow-lg hover:shadow-[hsl(330,70%,80%)]/20 hover:border-[hsl(330,70%,60%)] hover:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
                   : item.available
-                    ? "border-border hover:shadow-md hover:border-primary/30 active:scale-[0.98]"
-                    : "border-border opacity-60 cursor-not-allowed"
+                    ? "border-border hover:shadow-lg hover:shadow-primary/10 hover:border-primary/40 hover:-translate-y-1 active:translate-y-0 active:scale-[0.98]"
+                    : "border-border opacity-50 cursor-not-allowed"
               }`}
+              style={{ animationDelay: `${index * 30}ms` }}
             >
-              <div
-                className={`h-8 w-8 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                  isPink
-                    ? "bg-[hsl(330,70%,93%)] group-hover:bg-[hsl(330,70%,88%)]"
-                    : "bg-primary/10 group-hover:bg-primary/20"
-                }`}
-              >
-                <item.icon className={`h-4 w-4 ${isPink ? "text-[hsl(330,70%,50%)]" : "text-primary"}`} />
+              {/* Background decorative elements */}
+              <div className={`absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-150 ${
+                isPink ? "bg-[hsl(330,70%,90%)]/30" : "bg-primary/5"
+              }`} />
+              <div className={`absolute -bottom-4 -left-4 w-14 h-14 rounded-full opacity-0 group-hover:opacity-60 transition-all duration-700 ${
+                isPink ? "bg-[hsl(330,70%,85%)]/20" : "bg-primary/5"
+              }`} />
+
+              {/* Icon */}
+              <div className="relative">
+                <div
+                  className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-300 shrink-0 ${
+                    isPink
+                      ? "bg-gradient-to-br from-[hsl(330,70%,93%)] to-[hsl(330,70%,88%)] group-hover:from-[hsl(330,70%,88%)] group-hover:to-[hsl(330,70%,80%)] group-hover:shadow-md group-hover:shadow-[hsl(330,70%,80%)]/30"
+                      : "bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 group-hover:shadow-md group-hover:shadow-primary/20"
+                  }`}
+                >
+                  <item.icon className={`h-4.5 w-4.5 transition-transform duration-300 group-hover:scale-110 ${isPink ? "text-[hsl(330,70%,50%)]" : "text-primary"}`} />
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className={`font-semibold text-[11px] sm:text-[12px] leading-tight line-clamp-2 ${isPink ? "text-[hsl(330,70%,40%)]" : "text-foreground"}`}>{item.title}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1 hidden sm:block">{item.description}</p>
+
+              {/* Text */}
+              <div className="min-w-0 relative flex-1">
+                <p className={`font-bold text-[11px] sm:text-[12px] leading-tight line-clamp-2 transition-colors duration-200 ${isPink ? "text-[hsl(330,70%,35%)] group-hover:text-[hsl(330,70%,25%)]" : "text-foreground"}`}>
+                  {item.title}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1 hidden sm:block">{item.description}</p>
               </div>
-              <span
-                className={`hidden sm:block w-full text-center py-1.5 rounded-md text-[11px] font-semibold mt-auto whitespace-nowrap overflow-hidden text-ellipsis ${
-                  isPink
-                    ? "bg-[hsl(330,70%,55%)] text-white"
-                    : item.available
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {item.available ? "Selecionar" : "Em breve"}
-              </span>
+
+              {/* Button */}
+              <div className="relative mt-auto">
+                <span
+                  className={`block w-full text-center py-2 rounded-xl text-[11px] font-bold transition-all duration-300 ${
+                    isPink
+                      ? "bg-gradient-to-r from-[hsl(330,70%,55%)] to-[hsl(330,60%,50%)] text-white group-hover:shadow-md group-hover:shadow-[hsl(330,70%,50%)]/30"
+                      : item.available
+                        ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground group-hover:shadow-md group-hover:shadow-primary/30"
+                        : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {item.available ? "Selecionar" : "Em breve"}
+                </span>
+              </div>
             </button>
           );
         })}
