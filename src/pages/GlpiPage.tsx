@@ -68,7 +68,7 @@ const ADMIN_TYPES = [
 // Columns to display for each type (key fields)
 const TYPE_COLUMNS: Record<string, string[]> = {
   Computer: ["name", "users_id", "states_id", "manufacturers_id", "computertypes_id", "computermodels_id", "operatingsystems_id", "locations_id", "date_mod", "processor"],
-  Monitor: ["name", "serial", "otherserial", "states_id", "manufacturers_id"],
+  Monitor: ["name", "states_id", "manufacturers_id", "locations_id", "monitortypes_id", "monitormodels_id", "date_mod", "users_id"],
   Printer: ["name", "serial", "states_id", "locations_id"],
   NetworkEquipment: ["name", "serial", "states_id", "locations_id", "manufacturers_id"],
   Peripheral: ["name", "serial", "states_id", "manufacturers_id"],

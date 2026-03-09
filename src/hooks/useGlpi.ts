@@ -13,24 +13,25 @@ interface UseGlpiOptions {
   pageSize?: number;
 }
 
-// Search option IDs for Computer type (matches GLPI search API)
-const COMPUTER_SEARCH_OPTIONS = [2, 1, 70, 31, 23, 4, 40, 45, 3, 19, 17];
-const COMPUTER_FIELD_MAP: Record<number, string> = {
-  2: "id",
-  1: "name",
-  70: "users_id",
-  31: "states_id",
-  23: "manufacturers_id",
-  4: "computertypes_id",
-  40: "computermodels_id",
-  45: "operatingsystems_id",
-  3: "locations_id",
-  19: "date_mod",
-  17: "processor",
+// Search config per item type: { searchOptionIds, fieldMap }
+const SEARCH_CONFIG: Record<string, { options: number[]; fieldMap: Record<number, string> }> = {
+  Computer: {
+    options: [2, 1, 70, 31, 23, 4, 40, 45, 3, 19, 17],
+    fieldMap: {
+      2: "id", 1: "name", 70: "users_id", 31: "states_id",
+      23: "manufacturers_id", 4: "computertypes_id", 40: "computermodels_id",
+      45: "operatingsystems_id", 3: "locations_id", 19: "date_mod", 17: "processor",
+    },
+  },
+  Monitor: {
+    options: [2, 1, 31, 23, 3, 4, 40, 19, 70],
+    fieldMap: {
+      2: "id", 1: "name", 31: "states_id", 23: "manufacturers_id",
+      3: "locations_id", 4: "monitortypes_id", 40: "monitormodels_id",
+      19: "date_mod", 70: "users_id",
+    },
+  },
 };
-
-// Item types that use the search API for richer data
-const SEARCH_BASED_TYPES = new Set(["Computer"]);
 
 export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
   const [items, setItems] = useState<GlpiItem[]>([]);
