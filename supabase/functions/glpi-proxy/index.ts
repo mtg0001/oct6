@@ -144,8 +144,14 @@ serve(async (req) => {
         }
         const searchRange = params?.range || "0-49";
         sp.set("range", searchRange);
-        sp.set("forcedisplay[0]", "1"); // id
-        sp.set("forcedisplay[1]", "2"); // name
+        if (params?.forcedisplay && Array.isArray(params.forcedisplay)) {
+          params.forcedisplay.forEach((fieldId: number, i: number) => {
+            sp.set(`forcedisplay[${i}]`, String(fieldId));
+          });
+        } else {
+          sp.set("forcedisplay[0]", "1");
+          sp.set("forcedisplay[1]", "2");
+        }
         path = `/search/${itemtype}?${sp.toString()}`;
         break;
       }
