@@ -78,6 +78,22 @@ const ADMIN_TYPES = [
   { key: "Rule", label: "Regras", icon: FolderCog },
 ];
 
+const GERENCIA_TYPES = [
+  { key: "SoftwareLicense", label: "Licenças", icon: FileCheck },
+  { key: "Budget", label: "Orçamentos", icon: DollarSign },
+  { key: "Supplier", label: "Fornecedores", icon: Truck },
+  { key: "Contact", label: "Contatos", icon: Contact },
+  { key: "Contract", label: "Contratos", icon: ScrollText },
+  { key: "Document", label: "Documentos", icon: FileText },
+  { key: "Line", label: "Linhas", icon: Cable },
+  { key: "Certificate", label: "Certificados", icon: Award },
+  { key: "Datacenter", label: "Data centers", icon: Warehouse },
+  { key: "Cluster", label: "Clusters", icon: Boxes },
+  { key: "Domain", label: "Domínios", icon: Globe },
+  { key: "Appliance", label: "Appliances", icon: Container },
+  { key: "DatabaseInstance", label: "Bancos de dados", icon: Database },
+];
+
 // Columns to display for each type (key fields)
 const TYPE_COLUMNS: Record<string, string[]> = {
   Computer: ["name", "users_id", "states_id", "manufacturers_id", "computertypes_id", "computermodels_id", "operatingsystems_id", "locations_id", "date_mod", "processor"],
