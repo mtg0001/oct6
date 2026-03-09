@@ -91,6 +91,8 @@ const COLUMN_LABELS: Record<string, string> = {
   manufacturers_id: "Fabricante",
   computertypes_id: "Tipo",
   computermodels_id: "Modelo",
+  monitortypes_id: "Tipo",
+  monitormodels_id: "Modelo",
   operatingsystems_id: "Sistema Operacional",
   processor: "Processador",
   date_mod: "Última Atualização",
