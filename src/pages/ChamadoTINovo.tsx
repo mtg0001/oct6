@@ -67,6 +67,8 @@ export default function ChamadoTINovo() {
   const [anydesk, setAnydesk] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [arquivos, setArquivos] = useState<File[]>([]);
+  const [telefoneComercial, setTelefoneComercial] = useState("");
+  const [cargoAssinatura, setCargoAssinatura] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   const resetSubFields = () => {
