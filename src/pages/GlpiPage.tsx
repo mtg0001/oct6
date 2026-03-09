@@ -525,8 +525,11 @@ const GlpiPage = () => {
                       {columns.slice(1).map((col) => (
                         <td key={col} className="px-3 py-2 whitespace-nowrap max-w-[200px] truncate">
                           {col === "is_active" || col === "is_helpdesk_visible" || col === "is_requester" || col === "is_assign" || col === "is_default" ? (
-                            <Badge variant={item[col] ? "default" : "secondary"} className="text-[10px]">
-                              {item[col] ? "Sim" : "Não"}
+                            item[col] ? (
+                              <Badge className="text-[10px] bg-green-600 hover:bg-green-600 text-white">Sim</Badge>
+                            ) : (
+                              <Badge className="text-[10px] bg-red-600 hover:bg-red-600 text-white animate-pulse">Não</Badge>
+                            )
                             </Badge>
                           ) : (
                             renderCellValue(item[col])
