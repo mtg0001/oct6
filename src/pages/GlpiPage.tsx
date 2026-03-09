@@ -42,6 +42,19 @@ import {
   FolderCog,
   RefreshCw,
   Server,
+  FileText,
+  DollarSign,
+  Truck,
+  Contact,
+  ScrollText,
+  FileCheck,
+  Cable,
+  Award,
+  Warehouse,
+  Boxes,
+  Globe,
+  Container,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +76,22 @@ const ADMIN_TYPES = [
   { key: "Entity", label: "Entidades", icon: Building2 },
   { key: "Profile", label: "Perfis", icon: ShieldCheck },
   { key: "Rule", label: "Regras", icon: FolderCog },
+];
+
+const GERENCIA_TYPES = [
+  { key: "SoftwareLicense", label: "Licenças", icon: FileCheck },
+  { key: "Budget", label: "Orçamentos", icon: DollarSign },
+  { key: "Supplier", label: "Fornecedores", icon: Truck },
+  { key: "Contact", label: "Contatos", icon: Contact },
+  { key: "Contract", label: "Contratos", icon: ScrollText },
+  { key: "Document", label: "Documentos", icon: FileText },
+  { key: "Line", label: "Linhas", icon: Cable },
+  { key: "Certificate", label: "Certificados", icon: Award },
+  { key: "Datacenter", label: "Data centers", icon: Warehouse },
+  { key: "Cluster", label: "Clusters", icon: Boxes },
+  { key: "Domain", label: "Domínios", icon: Globe },
+  { key: "Appliance", label: "Appliances", icon: Container },
+  { key: "DatabaseInstance", label: "Bancos de dados", icon: Database },
 ];
 
 // Columns to display for each type (key fields)
@@ -120,7 +149,7 @@ const COLUMN_LABELS: Record<string, string> = {
 const GlpiPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "ativos";
-  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : "User");
+  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "SoftwareLicense" : "User");
 
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState<GlpiItem | null>(null);
@@ -133,7 +162,7 @@ const GlpiPage = () => {
     itemtype: activeType,
   });
 
-  const types = activeCategory === "ativos" ? ATIVOS_TYPES : ADMIN_TYPES;
+  const types = activeCategory === "ativos" ? ATIVOS_TYPES : activeCategory === "gerencia" ? GERENCIA_TYPES : ADMIN_TYPES;
   const columns = TYPE_COLUMNS[activeType] || ["name"];
   const ActiveIcon = types.find((t) => t.key === activeType)?.icon || Monitor;
 
@@ -146,7 +175,7 @@ const GlpiPage = () => {
   };
 
   const handleCategoryChange = (cat: string) => {
-    const defaultType = cat === "ativos" ? "Computer" : "User";
+    const defaultType = cat === "ativos" ? "Computer" : cat === "gerencia" ? "SoftwareLicense" : "User";
     setSearchParams({ cat, type: defaultType });
     setSearchText("");
   };
@@ -236,7 +265,7 @@ const GlpiPage = () => {
             <div>
               <h1 className="text-xl font-bold text-foreground">GLPI</h1>
               <p className="text-xs text-muted-foreground">
-                Gestão de {activeCategory === "ativos" ? "Ativos" : "Administração"}
+                Gestão de {activeCategory === "ativos" ? "Ativos" : activeCategory === "gerencia" ? "Gerência" : "Administração"}
               </p>
             </div>
           </div>
@@ -265,6 +294,15 @@ const GlpiPage = () => {
           >
             <Users className="h-4 w-4" />
             Administração
+          </Button>
+          <Button
+            variant={activeCategory === "gerencia" ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleCategoryChange("gerencia")}
+            className="gap-1.5"
+          >
+            <FolderCog className="h-4 w-4" />
+            Gerência
           </Button>
         </div>
 
