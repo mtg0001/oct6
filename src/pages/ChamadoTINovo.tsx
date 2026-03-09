@@ -35,6 +35,7 @@ const CATEGORIAS = [
   "Criação de Usuário",
   "Desativar Usuário",
   "Solicitação de Smartphone",
+  "Assinatura de email",
   "Outros",
 ] as const;
 
@@ -66,6 +67,8 @@ export default function ChamadoTINovo() {
   const [anydesk, setAnydesk] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [arquivos, setArquivos] = useState<File[]>([]);
+  const [telefoneComercial, setTelefoneComercial] = useState("");
+  const [cargoAssinatura, setCargoAssinatura] = useState("");
   const [enviando, setEnviando] = useState(false);
 
   const resetSubFields = () => {
@@ -77,6 +80,8 @@ export default function ChamadoTINovo() {
     setDataInicio(undefined);
     setAprovadoGestor("");
     setAnydesk("");
+    setTelefoneComercial("");
+    setCargoAssinatura("");
   };
 
   const handleCategoriaChange = (val: string) => {
@@ -121,6 +126,7 @@ export default function ChamadoTINovo() {
   const showSiteSuspeitoField = categoria === "Lentidão na internet" && subOpcoes.includes("Site Suspeito");
   const showAprovadoGestor = categoria === "Permissões de equipes Teams (SharePoint)" && subOpcoes.length > 0;
   const showNomeCargoColaborador = categoria === "Criação de Usuário";
+  const showAssinaturaEmail = categoria === "Assinatura de email";
 
   const toggleSubOpcao = (opt: string) => {
     setSubOpcoes(prev => prev.includes(opt) ? prev.filter(o => o !== opt) : [...prev, opt]);
@@ -136,6 +142,8 @@ export default function ChamadoTINovo() {
     if (showNomeCargoColaborador && !cargoColaborador.trim()) { toast.error("Informe o cargo do colaborador"); return; }
     if (showNomeCargoColaborador && !dataInicio) { toast.error("Informe a data de início"); return; }
     if (showAprovadoGestor && !aprovadoGestor) { toast.error("Informe se foi aprovado pelo gestor"); return; }
+    if (showAssinaturaEmail && !telefoneComercial.trim()) { toast.error("Informe o telefone comercial"); return; }
+    if (showAssinaturaEmail && !cargoAssinatura.trim()) { toast.error("Informe o cargo"); return; }
 
     setEnviando(true);
     try {
@@ -173,9 +181,11 @@ export default function ChamadoTINovo() {
         siteSuspeito,
         aprovadoGestor,
         novoColaborador: nomeColaborador ? `${nomeColaborador} | ${cargoColaborador} | Início: ${dataInicio ? format(dataInicio, "dd/MM/yyyy") : ""}` : "",
+        observacoes: showAssinaturaEmail
+          ? `Telefone Comercial: ${telefoneComercial} | Cargo: ${cargoAssinatura}${observacoes ? ` | Obs: ${observacoes}` : ""}`
+          : observacoes,
         anydesk,
         urgencia,
-        observacoes,
         anexos: storedFileNames,
         sharepointPasta: dateFolder || "",
         ...(isTeams ? { status: "aguardando_diretoria", diretorAprovacao: "soraya" } : {}),
@@ -377,7 +387,45 @@ export default function ChamadoTINovo() {
                 </div>
               )}
 
-              {/* Urgência */}
+              {/* Assinatura de email fields */}
+              {showAssinaturaEmail && (
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium">Telefone comercial <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={telefoneComercial}
+                        onChange={e => {
+                          const v = e.target.value.replace(/\D/g, "").slice(0, 11);
+                          const masked = v.length > 6
+                            ? `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`
+                            : v.length > 2
+                            ? `(${v.slice(0,2)}) ${v.slice(2)}`
+                            : v.length > 0
+                            ? `(${v}`
+                            : "";
+                          setTelefoneComercial(masked);
+                        }}
+                        placeholder="(00) 00000-0000"
+                        className="mt-1.5"
+                        maxLength={15}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Cargo <span className="text-destructive">*</span></Label>
+                      <Input
+                        value={cargoAssinatura}
+                        onChange={e => setCargoAssinatura(e.target.value)}
+                        placeholder="Cargo do colaborador"
+                        className="mt-1.5"
+                        maxLength={200}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
               <div>
                 <Label className="text-sm font-medium">Urgência <span className="text-destructive">*</span></Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
