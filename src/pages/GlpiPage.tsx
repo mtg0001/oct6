@@ -162,7 +162,7 @@ const GlpiPage = () => {
     itemtype: activeType,
   });
 
-  const types = activeCategory === "ativos" ? ATIVOS_TYPES : ADMIN_TYPES;
+  const types = activeCategory === "ativos" ? ATIVOS_TYPES : activeCategory === "gerencia" ? GERENCIA_TYPES : ADMIN_TYPES;
   const columns = TYPE_COLUMNS[activeType] || ["name"];
   const ActiveIcon = types.find((t) => t.key === activeType)?.icon || Monitor;
 
