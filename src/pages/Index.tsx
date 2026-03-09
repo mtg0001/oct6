@@ -5,7 +5,7 @@ import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
-import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor } from "lucide-react";
+import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -30,7 +30,6 @@ const Index = () => {
   const totaisMairipora = useTotaisPorUnidade("mairipora");
   const totaisPinheiros = useTotaisPorUnidade("pinheiros");
 
-  // Chamados TI data (admin only)
   const [chamadosTI, setChamadosTI] = useState<any[]>([]);
   useEffect(() => {
     if (!currentUser?.administrador) return;
@@ -66,79 +65,94 @@ const Index = () => {
   return (
     <AppLayout>
       {/* Welcome header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-lg sm:text-xl font-bold text-foreground">
-            Olá, {currentUser?.nome?.split(" ")[0] || "Usuário"} 👋
-          </h1>
-          <p className="text-xs text-muted-foreground">Aqui está o resumo das suas solicitações</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
+              Olá, {currentUser?.nome?.split(" ")[0] || "Usuário"}
+            </h1>
+            <span className="text-2xl">👋</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">Aqui está o resumo do seu painel de controle</p>
         </div>
         <LiveClock />
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {/* Quick Access */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow group overflow-hidden">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-              <FilePlus className="h-3.5 w-3.5 text-primary" />
+        <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0 group-hover:from-primary/30 transition-colors">
+                <FilePlus className="h-4 w-4 text-primary" />
+              </div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Acesso Rápido</p>
             </div>
-            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Acesso Rápido</p>
-          </div>
-          <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">Nova Solicitação</p>
-          <div className="flex flex-wrap gap-1 mt-1.5">
-            {showGO && (
-              <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Goiânia</Link>
-            )}
-            {showMairipora && (
-              <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Mairiporã</Link>
-            )}
-            {showPinheiros && (
-              <Link to="/nova-solicitacao/pinheiros" className="text-[10px] px-2 py-0.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-semibold shadow-sm whitespace-nowrap">Pinheiros</Link>
-            )}
+            <p className="text-sm font-bold text-foreground leading-tight mb-2">Nova Solicitação</p>
+            <div className="flex flex-wrap gap-1.5">
+              {showGO && (
+                <Link to="/nova-solicitacao/goiania" className="text-[10px] px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-semibold shadow-sm hover:shadow-md whitespace-nowrap">Goiânia</Link>
+              )}
+              {showMairipora && (
+                <Link to="/nova-solicitacao/mairipora" className="text-[10px] px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-semibold shadow-sm hover:shadow-md whitespace-nowrap">Mairiporã</Link>
+              )}
+              {showPinheiros && (
+                <Link to="/nova-solicitacao/pinheiros" className="text-[10px] px-2.5 py-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-semibold shadow-sm hover:shadow-md whitespace-nowrap">Pinheiros</Link>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Entradas Hoje */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="h-7 w-7 rounded-lg bg-success/10 flex items-center justify-center shrink-0">
-              <ArrowDownToLine className="h-3.5 w-3.5 text-success" />
+        <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-success/5 rounded-full translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-success/20 to-success/5 flex items-center justify-center shrink-0">
+                <ArrowDownToLine className="h-4 w-4 text-success" />
+              </div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chamados Hoje</p>
             </div>
-            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Chamados Hoje</p>
+            <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{entradasHoje}</p>
+            <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">aberturas registradas</p>
           </div>
-          <p className="text-2xl font-extrabold text-foreground leading-none">{entradasHoje}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">aberturas registradas</p>
         </div>
 
         {/* Saídas Hoje */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-              <ArrowUpFromLine className="h-3.5 w-3.5 text-destructive" />
+        <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <div className="absolute top-0 left-0 w-16 h-16 bg-destructive/5 rounded-full -translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
+                <ArrowUpFromLine className="h-4 w-4 text-destructive" />
+              </div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Resolv. / Canc.</p>
             </div>
-            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Resolv. / Canc.</p>
+            <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{saidasHoje}</p>
+            <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">finalizados hoje</p>
           </div>
-          <p className="text-2xl font-extrabold text-foreground leading-none">{saidasHoje}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">finalizados hoje</p>
         </div>
 
         {/* Total */}
-        <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="h-7 w-7 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="h-3.5 w-3.5 text-accent" />
+        <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-border hover:shadow-lg transition-all duration-300 group overflow-hidden">
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-accent/5 rounded-full translate-y-6 translate-x-6 group-hover:scale-150 transition-transform duration-500" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2.5">
+              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-4 w-4 text-accent" />
+              </div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Geral</p>
             </div>
-            <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Total Geral</p>
+            <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{total}</p>
+            <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">solicitações no sistema</p>
           </div>
-          <p className="text-2xl font-extrabold text-foreground leading-none">{total}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">solicitações no sistema</p>
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         <DonutChart
           title="Geral"
           pendente={totaisGeral.pendente}
@@ -173,60 +187,66 @@ const Index = () => {
 
       {/* TI KPI Cards - Admin only */}
       {isAdmin && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
-          {/* TI Chamados Hoje */}
-          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                <Monitor className="h-3.5 w-3.5 text-destructive" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-destructive/5 rounded-full -translate-y-8 translate-x-8 group-hover:scale-150 transition-transform duration-500" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2.5">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
+                  <Monitor className="h-4 w-4 text-destructive" />
+                </div>
+                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">TI Hoje</p>
               </div>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Chamados TI Hoje</p>
+              <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{tiHoje.length}</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">aberturas registradas</p>
             </div>
-            <p className="text-2xl font-extrabold text-foreground leading-none">{tiHoje.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">aberturas registradas</p>
           </div>
 
-          {/* TI Resolv./Canc. */}
-          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                <ArrowUpFromLine className="h-3.5 w-3.5 text-destructive" />
+          <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-destructive/5 rounded-full translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2.5">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
+                  <ArrowUpFromLine className="h-4 w-4 text-destructive" />
+                </div>
+                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">TI Resolv./Canc.</p>
               </div>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">TI Resolv. / Canc.</p>
+              <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{tiSaidasHoje}</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">finalizados hoje</p>
             </div>
-            <p className="text-2xl font-extrabold text-foreground leading-none">{tiSaidasHoje}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">finalizados hoje</p>
           </div>
 
-          {/* TI Total Geral */}
-          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-2">
-              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                <TrendingUp className="h-3.5 w-3.5 text-destructive" />
+          <div className="relative bg-card rounded-2xl p-4 shadow-sm border border-destructive/20 hover:shadow-lg transition-all duration-300 group overflow-hidden">
+            <div className="absolute top-0 left-0 w-16 h-16 bg-destructive/5 rounded-full -translate-y-6 -translate-x-6 group-hover:scale-150 transition-transform duration-500" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-2.5">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/5 flex items-center justify-center shrink-0">
+                  <TrendingUp className="h-4 w-4 text-destructive" />
+                </div>
+                <p className="text-[10px] font-bold text-destructive/70 uppercase tracking-widest">TI Total</p>
               </div>
-              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">TI Total Geral</p>
+              <p className="text-3xl font-extrabold text-foreground leading-none tracking-tight">{tiTotais.pendente + tiTotais.resolvido + tiTotais.cancelado}</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 font-medium">chamados no sistema</p>
             </div>
-            <p className="text-2xl font-extrabold text-foreground leading-none">{tiTotais.pendente + tiTotais.resolvido + tiTotais.cancelado}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">chamados no sistema</p>
           </div>
 
-          {/* TI Donut Chart */}
           <DonutChart
             title="Chamados TI"
             pendente={tiTotais.pendente}
             resolvido={tiTotais.resolvido}
             cancelado={tiTotais.cancelado}
+            variant="ti"
           />
         </div>
       )}
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-        <div className="grid grid-cols-1 grid-rows-2 gap-2.5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 grid-rows-2 gap-3">
           <ActivityChart solicitacoes={todas} />
           <RecentChamadosTI />
         </div>
-        <div className="grid grid-cols-1 grid-rows-2 gap-2.5">
+        <div className="grid grid-cols-1 grid-rows-2 gap-3">
           <ServiceBreakdown solicitacoes={todas} />
           <RecentActivity solicitacoes={todas} />
         </div>
