@@ -313,7 +313,36 @@ const GlpiPage = () => {
           </Button>
         </div>
 
-        {/* Category tabs */}
+        {/* Dashboard summary cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+          {DASHBOARD_CARDS.map((card) => {
+            const Icon = card.icon;
+            const count = assetCounts[card.key];
+            return (
+              <button
+                key={card.key}
+                onClick={() => {
+                  const cat = ["Computer", "Monitor", "Printer", "NetworkEquipment", "Peripheral", "Phone"].includes(card.key) ? "ativos" : "gerencia";
+                  setSearchParams({ cat, type: card.key });
+                  setSearchText("");
+                }}
+                className={cn(
+                  "relative rounded-2xl p-4 text-left transition-all hover:scale-[1.02] hover:shadow-md",
+                  card.bg,
+                  activeType === card.key && "ring-2 ring-primary shadow-md"
+                )}
+              >
+                <Icon className={cn("absolute top-3 right-3 h-5 w-5 opacity-60", card.iconColor)} />
+                <p className={cn("text-3xl font-bold", card.text)}>
+                  {count === null ? <Skeleton className="h-9 w-12 inline-block" /> : count}
+                </p>
+                <p className={cn("text-xs font-medium mt-1", card.text)}>{card.label}</p>
+              </button>
+            );
+          })}
+        </div>
+
+
         <div className="flex gap-2">
           <Button
             variant={activeCategory === "ativos" ? "default" : "outline"}
