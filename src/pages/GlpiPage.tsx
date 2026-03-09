@@ -149,7 +149,7 @@ const COLUMN_LABELS: Record<string, string> = {
 const GlpiPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "ativos";
-  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : "User");
+  const activeType = searchParams.get("type") || (activeCategory === "ativos" ? "Computer" : activeCategory === "gerencia" ? "SoftwareLicense" : "User");
 
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState<GlpiItem | null>(null);
