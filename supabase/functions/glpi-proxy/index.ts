@@ -59,8 +59,19 @@ async function initSession(): Promise<string> {
 }
 
 async function glpiFetch(path: string, method = "GET", body?: unknown): Promise<Response> {
-  const apiUrl = Deno.env.get("GLPI_API_URL")!;
   const appToken = Deno.env.get("GLPI_APP_TOKEN")!;
+  // Use same normalized URL logic
+  let apiUrl = Deno.env.get("GLPI_API_URL") || "";
+  apiUrl = apiUrl.replace(/\/+$/, "");
+  if (!apiUrl.endsWith("/apirest.php")) {
+    if (!apiUrl.includes("/glpi")) {
+      apiUrl = apiUrl + "/glpi/apirest.php";
+    } else {
+      apiUrl = apiUrl + "/apirest.php";
+    }
+  } else if (!apiUrl.includes("/glpi/")) {
+    apiUrl = apiUrl.replace("/apirest.php", "/glpi/apirest.php");
+  }
 
   if (!sessionToken) {
     await initSession();
