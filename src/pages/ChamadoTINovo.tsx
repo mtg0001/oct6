@@ -181,6 +181,9 @@ export default function ChamadoTINovo() {
         siteSuspeito,
         aprovadoGestor,
         novoColaborador: nomeColaborador ? `${nomeColaborador} | ${cargoColaborador} | Início: ${dataInicio ? format(dataInicio, "dd/MM/yyyy") : ""}` : "",
+        observacoes: showAssinaturaEmail
+          ? `Telefone Comercial: ${telefoneComercial} | Cargo: ${cargoAssinatura}${observacoes ? ` | Obs: ${observacoes}` : ""}`
+          : observacoes,
         anydesk,
         urgencia,
         observacoes,
