@@ -42,6 +42,19 @@ import {
   FolderCog,
   RefreshCw,
   Server,
+  FileText,
+  DollarSign,
+  Truck,
+  Contact,
+  ScrollText,
+  FileCheck,
+  Cable,
+  Award,
+  Warehouse,
+  Boxes,
+  Globe,
+  Container,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
