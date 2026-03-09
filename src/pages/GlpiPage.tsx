@@ -265,7 +265,7 @@ const GlpiPage = () => {
     tableScrollRef.current.scrollLeft = nextLeft;
   }, []);
 
-
+  const handleSearch = () => {
     fetchItems(0, searchText || undefined);
   };
 
