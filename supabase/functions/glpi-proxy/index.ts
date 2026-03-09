@@ -9,11 +9,22 @@ const corsHeaders = {
 let sessionToken: string | null = null;
 
 async function initSession(): Promise<string> {
-  const apiUrl = Deno.env.get("GLPI_API_URL")!;
-  const appToken = Deno.env.get("GLPI_APP_TOKEN")!;
-  const userToken = Deno.env.get("GLPI_USER_TOKEN")!;
+  const apiUrl = Deno.env.get("GLPI_API_URL");
+  const appToken = Deno.env.get("GLPI_APP_TOKEN");
+  const userToken = Deno.env.get("GLPI_USER_TOKEN");
 
-  const res = await fetch(`${apiUrl}/initSession`, {
+  console.log("GLPI Config - URL:", apiUrl);
+  console.log("GLPI Config - App Token (first 8 chars):", appToken?.substring(0, 8) + "...");
+  console.log("GLPI Config - User Token (first 8 chars):", userToken?.substring(0, 8) + "...");
+
+  if (!apiUrl || !appToken || !userToken) {
+    throw new Error(`Missing GLPI config: URL=${!!apiUrl}, APP_TOKEN=${!!appToken}, USER_TOKEN=${!!userToken}`);
+  }
+
+  const initUrl = `${apiUrl}/initSession`;
+  console.log("GLPI initSession URL:", initUrl);
+
+  const res = await fetch(initUrl, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
