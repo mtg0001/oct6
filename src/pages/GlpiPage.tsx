@@ -530,7 +530,6 @@ const GlpiPage = () => {
                             ) : (
                               <Badge className="text-[10px] bg-red-600 hover:bg-red-600 text-white animate-pulse">Não</Badge>
                             )
-                            </Badge>
                           ) : (
                             renderCellValue(item[col])
                           )}
