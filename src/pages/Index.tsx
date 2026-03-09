@@ -5,8 +5,14 @@ import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentChamadosTI } from "@/components/dashboard/RecentChamadosTI";
-import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp } from "lucide-react";
+import { FilePlus, ArrowDownToLine, ArrowUpFromLine, TrendingUp, Monitor } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import {
+  getChamadosTI,
+  ensureChamadosTILoaded,
+  subscribeChamadosTI,
+} from "@/stores/chamadosTIStore";
 import {
   useSolicitacoesHoje,
   useSolicitacoes,
@@ -23,6 +29,31 @@ const Index = () => {
   const totaisGO = useTotaisPorUnidade("goiania");
   const totaisMairipora = useTotaisPorUnidade("mairipora");
   const totaisPinheiros = useTotaisPorUnidade("pinheiros");
+
+  // Chamados TI data (admin only)
+  const [chamadosTI, setChamadosTI] = useState<any[]>([]);
+  useEffect(() => {
+    if (!currentUser?.administrador) return;
+    ensureChamadosTILoaded().then(() => setChamadosTI(getChamadosTI()));
+    return subscribeChamadosTI(() => setChamadosTI(getChamadosTI()));
+  }, [currentUser?.administrador]);
+
+  const isAdmin = currentUser?.administrador;
+
+  const tiHoje = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    return chamadosTI.filter(c => c.criadoEm?.slice(0, 10) === todayStr);
+  }, [chamadosTI]);
+
+  const tiSaidasHoje = useMemo(() => {
+    return tiHoje.filter(c => c.status === "resolvido" || c.status === "cancelado").length;
+  }, [tiHoje]);
+
+  const tiTotais = useMemo(() => ({
+    pendente: chamadosTI.filter(c => c.status === "pendente" || c.status === "aguardando_diretoria").length,
+    resolvido: chamadosTI.filter(c => c.status === "resolvido").length,
+    cancelado: chamadosTI.filter(c => c.status === "cancelado").length,
+  }), [chamadosTI]);
 
   const entradasHoje = hoje.length;
   const saidasHoje = hoje.filter((s) => s.status === "resolvido" || s.status === "cancelado").length;
@@ -105,6 +136,55 @@ const Index = () => {
           <p className="text-[10px] text-muted-foreground mt-1">solicitações no sistema</p>
         </div>
       </div>
+
+      {/* TI KPI Cards - Admin only */}
+      {isAdmin && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
+          {/* TI Chamados Hoje */}
+          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                <Monitor className="h-3.5 w-3.5 text-destructive" />
+              </div>
+              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">Chamados TI Hoje</p>
+            </div>
+            <p className="text-2xl font-extrabold text-foreground leading-none">{tiHoje.length}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">aberturas registradas</p>
+          </div>
+
+          {/* TI Resolv./Canc. */}
+          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                <ArrowUpFromLine className="h-3.5 w-3.5 text-destructive" />
+              </div>
+              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">TI Resolv. / Canc.</p>
+            </div>
+            <p className="text-2xl font-extrabold text-foreground leading-none">{tiSaidasHoje}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">finalizados hoje</p>
+          </div>
+
+          {/* TI Total Geral */}
+          <div className="bg-card rounded-xl p-3 shadow-sm border border-border hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="h-7 w-7 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                <TrendingUp className="h-3.5 w-3.5 text-destructive" />
+              </div>
+              <p className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wider leading-tight">TI Total Geral</p>
+            </div>
+            <p className="text-2xl font-extrabold text-foreground leading-none">{tiTotais.pendente + tiTotais.resolvido + tiTotais.cancelado}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">chamados no sistema</p>
+          </div>
+
+          {/* TI Donut Chart */}
+          <DonutChart
+            title="Chamados TI"
+            pendente={tiTotais.pendente}
+            resolvido={tiTotais.resolvido}
+            cancelado={tiTotais.cancelado}
+          />
+        </div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 mb-4">
