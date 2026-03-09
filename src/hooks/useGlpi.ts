@@ -46,7 +46,8 @@ export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
         const start = pageNum * pageSize;
         const end = start + pageSize - 1;
 
-        if (SEARCH_BASED_TYPES.has(itemtype)) {
+        const searchConfig = SEARCH_CONFIG[itemtype];
+        if (searchConfig) {
           // Use search API for richer columns
           const criteria = searchText
             ? [{ field: "1", searchtype: "contains", value: searchText }]
@@ -58,7 +59,7 @@ export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
               itemtype,
               params: {
                 range: `${start}-${end}`,
-                forcedisplay: COMPUTER_SEARCH_OPTIONS,
+                forcedisplay: searchConfig.options,
                 ...(criteria ? { criteria } : {}),
               },
             },
@@ -73,7 +74,7 @@ export function useGlpi({ itemtype, pageSize = 50 }: UseGlpiOptions) {
           }
 
           if (data?.data && Array.isArray(data.data)) {
-            const fieldMap = COMPUTER_FIELD_MAP;
+            const fieldMap = searchConfig.fieldMap;
             const mapped: GlpiItem[] = data.data.map((row: any) => {
               const item: any = {};
               for (const [optId, fieldName] of Object.entries(fieldMap)) {
