@@ -9,11 +9,25 @@ const corsHeaders = {
 let sessionToken: string | null = null;
 
 async function initSession(): Promise<string> {
-  const apiUrl = Deno.env.get("GLPI_API_URL");
+  let apiUrl = Deno.env.get("GLPI_API_URL") || "";
   const appToken = Deno.env.get("GLPI_APP_TOKEN");
   const userToken = Deno.env.get("GLPI_USER_TOKEN");
 
-  console.log("GLPI Config - URL:", apiUrl);
+  // Normalize URL: ensure it ends with /apirest.php and has /glpi/ path
+  apiUrl = apiUrl.replace(/\/+$/, ""); // remove trailing slashes
+  if (!apiUrl.endsWith("/apirest.php")) {
+    // If user provided base URL like https://glpi.octarte.com.br or https://glpi.octarte.com.br/glpi
+    if (!apiUrl.includes("/glpi")) {
+      apiUrl = apiUrl + "/glpi/apirest.php";
+    } else {
+      apiUrl = apiUrl + "/apirest.php";
+    }
+  } else if (!apiUrl.includes("/glpi/")) {
+    // Has /apirest.php but missing /glpi/ path
+    apiUrl = apiUrl.replace("/apirest.php", "/glpi/apirest.php");
+  }
+
+  console.log("GLPI Config - Normalized URL:", apiUrl);
   console.log("GLPI Config - App Token (first 8 chars):", appToken?.substring(0, 8) + "...");
   console.log("GLPI Config - User Token (first 8 chars):", userToken?.substring(0, 8) + "...");
 
