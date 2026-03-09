@@ -147,6 +147,17 @@ const COLUMN_LABELS: Record<string, string> = {
   description: "Descrição",
 };
 
+// Dashboard card definitions
+const DASHBOARD_CARDS = [
+  { key: "Computer", label: "Computadores", icon: Monitor, bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-300", iconColor: "text-red-400 dark:text-red-500" },
+  { key: "NetworkEquipment", label: "Dispositivo de rede", icon: Network, bg: "bg-slate-100 dark:bg-slate-800/50", text: "text-slate-700 dark:text-slate-300", iconColor: "text-slate-400 dark:text-slate-500" },
+  { key: "Printer", label: "Impressoras", icon: Printer, bg: "bg-sky-100 dark:bg-sky-900/30", text: "text-sky-700 dark:text-sky-300", iconColor: "text-sky-400 dark:text-sky-500" },
+  { key: "Peripheral", label: "Dispositivos passivos", icon: HardDrive, bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-300", iconColor: "text-purple-400 dark:text-purple-500" },
+  { key: "Monitor", label: "Monitores", icon: Monitor, bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-300", iconColor: "text-green-400 dark:text-green-500" },
+  { key: "SoftwareLicense", label: "Licença", icon: FileCheck, bg: "bg-lime-100 dark:bg-lime-900/30", text: "text-lime-700 dark:text-lime-300", iconColor: "text-lime-400 dark:text-lime-500" },
+  { key: "Phone", label: "Celulares & Tablets", icon: Smartphone, bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-300", iconColor: "text-teal-400 dark:text-teal-500" },
+];
+
 const GlpiPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("cat") || "ativos";
@@ -158,6 +169,7 @@ const GlpiPage = () => {
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<Record<string, any>>({});
   const [createMode, setCreateMode] = useState(false);
+  const [assetCounts, setAssetCounts] = useState<Record<string, number | null>>({});
 
   const { items, loading, page, fetchItems, getItem, createItem, updateItem, deleteItem } = useGlpi({
     itemtype: activeType,
@@ -166,6 +178,31 @@ const GlpiPage = () => {
   const types = activeCategory === "ativos" ? ATIVOS_TYPES : activeCategory === "gerencia" ? GERENCIA_TYPES : ADMIN_TYPES;
   const columns = TYPE_COLUMNS[activeType] || ["name"];
   const ActiveIcon = types.find((t) => t.key === activeType)?.icon || Monitor;
+
+  // Fetch asset counts for dashboard
+  const fetchAssetCounts = useCallback(async () => {
+    const counts: Record<string, number | null> = {};
+    const promises = DASHBOARD_CARDS.map(async (card) => {
+      try {
+        const { data } = await supabase.functions.invoke("glpi-proxy", {
+          body: {
+            action: "search",
+            itemtype: card.key,
+            params: { range: "0-0", forcedisplay: [2] },
+          },
+        });
+        counts[card.key] = data?.totalcount ?? null;
+      } catch {
+        counts[card.key] = null;
+      }
+    });
+    await Promise.all(promises);
+    setAssetCounts(counts);
+  }, []);
+
+  useEffect(() => {
+    fetchAssetCounts();
+  }, [fetchAssetCounts]);
 
   useEffect(() => {
     fetchItems(0);
