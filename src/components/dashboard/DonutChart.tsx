@@ -35,8 +35,13 @@ export function DonutChart({ title, pendente, resolvido, cancelado, variant = "d
 
   const isTI = variant === "ti";
 
+  const hoverColor = isTI ? "group-hover:text-destructive" : "group-hover:text-primary";
+
   return (
-    <div className={`bg-card rounded-2xl p-4 shadow-sm border hover:shadow-lg transition-all duration-300 ${isTI ? "border-destructive/20" : "border-border"}`}>
+    <div className={`relative bg-card rounded-2xl p-4 shadow-sm border hover:shadow-lg transition-all duration-300 group ${isTI ? "border-destructive/20" : "border-border"}`}>
+      <span className={`absolute top-3 right-3 text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground/40 ${hoverColor} transition-colors duration-300`}>
+        {isTI ? "TI" : "Serviços"}
+      </span>
       <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${isTI ? "text-destructive/70" : "text-muted-foreground"}`}>{title}</p>
       <div className="flex items-center gap-3">
         <div className="w-[80px] h-[80px] relative shrink-0">
