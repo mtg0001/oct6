@@ -142,6 +142,8 @@ export default function ChamadoTINovo() {
     if (showNomeCargoColaborador && !cargoColaborador.trim()) { toast.error("Informe o cargo do colaborador"); return; }
     if (showNomeCargoColaborador && !dataInicio) { toast.error("Informe a data de início"); return; }
     if (showAprovadoGestor && !aprovadoGestor) { toast.error("Informe se foi aprovado pelo gestor"); return; }
+    if (showAssinaturaEmail && !telefoneComercial.trim()) { toast.error("Informe o telefone comercial"); return; }
+    if (showAssinaturaEmail && !cargoAssinatura.trim()) { toast.error("Informe o cargo"); return; }
 
     setEnviando(true);
     try {
