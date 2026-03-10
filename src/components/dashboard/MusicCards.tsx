@@ -136,11 +136,12 @@ export function MusicCards() {
           key={activePlaylist.id}
           src={
             activePlaylist.id === "pop"
-              ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1&enablejsapi=1`
-              : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1&enablejsapi=1`
+              ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1&enablejsapi=1&playsinline=1`
+              : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1&enablejsapi=1&playsinline=1`
           }
-          allow="autoplay"
-          className="absolute w-0 h-0 opacity-0 pointer-events-none"
+          allow="autoplay; encrypted-media"
+          className="w-full h-[1px] opacity-[0.01] pointer-events-none overflow-hidden"
+          style={{ position: 'fixed', bottom: 0, left: 0, zIndex: -1 }}
           title="Music Player"
         />
       )}
