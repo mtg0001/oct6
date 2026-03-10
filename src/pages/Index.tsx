@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/AppLayout";
 import { LiveClock } from "@/components/dashboard/LiveClock";
+import { MusicCards } from "@/components/dashboard/MusicCards";
 import { DonutChart } from "@/components/dashboard/DonutChart";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
@@ -78,6 +79,11 @@ const Index = () => {
           <p className="text-xs text-muted-foreground mt-0.5">Aqui está o resumo do seu painel de controle</p>
         </div>
         <LiveClock />
+      </div>
+
+      {/* Music Player */}
+      <div className="relative mb-5">
+        <MusicCards />
       </div>
 
       {/* KPI Cards */}
