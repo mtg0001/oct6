@@ -13,7 +13,7 @@ const GENRES: Genre[] = [
   { id: "rock", label: "Rock", emoji: "🎸", color: "from-destructive/20 to-destructive/5", youtubePlaylistId: "PLGBuKfnErZlCkROfsvkNGiPtmWpSBcaBA" },
   { id: "sertanejo", label: "Sertanejo", emoji: "🤠", color: "from-accent/20 to-accent/5", youtubePlaylistId: "PLRjSXXs6VDyKr-gXv5rJiHk8_02tCE6wE" },
   { id: "hiphop", label: "Hip Hop", emoji: "🎤", color: "from-primary/20 to-primary/5", youtubePlaylistId: "PLFPg_IUIskhdr1dkJCH_l6I1SNT7wYzEr" },
-  { id: "eletronica", label: "Eletrônica", emoji: "🎧", color: "from-success/20 to-success/5", youtubePlaylistId: "PLFPg_IUIskhcKdOEsMFGVr3sS1nXh37rB" },
+  { id: "eletronica", label: "Eletrônica", emoji: "🎧", color: "from-success/20 to-success/5", youtubePlaylistId: "UYOb37KRFqk" },
   { id: "pop", label: "Pop", emoji: "🎵", color: "from-warning/20 to-warning/5", youtubePlaylistId: "PLDIoUOhQQPlXr63I_vwF9GD8sAKh77dWU" },
 ];
 
@@ -84,7 +84,11 @@ export function MusicCards() {
         <iframe
           ref={iframeRef}
           key={activePlaylist.id}
-          src={`https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1`}
+          src={
+            activePlaylist.id === "eletronica"
+              ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1`
+              : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1`
+          }
           allow="autoplay"
           className="absolute w-0 h-0 opacity-0 pointer-events-none"
           title="Music Player"
