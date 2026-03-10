@@ -81,6 +81,11 @@ const Index = () => {
         <LiveClock />
       </div>
 
+      {/* Music Player */}
+      <div className="relative mb-5">
+        <MusicCards />
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {/* Quick Access */}
