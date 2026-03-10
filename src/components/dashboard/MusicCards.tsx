@@ -10,7 +10,7 @@ interface Genre {
 }
 
 const GENRES: Genre[] = [
-  { id: "rock", label: "Rock", emoji: "🎸", color: "from-destructive/20 to-destructive/5", youtubePlaylistId: "PLGBuKfnErZlCkROfsvkNGiPtmWpSBcaBA" },
+  { id: "rock", label: "Rock", emoji: "🎸", color: "from-destructive/20 to-destructive/5", youtubePlaylistId: "PL_bKAgO9uCN37CcZfL6sOgSfOvSyLcncP" },
   { id: "sertanejo", label: "Sertanejo", emoji: "🤠", color: "from-accent/20 to-accent/5", youtubePlaylistId: "PL_Q15fKxrBb6NqOc7utqCdIsfI9zqgzQ_" },
   { id: "hiphop", label: "Hip Hop", emoji: "🎤", color: "from-primary/20 to-primary/5", youtubePlaylistId: "PLFPg_IUIskhdr1dkJCH_l6I1SNT7wYzEr" },
   { id: "eletronica", label: "Eletrônica", emoji: "🎧", color: "from-success/20 to-success/5", youtubePlaylistId: "UYOb37KRFqk" },
