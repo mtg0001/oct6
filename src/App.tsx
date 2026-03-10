@@ -43,6 +43,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <MusicPlayerProvider>
           <CursorFollower />
           <Routes>
             {/* Public routes */}
