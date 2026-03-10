@@ -78,20 +78,34 @@ export function MusicCards() {
                 )}
               </div>
 
-              {/* Audio bars */}
+              {/* Skip & Audio bars */}
               {isPlaying && (
-                <div className="flex items-end gap-[3px] ml-0.5 relative z-10">
-                  {[1, 2, 3, 4].map(i => (
-                    <div
-                      key={i}
-                      className="w-[3px] bg-white/80 rounded-full"
-                      style={{
-                        animation: `musicBar ${0.4 + i * 0.15}s ease-in-out infinite alternate`,
-                        height: `${6 + i * 3}px`,
-                        animationDelay: `${i * 100}ms`,
-                      }}
-                    />
-                  ))}
+                <div className="flex items-center gap-1 ml-0.5 relative z-10">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); postCommand("previousVideo"); }}
+                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors"
+                  >
+                    <SkipBack className="h-3 w-3 text-white" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); postCommand("nextVideo"); }}
+                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors"
+                  >
+                    <SkipForward className="h-3 w-3 text-white" />
+                  </button>
+                  <div className="flex items-end gap-[3px] ml-1">
+                    {[1, 2, 3, 4].map(i => (
+                      <div
+                        key={i}
+                        className="w-[3px] bg-white/80 rounded-full"
+                        style={{
+                          animation: `musicBar ${0.4 + i * 0.15}s ease-in-out infinite alternate`,
+                          height: `${6 + i * 3}px`,
+                          animationDelay: `${i * 100}ms`,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </button>
