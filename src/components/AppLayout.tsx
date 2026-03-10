@@ -3,7 +3,7 @@ import NotificationPrompt from "./NotificationPrompt";
 import { useRealtimeNotifications } from "@/hooks/useNotifications";
 import { useGlobalPresence } from "@/hooks/usePresence";
 import { useGlobalNudge } from "@/hooks/useGlobalNudge";
-import { MusicPlayerProvider } from "@/contexts/MusicPlayerContext";
+
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   useRealtimeNotifications();
