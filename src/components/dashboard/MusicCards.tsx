@@ -27,6 +27,15 @@ export function MusicCards() {
     setActiveGenre(prev => prev === genreId ? null : genreId);
   }, []);
 
+  const postCommand = useCallback((func: string) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({ event: "command", func, args: [] }),
+        "*"
+      );
+    }
+  }, []);
+
   const activePlaylist = GENRES.find(g => g.id === activeGenre);
 
   return (
