@@ -81,18 +81,22 @@ export function MusicCards() {
               {/* Skip & Audio bars */}
               {isPlaying && (
                 <div className="flex items-center gap-1 ml-0.5 relative z-10">
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => { e.stopPropagation(); postCommand("previousVideo"); }}
-                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors"
+                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors cursor-pointer"
                   >
                     <SkipBack className="h-3 w-3 text-white" />
-                  </button>
-                  <button
+                  </div>
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => { e.stopPropagation(); postCommand("nextVideo"); }}
-                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors"
+                    className="h-6 w-6 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/35 transition-colors cursor-pointer"
                   >
                     <SkipForward className="h-3 w-3 text-white" />
-                  </button>
+                  </div>
                   <div className="flex items-end gap-[3px] ml-1">
                     {[1, 2, 3, 4].map(i => (
                       <div
