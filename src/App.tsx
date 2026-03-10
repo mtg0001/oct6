@@ -88,6 +88,7 @@ const App = () => (
             <Route path="/ti/glpi" element={<ProtectedRoute><GlpiPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </MusicPlayerProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
