@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/AppLayout";
 import { LiveClock } from "@/components/dashboard/LiveClock";
+import { MusicCards } from "@/components/dashboard/MusicCards";
 import { DonutChart } from "@/components/dashboard/DonutChart";
 import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { ServiceBreakdown } from "@/components/dashboard/ServiceBreakdown";
