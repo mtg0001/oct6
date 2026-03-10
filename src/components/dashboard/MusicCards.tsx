@@ -132,8 +132,8 @@ export function MusicCards() {
           key={activePlaylist.id}
           src={
             activePlaylist.id === "pop"
-              ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1`
-              : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1`
+              ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1&enablejsapi=1`
+              : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1&enablejsapi=1`
           }
           allow="autoplay"
           className="absolute w-0 h-0 opacity-0 pointer-events-none"
