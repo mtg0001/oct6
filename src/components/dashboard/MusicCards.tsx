@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 
 interface Genre {
   id: string;
