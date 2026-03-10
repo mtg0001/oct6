@@ -85,7 +85,7 @@ export function MusicCards() {
           ref={iframeRef}
           key={activePlaylist.id}
           src={
-            activePlaylist.id === "eletronica" || activePlaylist.id === "pop"
+            activePlaylist.id === "pop"
               ? `https://www.youtube.com/embed/${activePlaylist.youtubePlaylistId}?autoplay=1&loop=1`
               : `https://www.youtube.com/embed/videoseries?list=${activePlaylist.youtubePlaylistId}&autoplay=1&loop=1&shuffle=1`
           }
